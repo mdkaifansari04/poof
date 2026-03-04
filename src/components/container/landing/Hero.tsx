@@ -52,7 +52,7 @@ export function Hero() {
       
       <div ref={particlesRef} className="absolute inset-0 pointer-events-none" />
       
-      <div className="relative z-10 max-w-7xl mx-auto w-full grid md:grid-cols-2 gap-20 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto w-full flex justify-between gap-20 items-center">
         <div className="animate-[fadeUp_0.9s_ease_both]">
           <div className="inline-flex items-center gap-2 bg-poof-violet/12 border border-poof-violet/25 px-4 py-2 rounded-full text-xs tracking-[2px] uppercase text-poof-violet font-medium mb-8">
             ✦ Photo sharing, reimagined
