@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Poof — Brand Identity</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0d0d0d;
+    --white: #f5f2ee;
+    --smoke: #e8e3db;
+    --mist: #c9c1b6;
+    --poof-violet: #c8b8ff;
+    --poof-peach: #ffcba4;
+    --poof-mint: #b6f0d8;
+    --accent: #7c5cfc;
+  }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 60px 40px;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 50% at 30% 40%, rgba(200,184,255,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 60% at 75% 60%, rgba(255,203,164,0.14) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 55% 20%, rgba(182,240,216,0.10) 0%, transparent 70%);
+    animation: breathe 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes breathe {
+    from { opacity: 0.6; transform: scale(1); }
+    to   { opacity: 1;   transform: scale(1.05); }
+  }
+
+  /* Floating dust particles */
+  .particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    animation: floatUp var(--dur) ease-in var(--delay) infinite;
+  }
+  @keyframes floatUp {
+    0%   { opacity: 0; transform: translateY(0) scale(1); }
+    20%  { opacity: 0.6; }
+    80%  { opacity: 0.2; }
+    100% { opacity: 0; transform: translateY(-120px) scale(0.3); }
+  }
+
+  .logo-wrap {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    animation: fadeUp 1s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .logo-icon {
+    width: 110px;
+    height: 110px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-icon svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 30px rgba(200,184,255,0.5));
+    animation: poof-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes poof-pulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 30px rgba(200,184,255,0.5)); }
+    50%       { transform: scale(1.04); filter: drop-shadow(0 0 50px rgba(200,184,255,0.8)); }
+  }
+
+  .logo-wordmark {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 72px;
+    letter-spacing: -3px;
+    background: linear-gradient(135deg, var(--white) 30%, var(--poof-violet) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  .logo-tagline {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--mist);
+    animation: fadeUp 1s 0.3s ease both;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    padding: 80px 60px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ── COLOR PALETTE ── */
+  .palette {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+  }
+
+  .swatch {
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .swatch-color {
+    height: 100px;
+  }
+
+  .swatch-info {
+    padding: 14px;
+    background: rgba(255,255,255,0.04);
+  }
+
+  .swatch-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .swatch-hex {
+    font-size: 11px;
+    color: var(--mist);
+    letter-spacing: 1px;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .type-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  .type-row {
+    padding: 32px;
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.02);
+    display: flex;
+    align-items: baseline;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .type-meta {
+    min-width: 130px;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--mist);
+    line-height: 1.8;
+  }
+
+  .type-sample-display {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 56px;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, var(--white), var(--poof-violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .type-sample-body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 300;
+    color: var(--smoke);
+    max-width: 400px;
+  }
+
+  .type-sample-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--mist);
+  }
+
+  /* ── LOGO VARIANTS ── */
+  .logo-variants {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  .logo-card {
+    border-radius: 20px;
+    padding: 48px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-height: 200px;
+    border: 1px solid rgba(255,255,255,0.07);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .logo-card.dark  { background: #0d0d0d; }
+  .logo-card.light { background: #f5f2ee; }
+  .logo-card.violet { background: linear-gradient(135deg, #2a1f5a, #1a1035); }
+  .logo-card.ghost { background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.15); }
+
+  .variant-label {
+    position: absolute;
+    top: 14px;
+    left: 16px;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+  }
+  .logo-card.light .variant-label { color: rgba(0,0,0,0.3); }
+
+  .mini-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .mini-logo span {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    letter-spacing: -1.5px;
+  }
+
+  .mini-logo.on-light span { color: #0d0d0d; }
+  .mini-logo.on-dark span {
+    background: linear-gradient(135deg, #f5f2ee, #c8b8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .mini-logo.on-violet span {
+    background: linear-gradient(135deg, #fff, #c8b8ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── TAGLINES ── */
+  .taglines {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .tagline-pill {
+    padding: 18px 28px;
+    border-radius: 100px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.03);
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: background 0.2s;
+  }
+
+  .tagline-pill:hover {
+    background: rgba(200,184,255,0.08);
+    border-color: rgba(200,184,255,0.3);
+  }
+
+  .tagline-pill .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--poof-violet);
+    flex-shrink: 0;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin: 0 60px;
+  }
+
+  /* ── FOOTER ── */
+  .brand-footer {
+    text-align: center;
+    padding: 60px;
+    color: var(--mist);
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  .brand-footer strong {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    background: linear-gradient(135deg, var(--white), var(--poof-violet));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+</style>
+</head>
+<body>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-bg"></div>
+
+  <!-- Particles -->
+  <div class="particles" id="particles"></div>
+
+  <div class="logo-wrap">
+    <!-- Icon: stylized cloud poof -->
+    <div class="logo-icon">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="poofGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"   stop-color="#e8d8ff"/>
+            <stop offset="60%"  stop-color="#c8b8ff"/>
+            <stop offset="100%" stop-color="#7c5cfc"/>
+          </radialGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Poof cloud shape -->
+        <ellipse cx="50" cy="62" rx="28" ry="16" fill="url(#poofGrad)" opacity="0.7"/>
+        <circle cx="36" cy="55" r="14" fill="url(#poofGrad)" opacity="0.85"/>
+        <circle cx="52" cy="48" r="18" fill="url(#poofGrad)"/>
+        <circle cx="67" cy="55" r="13" fill="url(#poofGrad)" opacity="0.85"/>
+        <!-- Sparkles -->
+        <circle cx="22" cy="35" r="2.5" fill="#e8d8ff" opacity="0.9" filter="url(#glow)"/>
+        <circle cx="80" cy="30" r="2"   fill="#ffcba4" opacity="0.85" filter="url(#glow)"/>
+        <circle cx="76" cy="44" r="1.5" fill="#b6f0d8" opacity="0.8" filter="url(#glow)"/>
+        <circle cx="18" cy="50" r="1.8" fill="#c8b8ff" opacity="0.7" filter="url(#glow)"/>
+        <!-- Rising dots (poof effect) -->
+        <circle cx="44" cy="28" r="3" fill="#c8b8ff" opacity="0.5"/>
+        <circle cx="55" cy="22" r="2" fill="#e8d8ff" opacity="0.35"/>
+        <circle cx="62" cy="30" r="2.5" fill="#c8b8ff" opacity="0.4"/>
+      </svg>
+    </div>
+
+    <div class="logo-wordmark">poof</div>
+    <div class="logo-tagline">Share it &nbsp;·&nbsp; Poof &nbsp;·&nbsp; Gone</div>
+  </div>
+</div>
+
+<!-- Color Palette -->
+<section>
+  <div class="section-label">01 — Color Palette</div>
+  <div class="palette">
+    <div class="swatch">
+      <div class="swatch-color" style="background:#0d0d0d;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Void</div>
+        <div class="swatch-hex">#0d0d0d · Primary BG</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#c8b8ff;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Poof Violet</div>
+        <div class="swatch-hex">#c8b8ff · Brand Primary</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#ffcba4;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Poof Peach</div>
+        <div class="swatch-hex">#ffcba4 · Accent Warm</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#b6f0d8;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Poof Mint</div>
+        <div class="swatch-hex">#b6f0d8 · Accent Cool</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#f5f2ee;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Warm White</div>
+        <div class="swatch-hex">#f5f2ee · Text / Light BG</div>
+      </div>
+    </div>
+    <div class="swatch">
+      <div class="swatch-color" style="background:#7c5cfc;"></div>
+      <div class="swatch-info">
+        <div class="swatch-name">Deep Violet</div>
+        <div class="swatch-hex">#7c5cfc · CTA / Links</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- Typography -->
+<section>
+  <div class="section-label">02 — Typography</div>
+  <div class="type-showcase">
+    <div class="type-row">
+      <div class="type-meta">Display<br/>Syne 800<br/>−2px tracking</div>
+      <div class="type-sample-display">poof.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Body<br/>DM Sans 300<br/>+0px tracking</div>
+      <div class="type-sample-body">Your photos, shared simply. Gone when you want them to be. No fuss, no trace.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta">Label<br/>DM Sans 500<br/>+4px tracking</div>
+      <div class="type-sample-label">Share · Expire · Vanish</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- Logo Variants -->
+<section>
+  <div class="section-label">03 — Logo Variants</div>
+  <div class="logo-variants">
+
+    <div class="logo-card dark">
+      <span class="variant-label">On Dark</span>
+      <div class="mini-logo on-dark">
+        <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="62" rx="28" ry="16" fill="#c8b8ff" opacity="0.7"/>
+          <circle cx="36" cy="55" r="14" fill="#c8b8ff" opacity="0.85"/>
+          <circle cx="52" cy="48" r="18" fill="#c8b8ff"/>
+          <circle cx="67" cy="55" r="13" fill="#c8b8ff" opacity="0.85"/>
+        </svg>
+        <span>poof</span>
+      </div>
+    </div>
+
+    <div class="logo-card light">
+      <span class="variant-label" style="color:rgba(0,0,0,0.35);">On Light</span>
+      <div class="mini-logo on-light">
+        <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="62" rx="28" ry="16" fill="#7c5cfc" opacity="0.7"/>
+          <circle cx="36" cy="55" r="14" fill="#7c5cfc" opacity="0.85"/>
+          <circle cx="52" cy="48" r="18" fill="#7c5cfc"/>
+          <circle cx="67" cy="55" r="13" fill="#7c5cfc" opacity="0.85"/>
+        </svg>
+        <span style="color:#0d0d0d;">poof</span>
+      </div>
+    </div>
+
+    <div class="logo-card violet">
+      <span class="variant-label">On Violet</span>
+      <div class="mini-logo on-violet">
+        <svg width="36" height="36" viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="62" rx="28" ry="16" fill="#e8d8ff" opacity="0.7"/>
+          <circle cx="36" cy="55" r="14" fill="#e8d8ff" opacity="0.85"/>
+          <circle cx="52" cy="48" r="18" fill="#e8d8ff"/>
+          <circle cx="67" cy="55" r="13" fill="#e8d8ff" opacity="0.85"/>
+        </svg>
+        <span>poof</span>
+      </div>
+    </div>
+
+    <div class="logo-card ghost">
+      <span class="variant-label">Icon Only</span>
+      <svg width="64" height="64" viewBox="0 0 100 100" fill="none">
+        <defs>
+          <radialGradient id="g2" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#e8d8ff"/>
+            <stop offset="100%" stop-color="#7c5cfc"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="50" cy="62" rx="28" ry="16" fill="url(#g2)" opacity="0.7"/>
+        <circle cx="36" cy="55" r="14" fill="url(#g2)" opacity="0.85"/>
+        <circle cx="52" cy="48" r="18" fill="url(#g2)"/>
+        <circle cx="67" cy="55" r="13" fill="url(#g2)" opacity="0.85"/>
+        <circle cx="44" cy="28" r="3" fill="#c8b8ff" opacity="0.5"/>
+        <circle cx="55" cy="22" r="2" fill="#e8d8ff" opacity="0.35"/>
+        <circle cx="62" cy="30" r="2.5" fill="#c8b8ff" opacity="0.4"/>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider"/>
+
+<!-- Taglines -->
+<section>
+  <div class="section-label">04 — Brand Voice & Taglines</div>
+  <div class="taglines">
+    <div class="tagline-pill"><span class="dot"></span>Share it. Poof. Gone.</div>
+    <div class="tagline-pill"><span class="dot"></span>Your gallery, on a timer.</div>
+    <div class="tagline-pill"><span class="dot"></span>Share without a trace.</div>
+    <div class="tagline-pill"><span class="dot"></span>Here for a moment. Gone forever.</div>
+    <div class="tagline-pill"><span class="dot"></span>Beautiful photos. Built to disappear.</div>
+  </div>
+</section>
+
+<!-- Footer -->
+<div class="brand-footer">
+  <strong>poof</strong><br/><br/>
+  Brand Identity Kit &nbsp;·&nbsp; v1.0
+</div>
+
+<script>
+  // Floating particles
+  const container = document.getElementById('particles');
+  const colors = ['#c8b8ff','#ffcba4','#b6f0d8','#e8d8ff','#ffffff'];
+  for (let i = 0; i < 28; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 5 + 2;
+    p.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${Math.random() * 100}%;
+      top: ${40 + Math.random() * 50}%;
+      background: ${colors[Math.floor(Math.random()*colors.length)]};
+      --dur: ${4 + Math.random() * 5}s;
+      --delay: ${Math.random() * 6}s;
+    `;
+    container.appendChild(p);
+  }
+</script>
+</body>
+</html>
