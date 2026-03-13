@@ -1,40 +1,40 @@
-import { Timer, LayoutGrid, Link, ShieldOff, Clock, Sparkles } from 'lucide-react';
+import { BellRing, Clock3, GalleryHorizontal, LockKeyhole, Sparkles, WandSparkles } from 'lucide-react';
 
 const features = [
   { 
-    icon: Timer, 
-    title: 'Expiring Links', 
-    desc: 'Set a custom expiry date on any share. When it hits — the link dies. Gone.', 
+    icon: GalleryHorizontal, 
+    title: 'Private gallery delivery', 
+    desc: 'Send a polished photo drop without sending a cluttered folder link or a public page.', 
     size: 'large' 
   },
   { 
-    icon: LayoutGrid, 
-    title: 'Gallery Builder', 
-    desc: 'Drop your photos in. Arrange them. Make it yours.', 
+    icon: Clock3, 
+    title: 'Timed access', 
+    desc: 'Decide how long a share stays open, then let it expire on its own.', 
     size: 'medium' 
   },
   { 
-    icon: Link, 
-    title: 'One-click Share', 
-    desc: 'One URL. Works everywhere. No account needed to view.', 
+    icon: LockKeyhole, 
+    title: 'Private by default', 
+    desc: 'Built for launches, client previews, and sensitive work that should not linger.', 
     size: 'medium' 
   },
   { 
-    icon: ShieldOff, 
-    title: 'No Trace', 
-    desc: 'Expired links leave nothing. No cache, no redirect.', 
-    size: 'small' 
-  },
-  { 
-    icon: Clock, 
-    title: 'Custom Timers', 
-    desc: 'Hours, days, weeks — you set the clock.', 
+    icon: BellRing, 
+    title: 'Launch updates', 
+    desc: 'Everyone on the list gets notified when Poof opens up.', 
     size: 'small' 
   },
   { 
     icon: Sparkles, 
-    title: 'Built for Creators', 
-    desc: 'Whether it\'s client work, private drops, or just moments you want to share briefly — poof handles it.', 
+    title: 'Opinionated UX', 
+    desc: 'Fewer knobs, faster sharing, and a cleaner recipient experience.', 
+    size: 'small' 
+  },
+  { 
+    icon: WandSparkles, 
+    title: 'Built for the first real release', 
+    desc: 'The landing page now reflects the actual state of the product: pre-launch, collecting interest, and focused on the core workflow first.', 
     size: 'large' 
   },
 ];
@@ -44,12 +44,12 @@ export function Features() {
     <section id="features" className="py-32 px-6 md:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="text-[11px] tracking-[5px] uppercase text-poof-mist mb-5 flex items-center gap-3">
-          01 — What poof does
+          01 — What&apos;s coming
           <div className="w-20 h-px bg-white/[0.07]" />
         </div>
         
         <h2 className="font-syne font-extrabold text-4xl md:text-5xl tracking-[-2px] mb-16 leading-tight">
-          Everything you need.<br />Nothing you don't.
+          The first release is focused.<br />That is intentional.
         </h2>
         
         <div className="grid grid-cols-1 md:grid-cols-4 gap-5">

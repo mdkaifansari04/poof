@@ -1,34 +1,34 @@
-import { Upload, CalendarClock, Send } from 'lucide-react';
+import { Database, Mail, Rocket } from 'lucide-react';
 
 const steps = [
   { 
-    icon: Upload, 
-    title: 'Upload', 
-    desc: 'Drop your photos. Build your gallery in seconds.' 
+    icon: Mail, 
+    title: 'Collect interest', 
+    desc: 'Visitors can join the waitlist directly from the landing page and get saved into the database.' 
   },
   { 
-    icon: CalendarClock, 
-    title: 'Set expiry', 
-    desc: 'Pick when it disappears. Hours, days, or weeks.' 
+    icon: Database, 
+    title: 'Build the core flow', 
+    desc: 'The product work can stay focused on private galleries, expiring links, and onboarding instead of fake pricing or fake CTAs.' 
   },
   { 
-    icon: Send, 
-    title: 'Share', 
-    desc: 'Send the link. They see it. Then — poof.' 
+    icon: Rocket, 
+    title: 'Email the launch', 
+    desc: 'Once the product is ready, use the collected emails to announce the release to real interested users.' 
   },
 ];
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="py-32 px-6 md:px-16">
+    <section id="launch-plan" className="py-32 px-6 md:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="text-[11px] tracking-[5px] uppercase text-poof-mist mb-5 flex items-center gap-3">
-          02 — Dead simple
+          02 — Launch plan
           <div className="w-20 h-px bg-white/[0.07]" />
         </div>
         
         <h2 className="font-syne font-extrabold text-4xl md:text-5xl tracking-[-2px] mb-16 leading-tight">
-          Three steps. Then poof.
+          A cleaner pre-launch flow.<br />No dead ends.
         </h2>
         
         <div className="flex flex-col md:flex-row justify-between items-start gap-16 md:gap-16 relative">

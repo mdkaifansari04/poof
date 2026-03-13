@@ -3,24 +3,24 @@ import { ChevronDown } from 'lucide-react';
 
 const faqs = [
   {
-    question: 'What happens when a link expires?',
-    answer: "It's gone. The URL returns nothing. No redirect, no cached version. It poofed."
+    question: 'Can I use Poof right now?',
+    answer: 'Not yet. The product is still being built, and the landing page now points people to early access instead of fake signup flows.'
   },
   {
-    question: 'Can I extend an expiry after sharing?',
-    answer: "Yes — as long as the link hasn't expired yet, you can extend it from your dashboard."
+    question: 'What do you save when I join early access?',
+    answer: 'Just your email address and the page source so the team can notify you when Poof is ready.'
   },
   {
-    question: 'Do viewers need an account?',
-    answer: 'Nope. Just a link. That\'s it.'
+    question: 'Will I get marketing emails?',
+    answer: 'The form is positioned for launch updates, not a generic newsletter blast.'
   },
   {
-    question: 'Is my content stored permanently on your servers?',
-    answer: "Only until the expiry. After that, it's deleted from our servers within 24 hours."
+    question: 'What is the first release focused on?',
+    answer: 'Private photo galleries, expiring access, and a tighter sharing experience. Pricing and broader marketing can come after the product is real.'
   },
   {
-    question: 'Can I password-protect my galleries?',
-    answer: 'Yes — on the Creator and Pro plans.'
+    question: 'What happens if I enter my email twice?',
+    answer: 'The API handles duplicates safely and keeps one record per email.'
   },
 ];
 
@@ -28,15 +28,15 @@ export function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-32 px-6 md:px-16">
+    <section id="faq" className="py-32 px-6 md:px-16">
       <div className="max-w-7xl mx-auto">
         <div className="text-[11px] tracking-[5px] uppercase text-poof-mist mb-5 flex items-center gap-3">
-          06 — Questions
+          03 — Questions
           <div className="w-20 h-px bg-white/[0.07]" />
         </div>
         
         <h2 className="font-syne font-extrabold text-4xl md:text-5xl tracking-[-2px] mb-16 leading-tight">
-          You asked. We answered.
+          Direct answers for a product that is not live yet.
         </h2>
         
         <div className="max-w-4xl mx-auto">

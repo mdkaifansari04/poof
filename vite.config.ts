@@ -7,6 +7,20 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
+function poofApiPlugin() {
+  return {
+    name: "poof-api-middleware",
+    async configureServer(server: any) {
+      const { apiHandler } = await import("./server/api");
+      server.middlewares.use(apiHandler());
+    },
+    async configurePreviewServer(server: any) {
+      const { apiHandler } = await import("./server/api");
+      server.middlewares.use(apiHandler());
+    },
+  };
+}
+
 const config = defineConfig({
   plugins: [
     devtools(),
@@ -14,22 +28,8 @@ const config = defineConfig({
     tailwindcss(),
     tanstackRouter({ target: "react", autoCodeSplitting: true }),
     viteReact(),
+    poofApiPlugin(),
   ],
-  server: {
-    proxy: {
-      // Proxy API calls during development
-      // In production, you'll need a separate Node.js backend
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-      }
-    }
-  },
-  // Configure server middleware for dev
-  configureServer: async (server) => {
-    const { apiHandler } = await import('./server/api')
-    server.middlewares.use(apiHandler())
-  }
 });
 
 export default config;

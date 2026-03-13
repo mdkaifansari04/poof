@@ -37,24 +37,20 @@ export function Navigation() {
             <circle cx="55" cy="22" r="2" fill="#e8d8ff" opacity="0.35"/>
             <circle cx="62" cy="30" r="2.5" fill="#c8b8ff" opacity="0.4"/>
           </svg>
-          <span className="font-syne font-extrabold text-2xl tracking-[-1.5px] bg-gradient-to-br from-poof-white/100 via-poof-white/95 to-poof-violet bg-clip-text text-transparent">
+          <span className="font-syne font-extrabold text-2xl tracking-[-1.5px] text-poof-white">
             poof
           </span>
         </a>
 
         <ul className="hidden md:flex gap-10 list-none">
-          <li><a href="#features" className="text-poof-mist hover:text-poof-white transition-colors duration-200 no-underline">Features</a></li>
-          <li><a href="#how-it-works" className="text-poof-mist hover:text-poof-white transition-colors duration-200 no-underline">How it works</a></li>
-          <li><a href="#pricing" className="text-poof-mist hover:text-poof-white transition-colors duration-200 no-underline">Pricing</a></li>
-          <li><a href="#demo" className="text-poof-mist hover:text-poof-white transition-colors duration-200 no-underline">Gallery demo</a></li>
+          <li><a href="#features" className="text-poof-mist hover:text-poof-white transition-colors duration-200 no-underline">What&apos;s coming</a></li>
+          <li><a href="#launch-plan" className="text-poof-mist hover:text-poof-white transition-colors duration-200 no-underline">Launch plan</a></li>
+          <li><a href="#faq" className="text-poof-mist hover:text-poof-white transition-colors duration-200 no-underline">FAQ</a></li>
         </ul>
 
         <div className="hidden md:flex gap-3 items-center">
-          <a href="#" className="px-6 py-2.5 rounded-full border border-white/15 hover:border-poof-violet/50 hover:bg-poof-violet/6 transition-all duration-200 text-poof-white text-sm font-medium tracking-wide no-underline">
-            Log in
-          </a>
-          <a href="#" className="px-7 py-3 rounded-full bg-gradient-to-br from-poof-accent to-[#a48cff] hover:opacity-90 active:translate-y-0 transition-all duration-200 text-poof-white text-sm font-medium tracking-wide no-underline">
-            Get started free
+          <a href="#early-access" className="px-7 py-3 rounded-full border border-poof-accent/70 bg-poof-accent hover:border-poof-violet hover:bg-poof-violet active:translate-y-0 transition-all duration-200 text-poof-white text-sm font-semibold tracking-wide no-underline shadow-[0_12px_30px_rgba(124,92,252,0.18)]">
+            Request early access
           </a>
         </div>
 
@@ -74,12 +70,10 @@ export function Navigation() {
           isMobileMenuOpen ? 'right-0' : '-right-full'
         }`}
       >
-        <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">Features</a>
-        <a href="#how-it-works" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">How it works</a>
-        <a href="#pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">Pricing</a>
-        <a href="#demo" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">Gallery demo</a>
-        <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">Log in</a>
-        <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">Get started free</a>
+        <a href="#features" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">What&apos;s coming</a>
+        <a href="#launch-plan" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">Launch plan</a>
+        <a href="#faq" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">FAQ</a>
+        <a href="#early-access" onClick={() => setIsMobileMenuOpen(false)} className="text-poof-white text-2xl font-syne font-bold no-underline">Request early access</a>
       </div>
     </>
   );

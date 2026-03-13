@@ -11,6 +11,8 @@ dist-ssr
 .vinxi
 __unconfig*
 todos.json
+data/*.sqlite
+package-lock.json
 
 /generated/prisma
 

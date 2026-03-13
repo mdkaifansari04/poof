@@ -1,115 +1,139 @@
-import { useEffect, useRef } from 'react';
+import { ArrowRight, Sparkles, TimerReset, Zap } from 'lucide-react';
+import { EarlyAccessForm } from './EarlyAccessForm';
+
+const signals = [
+  'Private galleries for launches and client drops',
+  'Expiring access links with clean defaults',
+  'A lighter way to share work before it is public',
+];
+
+const featurePills = [
+  { label: 'Timed access', icon: TimerReset },
+  { label: 'Fast sharing', icon: Zap },
+  { label: 'Launch-ready soon', icon: Sparkles },
+];
 
 export function Hero() {
-  const particlesRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!particlesRef.current) return;
-    
-    const colors = ['#c8b8ff', '#ffcba4', '#b6f0d8', '#e8d8ff', '#ffffff'];
-    const container = particlesRef.current;
-    
-    for (let i = 0; i < 30; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      const size = Math.random() * 4 + 2;
-      const left = Math.random() * 100;
-      const top = 40 + Math.random() * 50;
-      const duration = 4 + Math.random() * 5;
-      const delay = Math.random() * 6;
-      const color = colors[Math.floor(Math.random() * colors.length)];
-      
-      particle.style.cssText = `
-        position: absolute;
-        width: ${size}px;
-        height: ${size}px;
-        left: ${left}%;
-        top: ${top}%;
-        background: ${color};
-        border-radius: 50%;
-        opacity: 0;
-        pointer-events: none;
-        animation: floatUp ${duration}s ease-in ${delay}s infinite;
-      `;
-      
-      container.appendChild(particle);
-    }
-  }, []);
-
   return (
-    <section className="min-h-screen flex items-center px-6 md:px-16 pt-36 pb-20 relative overflow-hidden">
-      <div 
-        className="absolute inset-0 opacity-60"
-        style={{
-          background: `
-            radial-gradient(ellipse 60% 50% at 30% 40%, rgba(200,184,255,0.18) 0%, transparent 70%),
-            radial-gradient(ellipse 50% 60% at 75% 60%, rgba(255,203,164,0.14) 0%, transparent 70%),
-            radial-gradient(ellipse 40% 40% at 55% 20%, rgba(182,240,216,0.10) 0%, transparent 70%)
-          `,
-          animation: 'breathe 8s ease-in-out infinite alternate'
-        }}
-      />
-      
-      <div ref={particlesRef} className="absolute inset-0 pointer-events-none" />
-      
-      <div className="relative z-10 max-w-7xl mx-auto w-full flex justify-between gap-20 items-center">
-        <div className="animate-[fadeUp_0.9s_ease_both]">
-          <div className="inline-flex items-center gap-2 bg-poof-violet/12 border border-poof-violet/25 px-4 py-2 rounded-full text-xs tracking-[2px] uppercase text-poof-violet font-medium mb-8">
-            ✦ Photo sharing, reimagined
+    <section
+      id="top"
+      className="relative overflow-hidden px-6 pb-24 pt-32 md:px-16 md:pb-28 md:pt-40"
+    >
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.07),transparent_58%)]" />
+        <div className="absolute left-[-10%] top-28 h-64 w-64 rounded-full bg-white/[0.04] blur-3xl animate-[orbFloat_18s_ease-in-out_infinite]" />
+        <div className="absolute right-[-8%] top-40 h-72 w-72 rounded-full bg-white/[0.03] blur-3xl animate-[orbFloat_22s_ease-in-out_infinite_reverse]" />
+        <div className="hero-grid absolute inset-x-0 top-0 h-full opacity-25" />
+        <div className="absolute inset-x-0 top-0 h-px bg-white/10" />
+      </div>
+
+      <div className="relative mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+        <div className="animate-[fadeUp_0.75s_ease_both]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/[0.04] px-4 py-2 text-xs font-medium uppercase tracking-[0.28em] text-poof-white/78">
+            Pre-launch build
           </div>
-          
-          <h1 className="font-syne font-extrabold text-5xl md:text-7xl leading-[0.95] tracking-[-3px] mb-7">
-            Share it.<br />
-            <span className="bg-gradient-to-br from-poof-white/100 via-poof-white/95 to-poof-violet bg-clip-text text-transparent">
-              Poof.
-            </span><br />
-            Gone.
+
+          <h1 className="mt-7 max-w-4xl font-syne text-5xl font-extrabold leading-[0.92] tracking-[-0.05em] md:text-7xl">
+            Poof is being built for
+            <span className="mt-2 block text-poof-white">
+              temporary photo sharing that feels premium.
+            </span>
           </h1>
-          
-          <p className="text-lg text-poof-mist font-light leading-relaxed mb-9 max-w-xl">
-            Create beautiful galleries. Set an expiry. Share the link. When time's up — it vanishes like it never existed.
+
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-poof-smoke md:text-xl">
+            The product is not open yet. Join the early access list and we will
+            email you as soon as private galleries, timed links, and launch
+            onboarding are ready.
           </p>
-          
-          <div className="flex flex-wrap gap-4 items-center mb-6">
-            <a href="#" className="px-8 py-4 rounded-full bg-gradient-to-br from-poof-accent to-[#a48cff] hover:opacity-90 transition-all duration-200 text-poof-white text-[15px] font-medium tracking-wide no-underline">
-              Start sharing free →
-            </a>
-            <a href="#how-it-works" className="px-8 py-4 rounded-full border border-white/15 hover:border-poof-violet/50 hover:bg-poof-violet/6 transition-all duration-200 text-poof-white text-[15px] font-medium tracking-wide no-underline">
-              See how it works
-            </a>
+
+          <div className="mt-10 max-w-2xl">
+            <EarlyAccessForm source="hero" />
           </div>
-          
-          <div className="text-[13px] text-poof-mist flex items-center gap-2">
-            ✦ Loved by 12,000+ creators · No credit card needed
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            {featurePills.map(({ label, icon: Icon }) => (
+              <div
+                key={label}
+                className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-4 py-2 text-sm text-poof-white/90 transition duration-300 hover:-translate-y-0.5 hover:border-white/18 hover:bg-white/[0.05]"
+              >
+                <Icon size={16} className="text-poof-mint" />
+                <span>{label}</span>
+              </div>
+            ))}
           </div>
         </div>
-        
-        <div className="relative h-[500px] animate-[fadeUp_1.1s_0.2s_ease_both]">
-          <div 
-            className="absolute w-[400px] h-[400px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full blur-[60px] animate-[breathe_6s_ease-in-out_infinite_alternate]"
-            style={{ background: 'radial-gradient(circle, rgba(200,184,255,0.3), transparent 60%)' }}
-          />
-          
-          <div className="absolute top-[10%] left-1/2 -translate-x-1/2 bg-poof-mint/95 text-poof-void px-5 py-2.5 rounded-full text-[13px] font-semibold shadow-[0_8px_32px_rgba(182,240,216,0.4)] z-30"
-               style={{ animation: 'floatBadge 3s ease-in-out infinite' }}>
-            Link copied 💨
-          </div>
-          
-          <div className="absolute w-[360px] left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 bg-white/6 backdrop-blur-xl border border-white/[0.07] rounded-[20px] p-6"
-               style={{ animation: 'cardFloat 4s ease-in-out infinite' }}>
-            <div className="w-full h-[180px] bg-gradient-to-br from-poof-violet/30 to-poof-mint/20 rounded-xl mb-4 relative overflow-hidden">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.3),transparent_50%),radial-gradient(circle_at_70%_60%,rgba(200,184,255,0.2),transparent_50%)]" />
+
+        <div className="relative animate-[fadeUp_0.95s_0.12s_ease_both]">
+          <div className="relative overflow-hidden rounded-[34px] border border-white/10 bg-white/[0.035] p-6 shadow-[0_30px_120px_rgba(0,0,0,0.35)] backdrop-blur-2xl">
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent_32%)]" />
+
+            <div className="relative rounded-[28px] border border-white/10 bg-[#121212]/95 p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.24em] text-poof-mist">
+                    Launch board
+                  </p>
+                  <h2 className="mt-2 font-syne text-2xl font-bold tracking-[-0.04em]">
+                    Current focus
+                  </h2>
+                </div>
+                <div className="rounded-full border border-poof-mint/25 bg-poof-mint/10 px-3 py-1 text-xs font-medium text-poof-mint">
+                  In progress
+                </div>
+              </div>
+
+              <div className="mt-6 space-y-4">
+                <div className="launch-card rounded-[24px] border border-white/8 bg-white/[0.03] p-4">
+                  <div className="flex items-center justify-between gap-4">
+                  <div>
+                      <p className="text-sm text-poof-mist">Wave 01</p>
+                      <p className="mt-1 text-lg font-semibold text-poof-white">
+                        Private gallery delivery
+                      </p>
+                    </div>
+                    <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-poof-white/80">
+                      Building now
+                    </span>
+                  </div>
+                  <div className="mt-4 h-2 rounded-full bg-white/6">
+                    <div className="h-2 w-[68%] rounded-full bg-poof-white/80 animate-[pulseBar_3.2s_ease-in-out_infinite]" />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  {signals.map((item, index) => (
+                    <div
+                      key={item}
+                      className="launch-card rounded-[24px] border border-white/8 bg-white/[0.03] p-4"
+                      style={{ animationDelay: `${index * 120}ms` }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div className="mt-1 h-2.5 w-2.5 rounded-full bg-poof-mint shadow-[0_0_18px_rgba(182,240,216,0.9)]" />
+                        <p className="text-sm leading-6 text-poof-smoke">{item}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <a
+                  href="#early-access"
+                  className="group inline-flex items-center gap-2 text-sm font-medium text-poof-white no-underline transition hover:text-poof-white/75"
+                >
+                  Join the launch list
+                  <ArrowRight
+                    size={16}
+                    className="transition duration-300 group-hover:translate-x-1"
+                  />
+                </a>
+              </div>
             </div>
-            <div className="font-syne font-bold text-base mb-2">Summer Memories</div>
-            <div className="inline-flex items-center gap-1.5 bg-poof-peach/15 text-poof-peach px-3 py-1.5 rounded-full text-[11px] font-medium tracking-wide">
-              ⏱ Expires in 2d 14h
-            </div>
           </div>
-          
-          <div className="absolute w-[340px] left-1/2 top-[55%] -translate-x-[45%] -translate-y-[45%] rotate-[-4deg] z-10 opacity-70 bg-white/6 backdrop-blur-xl border border-white/[0.07] rounded-[20px] p-6"
-               style={{ animation: 'cardFloat 4s 0.5s ease-in-out infinite' }}>
-            <div className="w-full h-[180px] bg-gradient-to-br from-poof-violet/30 to-poof-mint/20 rounded-xl mb-4" />
-            <div className="font-syne font-bold text-base">Client Preview</div>
+
+          <div className="pointer-events-none absolute -right-4 top-10 rounded-full border border-white/10 bg-[#151515] px-4 py-2 text-xs uppercase tracking-[0.22em] text-poof-white/80 shadow-[0_12px_50px_rgba(0,0,0,0.25)] animate-[badgeDrift_6s_ease-in-out_infinite]">
+            Early access only
+          </div>
+          <div className="pointer-events-none absolute -left-4 bottom-10 rounded-full border border-white/10 bg-[#151515] px-4 py-2 text-xs uppercase tracking-[0.22em] text-poof-white/65 shadow-[0_12px_50px_rgba(0,0,0,0.25)] animate-[badgeDrift_7s_ease-in-out_infinite_reverse]">
+            Timed links
           </div>
         </div>
       </div>

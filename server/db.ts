@@ -1,25 +1,82 @@
-import { PrismaClient } from "@prisma/client";
-// Prisma client singleton pattern
-// Prevents multiple instances in development due to hot reloading
+import { mkdirSync } from "node:fs";
+import path from "node:path";
+import { DatabaseSync } from "node:sqlite";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+type EarlyAccessSignup = {
+  createdAt: string;
+  email: string;
+  id: number;
+  source: string | null;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
-        : ["error"],
-  });
+const globalForDb = globalThis as unknown as {
+  db: DatabaseSync | undefined;
+};
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+function getDatabaseFilePath() {
+  const dataDirectory = path.join(process.cwd(), "data");
+  mkdirSync(dataDirectory, { recursive: true });
+  return path.join(dataDirectory, "poof.sqlite");
 }
 
-// Helper to safely disconnect
-export async function disconnectDb() {
-  await prisma.$disconnect();
+export function getDb() {
+  if (globalForDb.db) {
+    return globalForDb.db;
+  }
+
+  const db = new DatabaseSync(getDatabaseFilePath());
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS early_access_signups (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL UNIQUE,
+      source TEXT,
+      created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  globalForDb.db = db;
+  return db;
+}
+
+export function saveEarlyAccessSignup(email: string, source?: string | null) {
+  const db = getDb();
+
+  const existingSignup = db
+    .prepare(
+      `
+        SELECT id, email, source, created_at as createdAt
+        FROM early_access_signups
+        WHERE email = ?
+      `,
+    )
+    .get(email) as EarlyAccessSignup | undefined;
+
+  if (existingSignup) {
+    return {
+      alreadyJoined: true,
+      signup: existingSignup,
+    };
+  }
+
+  db.prepare(
+    `
+      INSERT INTO early_access_signups (email, source)
+      VALUES (?, ?)
+    `,
+  ).run(email, source ?? null);
+
+  const signup = db
+    .prepare(
+      `
+        SELECT id, email, source, created_at as createdAt
+        FROM early_access_signups
+        WHERE email = ?
+      `,
+    )
+    .get(email) as EarlyAccessSignup;
+
+  return {
+    alreadyJoined: false,
+    signup,
+  };
 }
