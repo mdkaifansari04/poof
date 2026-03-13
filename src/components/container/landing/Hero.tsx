@@ -34,16 +34,15 @@ export function Hero() {
           </div>
 
           <h1 className="mt-7 max-w-4xl font-syne text-5xl font-extrabold leading-[0.92] tracking-[-0.05em] md:text-7xl">
-            Poof is being built for
-            <span className="mt-2 block text-poof-white">
-              temporary photo sharing that feels premium.
+            Private photo drops.
+            <span className="mt-4 inline-flex rounded-[20px] border border-poof-accent/80 bg-poof-accent px-4 py-2 text-poof-white shadow-[0_12px_30px_rgba(124,92,252,0.22)]">
+              Gone when you say.
             </span>
           </h1>
 
           <p className="mt-6 max-w-2xl text-lg leading-8 text-poof-smoke md:text-xl">
-            The product is not open yet. Join the early access list and we will
-            email you as soon as private galleries, timed links, and launch
-            onboarding are ready.
+            Poof is still in pre-launch. Join early access and get the email
+            when timed private galleries are ready.
           </p>
 
           <div className="mt-10 max-w-2xl">
@@ -85,7 +84,7 @@ export function Hero() {
               <div className="mt-6 space-y-4">
                 <div className="launch-card rounded-[24px] border border-white/8 bg-white/[0.03] p-4">
                   <div className="flex items-center justify-between gap-4">
-                  <div>
+                    <div>
                       <p className="text-sm text-poof-mist">Wave 01</p>
                       <p className="mt-1 text-lg font-semibold text-poof-white">
                         Private gallery delivery
