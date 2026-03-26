@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { GlassCard } from '@/components/poof/glass-card'
 import { EmptyState } from '@/components/poof/empty-state'
@@ -22,106 +22,162 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { 
-  Search, 
-  Plus, 
-  Grid3X3, 
-  List, 
-  FolderOpen, 
-  Share2, 
+import {
+  Search,
+  Plus,
+  Grid3X3,
+  List,
+  FolderOpen,
+  Share2,
   MoreHorizontal,
   X,
   Trash2,
   Clock,
-  Link2
+  Link2,
 } from 'lucide-react'
-import { mockGalleries, mockShareLinks } from '@/lib/mock-data'
+import { useDeleteGallery } from '@/hooks/mutations'
+import { useGalleries } from '@/hooks/queries'
 import { cn } from '@/lib/utils'
+import { toast } from 'sonner'
 
 type ViewMode = 'grid' | 'list'
 type SortOption = 'newest' | 'oldest' | 'expiring' | 'viewed' | 'az'
 type FilterOption = 'all' | 'active' | 'expiring' | 'expired' | 'no-expiry'
 
+type GalleryView = {
+  id: string
+  name: string
+  description: string | null
+  coverPhoto: string | null
+  photoCount: number
+  createdAt: Date
+}
+
+type ShareLinkStub = {
+  id: string
+  galleryId: string
+  status: 'active' | 'expired' | 'revoked'
+  expiresAt: Date | null
+}
+
+const shareLinks: ShareLinkStub[] = []
+
 export default function GalleriesPage() {
-  const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [filterBy, setFilterBy] = useState<FilterOption>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGalleries, setSelectedGalleries] = useState<Set<string>>(new Set())
 
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 600)
-    return () => clearTimeout(timer)
-  }, [])
+  const galleriesQuery = useGalleries()
+  const deleteGallery = useDeleteGallery()
+
+  const galleries = useMemo<GalleryView[]>(() => {
+    const rows = galleriesQuery.data ?? []
+
+    return rows.map((gallery) => ({
+      id: gallery.id,
+      name: gallery.name,
+      description: gallery.description,
+      coverPhoto: gallery.coverImageUrl,
+      photoCount: gallery.imageCount,
+      createdAt: new Date(gallery.createdAt),
+    }))
+  }, [galleriesQuery.data])
 
   const filteredGalleries = useMemo(() => {
-    let galleries = [...mockGalleries]
+    let next = [...galleries]
 
-    // Search filter
     if (searchQuery) {
-      galleries = galleries.filter(g =>
-        g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        g.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      const needle = searchQuery.toLowerCase()
+      next = next.filter(
+        (gallery) =>
+          gallery.name.toLowerCase().includes(needle) ||
+          gallery.description?.toLowerCase().includes(needle),
       )
     }
 
-    // Status filter
     if (filterBy !== 'all') {
-      galleries = galleries.filter(g => {
-        const links = mockShareLinks.filter(l => l.galleryId === g.id)
+      next = next.filter((gallery) => {
+        const links = shareLinks.filter((link) => link.galleryId === gallery.id)
+
         switch (filterBy) {
           case 'active':
-            return links.some(l => l.status === 'active')
+            return links.some((link) => link.status === 'active')
           case 'expiring':
-            return links.some(l => {
-              if (!l.expiresAt || l.status !== 'active') return false
-              const diff = l.expiresAt.getTime() - Date.now()
+            return links.some((link) => {
+              if (!link.expiresAt || link.status !== 'active') return false
+              const diff = link.expiresAt.getTime() - Date.now()
               return diff > 0 && diff < 24 * 60 * 60 * 1000
             })
           case 'expired':
-            return links.every(l => l.status === 'expired')
+            return links.length > 0 && links.every((link) => link.status === 'expired')
           case 'no-expiry':
-            return links.some(l => !l.expiresAt && l.status === 'active')
+            return links.some((link) => !link.expiresAt && link.status === 'active')
           default:
             return true
         }
       })
     }
 
-    // Sort
     switch (sortBy) {
       case 'oldest':
-        galleries.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+        next.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
         break
       case 'az':
-        galleries.sort((a, b) => a.name.localeCompare(b.name))
+        next.sort((a, b) => a.name.localeCompare(b.name))
         break
       case 'newest':
       default:
-        galleries.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        next.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     }
 
-    return galleries
-  }, [searchQuery, sortBy, filterBy])
+    return next
+  }, [filterBy, galleries, searchQuery, sortBy])
 
   const toggleSelection = (id: string) => {
-    const newSelected = new Set(selectedGalleries)
-    if (newSelected.has(id)) {
-      newSelected.delete(id)
+    const next = new Set(selectedGalleries)
+
+    if (next.has(id)) {
+      next.delete(id)
     } else {
-      newSelected.add(id)
+      next.add(id)
     }
-    setSelectedGalleries(newSelected)
+
+    setSelectedGalleries(next)
   }
 
   const clearSelection = () => {
     setSelectedGalleries(new Set())
   }
 
+  const handleDeleteGallery = async (id: string, options?: { skipConfirm?: boolean }) => {
+    if (!options?.skipConfirm) {
+      const confirmed = window.confirm(
+        'Delete this gallery? This will remove it from your dashboard immediately.',
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+
+    try {
+      await deleteGallery.mutateAsync(id)
+      setSelectedGalleries((previous) => {
+        const next = new Set(previous)
+        next.delete(id)
+        return next
+      })
+      toast.success('Gallery deleted')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete gallery'
+      toast.error(message)
+    }
+  }
+
   const isSelecting = selectedGalleries.size > 0
 
-  if (loading) {
+  if (galleriesQuery.isPending) {
     return (
       <div className="space-y-6">
         <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -129,33 +185,45 @@ export default function GalleriesPage() {
           <div className="skeleton-shimmer h-10 w-32 rounded-lg" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <SkeletonGalleryCard key={i} />
+          {[1, 2, 3, 4, 5, 6].map((index) => (
+            <SkeletonGalleryCard key={index} />
           ))}
         </div>
       </div>
     )
   }
 
+  if (galleriesQuery.isError) {
+    return (
+      <GlassCard className="p-8 text-center" hover={false}>
+        <p className="text-white font-medium">Could not load galleries</p>
+        <p className="text-poof-mist text-sm mt-2">{galleriesQuery.error.message}</p>
+        <Button
+          onClick={() => galleriesQuery.refetch()}
+          className="mt-4 bg-poof-accent hover:bg-poof-accent/90 text-white"
+        >
+          Retry
+        </Button>
+      </GlassCard>
+    )
+  }
+
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Header actions */}
       <div className="flex flex-col lg:flex-row gap-4 justify-between">
         <div className="flex flex-wrap items-center gap-3">
-          {/* Search */}
           <div className="relative w-full sm:w-64">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-poof-mist" />
             <Input
               type="search"
               placeholder="Search galleries..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(event) => setSearchQuery(event.target.value)}
               className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50"
             />
           </div>
 
-          {/* Sort */}
-          <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
             <SelectTrigger className="w-[150px] bg-white/5 border-white/10 text-white">
               <SelectValue />
             </SelectTrigger>
@@ -168,13 +236,12 @@ export default function GalleriesPage() {
             </SelectContent>
           </Select>
 
-          {/* View toggle */}
           <div className="hidden sm:flex items-center rounded-lg border border-white/10 bg-white/5 p-1">
             <button
               onClick={() => setViewMode('grid')}
               className={cn(
                 'p-2 rounded-md transition-colors',
-                viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-poof-mist hover:text-white'
+                viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-poof-mist hover:text-white',
               )}
             >
               <Grid3X3 className="w-4 h-4" />
@@ -183,7 +250,7 @@ export default function GalleriesPage() {
               onClick={() => setViewMode('list')}
               className={cn(
                 'p-2 rounded-md transition-colors',
-                viewMode === 'list' ? 'bg-white/10 text-white' : 'text-poof-mist hover:text-white'
+                viewMode === 'list' ? 'bg-white/10 text-white' : 'text-poof-mist hover:text-white',
               )}
             >
               <List className="w-4 h-4" />
@@ -191,7 +258,6 @@ export default function GalleriesPage() {
           </div>
         </div>
 
-        {/* Filter pills */}
         <div className="flex flex-wrap items-center gap-2">
           {(['all', 'active', 'expiring', 'expired', 'no-expiry'] as FilterOption[]).map((filter) => (
             <button
@@ -201,18 +267,22 @@ export default function GalleriesPage() {
                 'px-3 py-1.5 text-xs font-medium rounded-full border transition-colors',
                 filterBy === filter
                   ? 'bg-poof-violet/20 border-poof-violet/30 text-poof-violet'
-                  : 'border-white/10 text-poof-mist hover:text-white hover:border-white/20'
+                  : 'border-white/10 text-poof-mist hover:text-white hover:border-white/20',
               )}
             >
-              {filter === 'all' ? 'All' : 
-               filter === 'active' ? 'Active' :
-               filter === 'expiring' ? 'Expiring Soon' :
-               filter === 'expired' ? 'Expired' : 'No Expiry'}
+              {filter === 'all'
+                ? 'All'
+                : filter === 'active'
+                  ? 'Active'
+                  : filter === 'expiring'
+                    ? 'Expiring Soon'
+                    : filter === 'expired'
+                      ? 'Expired'
+                      : 'No Expiry'}
             </button>
           ))}
         </div>
 
-        {/* New gallery button */}
         <Button asChild className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press">
           <Link href="/galleries/new">
             <Plus className="w-4 h-4 mr-2" />
@@ -221,13 +291,10 @@ export default function GalleriesPage() {
         </Button>
       </div>
 
-      {/* Bulk selection bar */}
       {isSelecting && (
         <div className="flex items-center justify-between p-4 rounded-xl border border-poof-violet/30 bg-poof-violet/10 animate-fade-up">
           <div className="flex items-center gap-3">
-            <span className="text-white font-medium">
-              {selectedGalleries.size} selected
-            </span>
+            <span className="text-white font-medium">{selectedGalleries.size} selected</span>
             <button
               onClick={clearSelection}
               className="text-poof-mist hover:text-white transition-colors"
@@ -236,15 +303,39 @@ export default function GalleriesPage() {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-poof-mist hover:text-white">
+            <Button variant="ghost" size="sm" className="text-poof-mist hover:text-white" disabled>
               <Share2 className="w-4 h-4 mr-1" />
               Share
             </Button>
-            <Button variant="ghost" size="sm" className="text-poof-mist hover:text-white">
+            <Button variant="ghost" size="sm" className="text-poof-mist hover:text-white" disabled>
               <Clock className="w-4 h-4 mr-1" />
               Extend
             </Button>
-            <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-red-400 hover:text-red-300"
+              disabled={deleteGallery.isPending}
+              onClick={async () => {
+                const ids = [...selectedGalleries]
+
+                if (ids.length === 0) {
+                  return
+                }
+
+                const confirmed = window.confirm(`Delete ${ids.length} selected galleries?`)
+
+                if (!confirmed) {
+                  return
+                }
+
+                for (const id of ids) {
+                  await handleDeleteGallery(id, { skipConfirm: true })
+                }
+
+                clearSelection()
+              }}
+            >
               <Trash2 className="w-4 h-4 mr-1" />
               Delete
             </Button>
@@ -252,31 +343,32 @@ export default function GalleriesPage() {
         </div>
       )}
 
-      {/* Gallery grid/list */}
       {filteredGalleries.length > 0 ? (
         viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredGalleries.map((gallery, i) => (
+            {filteredGalleries.map((gallery, index) => (
               <GalleryGridCard
                 key={gallery.id}
                 gallery={gallery}
-                index={i}
+                index={index}
                 isSelected={selectedGalleries.has(gallery.id)}
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
+                onDelete={() => handleDeleteGallery(gallery.id)}
               />
             ))}
           </div>
         ) : (
           <div className="space-y-2">
-            {filteredGalleries.map((gallery, i) => (
+            {filteredGalleries.map((gallery, index) => (
               <GalleryListRow
                 key={gallery.id}
                 gallery={gallery}
-                index={i}
+                index={index}
                 isSelected={selectedGalleries.has(gallery.id)}
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
+                onDelete={() => handleDeleteGallery(gallery.id)}
               />
             ))}
           </div>
@@ -290,33 +382,36 @@ export default function GalleriesPage() {
   )
 }
 
-// Gallery grid card
 interface GalleryCardProps {
-  gallery: typeof mockGalleries[0]
+  gallery: GalleryView
   index: number
   isSelected: boolean
   onToggleSelect: () => void
   isSelecting: boolean
+  onDelete: () => void
 }
 
-function GalleryGridCard({ gallery, index, isSelected, onToggleSelect, isSelecting }: GalleryCardProps) {
-  const links = mockShareLinks.filter(l => l.galleryId === gallery.id)
-  const activeLinks = links.filter(l => l.status === 'active')
-  const hasExpiring = activeLinks.some(l => {
-    if (!l.expiresAt) return false
-    const diff = l.expiresAt.getTime() - Date.now()
+function GalleryGridCard({
+  gallery,
+  index,
+  isSelected,
+  onToggleSelect,
+  isSelecting,
+  onDelete,
+}: GalleryCardProps) {
+  const links = shareLinks.filter((link) => link.galleryId === gallery.id)
+  const activeLinks = links.filter((link) => link.status === 'active')
+  const hasExpiring = activeLinks.some((link) => {
+    if (!link.expiresAt) return false
+    const diff = link.expiresAt.getTime() - Date.now()
     return diff > 0 && diff < 24 * 60 * 60 * 1000
   })
 
   return (
     <GlassCard
-      className={cn(
-        'group overflow-hidden animate-fade-up',
-        isSelected && 'ring-2 ring-poof-violet'
-      )}
+      className={cn('group overflow-hidden animate-fade-up', isSelected && 'ring-2 ring-poof-violet')}
       style={{ animationDelay: `${index * 0.05}s` }}
     >
-      {/* Cover image */}
       <div className="relative aspect-video overflow-hidden">
         {gallery.coverPhoto ? (
           <img
@@ -331,12 +426,13 @@ function GalleryGridCard({ gallery, index, isSelected, onToggleSelect, isSelecti
             </span>
           </div>
         )}
-        
-        {/* Checkbox */}
-        <div className={cn(
-          'absolute top-3 left-3 transition-opacity',
-          isSelecting || isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-        )}>
+
+        <div
+          className={cn(
+            'absolute top-3 left-3 transition-opacity',
+            isSelecting || isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+          )}
+        >
           <Checkbox
             checked={isSelected}
             onCheckedChange={onToggleSelect}
@@ -344,7 +440,6 @@ function GalleryGridCard({ gallery, index, isSelected, onToggleSelect, isSelecti
           />
         </div>
 
-        {/* Status badge */}
         <div className="absolute top-3 right-3">
           {hasExpiring ? (
             <StatusBadge variant="expiring">Expiring soon</StatusBadge>
@@ -352,8 +447,7 @@ function GalleryGridCard({ gallery, index, isSelected, onToggleSelect, isSelecti
             <StatusBadge variant="active">{activeLinks.length} active</StatusBadge>
           ) : null}
         </div>
-        
-        {/* Hover overlay */}
+
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
           <Button size="sm" variant="secondary" asChild className="btn-press">
             <Link href={`/galleries/${gallery.id}`}>
@@ -361,22 +455,19 @@ function GalleryGridCard({ gallery, index, isSelected, onToggleSelect, isSelecti
               Open
             </Link>
           </Button>
-          <Button size="sm" variant="secondary" className="btn-press">
+          <Button size="sm" variant="secondary" className="btn-press" disabled>
             <Share2 className="w-4 h-4 mr-1" />
             Share
           </Button>
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h3 className="font-heading font-bold text-white truncate">
-              {gallery.name}
-            </h3>
+            <h3 className="font-heading font-bold text-white truncate">{gallery.name}</h3>
             <div className="flex items-center gap-2 text-poof-mist text-sm mt-1">
-              <span>{gallery.photos.length} photos</span>
+              <span>{gallery.photoCount} photos</span>
               {activeLinks.length > 0 && (
                 <>
                   <span className="text-white/20">·</span>
@@ -390,21 +481,19 @@ function GalleryGridCard({ gallery, index, isSelected, onToggleSelect, isSelecti
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-poof-mist hover:text-white flex-shrink-0">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-poof-mist hover:text-white flex-shrink-0"
+              >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
-              <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer">
-                Rename
+              <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+                <Link href={`/galleries/${gallery.id}`}>Open</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer">
-                Duplicate
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer">
-                Download all
-              </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer">
+              <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer" onClick={onDelete}>
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -415,37 +504,34 @@ function GalleryGridCard({ gallery, index, isSelected, onToggleSelect, isSelecti
   )
 }
 
-// Gallery list row
-function GalleryListRow({ gallery, index, isSelected, onToggleSelect, isSelecting }: GalleryCardProps) {
-  const links = mockShareLinks.filter(l => l.galleryId === gallery.id)
-  const activeLinks = links.filter(l => l.status === 'active')
+function GalleryListRow({
+  gallery,
+  index,
+  isSelected,
+  onToggleSelect,
+  isSelecting,
+  onDelete,
+}: GalleryCardProps) {
+  const links = shareLinks.filter((link) => link.galleryId === gallery.id)
+  const activeLinks = links.filter((link) => link.status === 'active')
 
   return (
     <GlassCard
-      className={cn(
-        'flex items-center gap-4 p-4 animate-fade-up',
-        isSelected && 'ring-2 ring-poof-violet'
-      )}
+      className={cn('group flex items-center gap-4 p-4 animate-fade-up', isSelected && 'ring-2 ring-poof-violet')}
       style={{ animationDelay: `${index * 0.03}s` }}
     >
-      {/* Checkbox */}
       <Checkbox
         checked={isSelected}
         onCheckedChange={onToggleSelect}
         className={cn(
           'w-5 h-5 border-white/30 data-[state=checked]:bg-poof-violet data-[state=checked]:border-poof-violet',
-          !isSelecting && 'opacity-0 group-hover:opacity-100'
+          !isSelecting && 'opacity-0 group-hover:opacity-100',
         )}
       />
 
-      {/* Thumbnail */}
       <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
         {gallery.coverPhoto ? (
-          <img
-            src={gallery.coverPhoto}
-            alt={gallery.name}
-            className="w-full h-full object-cover"
-          />
+          <img src={gallery.coverPhoto} alt={gallery.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
             <span className="font-heading font-bold text-xs text-white/40">
@@ -455,25 +541,16 @@ function GalleryListRow({ gallery, index, isSelected, onToggleSelect, isSelectin
         )}
       </div>
 
-      {/* Info */}
       <div className="flex-1 min-w-0">
-        <h3 className="font-heading font-bold text-white truncate">
-          {gallery.name}
-        </h3>
-        {gallery.description && (
-          <p className="text-poof-mist text-sm truncate">
-            {gallery.description}
-          </p>
-        )}
+        <h3 className="font-heading font-bold text-white truncate">{gallery.name}</h3>
+        {gallery.description && <p className="text-poof-mist text-sm truncate">{gallery.description}</p>}
       </div>
 
-      {/* Meta */}
       <div className="hidden sm:flex items-center gap-6 text-sm text-poof-mist">
-        <span>{gallery.photos.length} photos</span>
+        <span>{gallery.photoCount} photos</span>
         <span>{gallery.createdAt.toLocaleDateString()}</span>
       </div>
 
-      {/* Status */}
       <div className="hidden md:block">
         {activeLinks.length > 0 ? (
           <StatusBadge variant="active">{activeLinks.length} links</StatusBadge>
@@ -482,9 +559,8 @@ function GalleryListRow({ gallery, index, isSelected, onToggleSelect, isSelectin
         )}
       </div>
 
-      {/* Actions */}
       <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-poof-mist hover:text-white">
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-poof-mist hover:text-white" disabled>
           <Share2 className="w-4 h-4" />
         </Button>
         <DropdownMenu>
@@ -494,16 +570,10 @@ function GalleryListRow({ gallery, index, isSelected, onToggleSelect, isSelectin
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
-            <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer">
-              Rename
+            <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+              <Link href={`/galleries/${gallery.id}`}>Open</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer">
-              Duplicate
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer">
-              Download all
-            </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer">
+            <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer" onClick={onDelete}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

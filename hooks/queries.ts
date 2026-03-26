@@ -1,3 +1,7 @@
+import { useQuery } from '@tanstack/react-query'
+import { api } from '@/lib/axios'
+import type { GalleryDetail, GalleryListItem } from '@/lib/types/gallery'
+
 export const queryKeys = {
   galleries: () => ['galleries'] as const,
   gallery: (id: string) => ['galleries', id] as const,
@@ -7,4 +11,35 @@ export const queryKeys = {
   publicSharedResource: (resourceId: string) => ['public', 'shared-resources', resourceId] as const,
 }
 
-// Phase 2 onward: useQuery hooks are implemented here.
+export function useGalleries() {
+  return useQuery({
+    queryKey: queryKeys.galleries(),
+    queryFn: () => api.get('/galleries') as Promise<GalleryListItem[]>,
+  })
+}
+
+export function useGallery(id: string) {
+  return useQuery({
+    queryKey: queryKeys.gallery(id),
+    queryFn: () => api.get(`/galleries/${id}`) as Promise<GalleryDetail>,
+    enabled: Boolean(id),
+  })
+}
+
+// Phase 3
+export function useSharedResources() {
+  return useQuery({
+    queryKey: queryKeys.sharedResources(),
+    queryFn: () => api.get('/shared-resources'),
+  })
+}
+
+// Phase 3
+export function usePublicSharedResource(resourceId: string) {
+  return useQuery({
+    queryKey: queryKeys.publicSharedResource(resourceId),
+    queryFn: () => api.get(`/shared-resources/${resourceId}`),
+    enabled: Boolean(resourceId),
+    retry: false,
+  })
+}

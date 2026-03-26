@@ -25,6 +25,12 @@ export const apiErrors = {
   validation(message = 'Invalid request body') {
     return new ApiRouteError('VALIDATION_ERROR', message, 422)
   },
+  fileTooLarge(message = 'File exceeds size limit') {
+    return new ApiRouteError('FILE_TOO_LARGE', message, 422)
+  },
+  unsupportedType(message = 'Unsupported file type') {
+    return new ApiRouteError('UNSUPPORTED_TYPE', message, 422)
+  },
   internal(message = 'An unexpected error occurred') {
     return new ApiRouteError('INTERNAL_ERROR', message, 500)
   },
