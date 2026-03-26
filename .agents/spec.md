@@ -966,12 +966,12 @@ Images with `uploadStatus: FAILED` for > 24 hours → cron deletes from DB (no R
 3. Client computes `expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()`
 4. `POST /api/shared-resources` with `{ type: 'GALLERY', galleryId, expiresAt }`
 5. Server validates, creates `SharedResource`, returns `shareUrl`
-6. URL displayed: `https://poof.app/shared/clx_abc123`
+6. URL displayed: `https://poof.k04.tech/shared/clx_abc123`
 7. User copies link → shares it
 
 ### UC-04: Unknown user opens a gallery share link
 
-1. Recipient opens `https://poof.app/shared/clx_abc123`
+1. Recipient opens `https://poof.k04.tech/shared/clx_abc123`
 2. Page server component (or client) calls `GET /api/shared-resources/clx_abc123`
 3. API checks: exists ✓, not revoked ✓, not expired ✓ → increments viewCount → returns gallery data
 4. Page renders gallery grid with expiry countdown at top
@@ -1031,14 +1031,14 @@ Images with `uploadStatus: FAILED` for > 24 hours → cron deletes from DB (no R
 
 ```bash
 # App
-NEXT_PUBLIC_APP_URL=https://poof.app
+NEXT_PUBLIC_APP_URL=https://poof.k04.tech
 
 # Database (Neon)
 DATABASE_URL=postgresql://...
 
 # Better Auth
 BETTER_AUTH_SECRET=                    # Random 32+ char string
-BETTER_AUTH_URL=https://poof.app
+BETTER_AUTH_URL=https://poof.k04.tech
 
 # Google OAuth
 GOOGLE_CLIENT_ID=

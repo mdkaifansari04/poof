@@ -15,7 +15,7 @@ describe('requireCronAuthorization', () => {
 
   test('accepts a valid bearer token', () => {
     process.env.CRON_SECRET = 'secret-123'
-    const request = new Request('https://poof.app/api/cron/cleanup-storage', {
+    const request = new Request('https://poof.k04.tech/api/cron/cleanup-storage', {
       headers: {
         Authorization: 'Bearer secret-123',
       },
@@ -26,7 +26,7 @@ describe('requireCronAuthorization', () => {
 
   test('throws UNAUTHORIZED for invalid token', () => {
     process.env.CRON_SECRET = 'secret-123'
-    const request = new Request('https://poof.app/api/cron/cleanup-storage', {
+    const request = new Request('https://poof.k04.tech/api/cron/cleanup-storage', {
       headers: {
         Authorization: 'Bearer wrong-secret',
       },

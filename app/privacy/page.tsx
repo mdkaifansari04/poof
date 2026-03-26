@@ -5,8 +5,17 @@ import { AnimatedBackground } from '@/components/poof/animated-background'
 import { GlassCard } from '@/components/poof/glass-card'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Poof',
-  description: 'Poof privacy policy.',
+  title: 'Privacy Policy',
+  description: 'Learn what Poof collects, how data is used, retention timelines, cookies, and your privacy rights.',
+  alternates: {
+    canonical: '/privacy',
+  },
+  openGraph: {
+    title: 'Poof Privacy Policy',
+    description: 'How Poof collects, uses, stores, and protects your data.',
+    url: '/privacy',
+    type: 'article',
+  },
 }
 
 export default function PrivacyPage() {

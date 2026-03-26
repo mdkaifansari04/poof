@@ -1,1 +1,5 @@
-export { default, metadata } from '@/app/terms/page'
+import { redirect } from 'next/navigation'
+
+export default function TermsOfServiceLegacyRoute() {
+  redirect('/terms')
+}

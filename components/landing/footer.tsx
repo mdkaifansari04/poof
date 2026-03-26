@@ -1,31 +1,27 @@
 import Link from 'next/link'
 import { Logo } from '@/components/poof/logo'
-import { Twitter, Github, Mail } from 'lucide-react'
+import { Mail } from 'lucide-react'
 
 const footerLinks = {
   product: [
     { label: 'Features', href: '#features' },
-    { label: 'Pricing', href: '#pricing' },
-    { label: 'FAQ', href: '#' },
-    { label: 'Changelog', href: '#' },
+    { label: 'How it works', href: '#how-it-works' },
+    { label: 'Limits', href: '#pricing' },
+    { label: 'FAQ', href: '#faq' },
   ],
   company: [
-    { label: 'About', href: '#' },
-    { label: 'Blog', href: '#' },
-    { label: 'Careers', href: '#' },
-    { label: 'Contact', href: '#' },
+    { label: 'Sign in', href: '/signin' },
+    { label: 'Create account', href: '/signup' },
+    { label: 'Contact', href: 'mailto:hello@poof.app' },
   ],
   legal: [
-    { label: 'Privacy Policy', href: '#' },
-    { label: 'Terms of Service', href: '#' },
-    { label: 'Cookie Policy', href: '#' },
+    { label: 'Privacy Policy', href: '/privacy' },
+    { label: 'Terms of Service', href: '/terms' },
   ],
 }
 
 const socialLinks = [
-  { icon: <Twitter className="w-5 h-5" />, href: '#', label: 'Twitter' },
-  { icon: <Github className="w-5 h-5" />, href: '#', label: 'GitHub' },
-  { icon: <Mail className="w-5 h-5" />, href: '#', label: 'Email' },
+  { icon: <Mail className="w-5 h-5" />, href: 'mailto:hello@poof.app', label: 'Email' },
 ]
 
 export function LandingFooter() {
@@ -37,8 +33,8 @@ export function LandingFooter() {
           <div className="col-span-2">
             <Logo size="md" className="mb-4" />
             <p className="text-poof-mist text-sm max-w-xs leading-relaxed mb-6">
-              Share photos with expiring links. When time is up, they poof. 
-              No trace. No forever.
+              Share photos with expiring links. When time is up, access ends.
+              Your original content stays in your account until you delete it.
             </p>
             {/* Social links */}
             <div className="flex items-center gap-4">
@@ -61,12 +57,12 @@ export function LandingFooter() {
             <ul className="space-y-3">
               {footerLinks.product.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-poof-mist hover:text-white text-sm transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -78,12 +74,15 @@ export function LandingFooter() {
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-poof-mist hover:text-white text-sm transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  {link.href.startsWith('mailto:') ? (
+                    <a href={link.href} className="text-poof-mist hover:text-white text-sm transition-colors">
+                      {link.label}
+                    </a>
+                  ) : (
+                    <Link href={link.href} className="text-poof-mist hover:text-white text-sm transition-colors">
+                      {link.label}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>
@@ -95,12 +94,12 @@ export function LandingFooter() {
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     className="text-poof-mist hover:text-white text-sm transition-colors"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

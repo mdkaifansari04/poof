@@ -13,19 +13,19 @@ const steps = [
     icon: <Link2 className="w-8 h-8" />,
     number: '02',
     title: 'Generate a share link',
-    description: 'One click creates a unique URL. Set your expiry, view limits, and password.',
+    description: 'Choose gallery, single image, or a custom image selection. Set expiry and create the link.',
   },
   {
     icon: <Timer className="w-8 h-8" />,
     number: '03',
     title: 'Share with anyone',
-    description: 'Send the link. They view. No account needed. Track who is looking.',
+    description: 'Recipients can open the URL without an account while your ownership rules remain enforced.',
   },
   {
     icon: <Ghost className="w-8 h-8" />,
     number: '04',
     title: 'Watch it poof',
-    description: "When time is up, the link dies. The content vanishes. No trace left behind.",
+    description: 'After expiry or revoke, the shared URL becomes inaccessible and shows an expired or revoked state.',
   },
 ]
 
@@ -97,23 +97,19 @@ export function LandingHowItWorks() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                   {/* Gallery link */}
                   <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-poof-violet/10 border border-poof-violet/30">
-                    <span className="text-poof-mist text-sm">poof.so/</span>
-                    <span className="px-2 py-0.5 rounded bg-poof-violet/20 text-poof-violet text-sm font-medium">g</span>
-                    <span className="text-poof-mist text-sm">/abc123</span>
+                    <span className="text-poof-mist text-sm">poof.k04.tech/shared/clxabc123</span>
                   </div>
                   
                   <span className="text-poof-mist text-sm">or</span>
                   
                   {/* Photo link */}
                   <div className="flex items-center gap-2 px-4 py-3 rounded-lg bg-poof-peach/10 border border-poof-peach/30">
-                    <span className="text-poof-mist text-sm">poof.so/</span>
-                    <span className="px-2 py-0.5 rounded bg-poof-peach/20 text-poof-peach text-sm font-medium">p</span>
-                    <span className="text-poof-mist text-sm">/xyz789</span>
+                    <span className="text-poof-mist text-sm">poof.k04.tech/shared/clxxyz789</span>
                   </div>
                 </div>
                 
                 <p className="text-poof-mist/60 text-xs mt-4">
-                  /g/ for galleries, /p/ for single photos
+                  Same URL shape for gallery, single image, and multi-image links.
                 </p>
               </div>
             </div>

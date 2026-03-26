@@ -3,49 +3,47 @@
 import { GlassCard } from '@/components/poof/glass-card'
 import { 
   Clock, 
-  Eye, 
-  Lock, 
-  Download, 
-  BarChart3, 
-  Zap,
-  ImageIcon,
+  Image, 
+  Images, 
   Link2,
-  Shield
+  ShieldCheck, 
+  Zap,
+  ImageIcon
 } from 'lucide-react'
 
 const features = [
   {
     icon: <Clock className="w-6 h-6" />,
     title: 'Expiring Links',
-    description: 'Set precise expiration times. Hours, days, or custom dates. When time is up, the link dies.',
+    description: 'Set a precise expiry timestamp. Once it expires, the shared URL returns an expired state.',
     color: 'text-poof-peach',
     bgColor: 'bg-poof-peach/10',
   },
   {
-    icon: <Eye className="w-6 h-6" />,
-    title: 'View Limits',
-    description: 'Limit how many times a link can be viewed. After the limit hits, poof.',
+    icon: <Images className="w-6 h-6" />,
+    title: 'Share Full Galleries',
+    description: 'Generate links for an entire gallery and let recipients browse the full photo set.',
     color: 'text-poof-mint',
     bgColor: 'bg-poof-mint/10',
   },
   {
-    icon: <Lock className="w-6 h-6" />,
-    title: 'Password Protection',
-    description: 'Add an extra layer with password-protected links. Only those who know get in.',
+    icon: <Image className="w-6 h-6" />,
+    title: 'Single Image Sharing',
+    description: 'Create a dedicated share link for one image when you only need to send one asset.',
     color: 'text-poof-violet',
     bgColor: 'bg-poof-violet/10',
   },
   {
-    icon: <Download className="w-6 h-6" />,
-    title: 'Download Control',
-    description: 'Choose whether recipients can download your photos or just view them.',
+    icon: <Link2 className="w-6 h-6" />,
+    title: 'Multi-Image Links',
+    description: 'Select a custom subset of images and generate one link to share only those files.',
     color: 'text-poof-accent',
     bgColor: 'bg-poof-accent/10',
   },
   {
-    icon: <BarChart3 className="w-6 h-6" />,
-    title: 'Link Analytics',
-    description: 'Track views, unique visitors, and engagement. Know exactly who is looking.',
+    icon: <ShieldCheck className="w-6 h-6" />,
+    title: 'Protected Ownership Checks',
+    description: 'Server-side validation ensures links can be created only for content you own.',
     color: 'text-poof-mint',
     bgColor: 'bg-poof-mint/10',
   },
@@ -59,9 +57,9 @@ const features = [
 ]
 
 const quickFeatures = [
-  { icon: <ImageIcon className="w-5 h-5" />, text: 'Unlimited galleries' },
-  { icon: <Link2 className="w-5 h-5" />, text: 'Multiple links per gallery' },
-  { icon: <Shield className="w-5 h-5" />, text: 'End-to-end encryption' },
+  { icon: <ImageIcon className="w-5 h-5" />, text: 'Up to 50 galleries per account' },
+  { icon: <Link2 className="w-5 h-5" />, text: 'Multiple independent links per gallery' },
+  { icon: <ShieldCheck className="w-5 h-5" />, text: 'Auth sessions with secure cookies' },
 ]
 
 export function LandingFeatures() {
@@ -76,7 +74,7 @@ export function LandingFeatures() {
           </h2>
           <p className="text-lg text-poof-mist max-w-2xl mx-auto">
             Every feature exists to give you complete control over what you share, 
-            who sees it, and for how long.
+            how long it stays available, and when it gets revoked.
           </p>
         </div>
 

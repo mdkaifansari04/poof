@@ -10,7 +10,8 @@ import { cn } from '@/lib/utils'
 const navLinks = [
   { href: '#features', label: 'Features' },
   { href: '#how-it-works', label: 'How it works' },
-  { href: '#pricing', label: 'Pricing' },
+  { href: '#pricing', label: 'Limits' },
+  { href: '#faq', label: 'FAQ' },
 ]
 
 export function LandingNav() {
@@ -40,7 +41,7 @@ export function LandingNav() {
           {/* Auth buttons */}
           <div className="hidden md:flex items-center gap-3">
             <Button variant="ghost" asChild className="text-poof-mist hover:text-white hover:bg-white/5">
-              <Link href="/login">Log in</Link>
+              <Link href="/signin">Sign in</Link>
             </Button>
             <Button asChild className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press">
               <Link href="/signup">Get started free</Link>
@@ -80,7 +81,7 @@ export function LandingNav() {
             ))}
             <div className="pt-4 border-t border-white/10 space-y-3">
               <Button variant="ghost" asChild className="w-full justify-center text-poof-mist hover:text-white hover:bg-white/5">
-                <Link href="/login">Log in</Link>
+                <Link href="/signin">Sign in</Link>
               </Button>
               <Button asChild className="w-full bg-poof-accent hover:bg-poof-accent/90 text-white">
                 <Link href="/signup">Get started free</Link>

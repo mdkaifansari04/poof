@@ -8,56 +8,52 @@ import { cn } from '@/lib/utils'
 
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
-    period: 'forever',
-    description: 'Perfect for trying out Poof',
+    name: 'Account Limits',
+    price: 'V1',
+    period: 'constraints',
+    description: 'Server-enforced limits for predictable usage',
     features: [
-      '5 galleries',
-      '100 MB storage',
-      'Expiring links',
-      'View limits',
-      'Basic analytics',
+      'Up to 50 galleries per account',
+      'Up to 500 images per gallery',
+      'Maximum 10 MB per image',
+      'Allowed types: JPEG, PNG, WEBP, HEIC',
+      'One account per user',
     ],
-    cta: 'Get started',
+    cta: 'Create account',
     href: '/signup',
     highlighted: false,
   },
   {
-    name: 'Creator',
-    price: '$9',
-    period: '/month',
-    description: 'For photographers and creatives',
+    name: 'Share Rules',
+    price: 'V1',
+    period: 'behavior',
+    description: 'How link creation and expiry work',
     features: [
-      '50 galleries',
-      '10 GB storage',
-      'Password protection',
-      'Custom expiry times',
-      'Full analytics',
-      'Download controls',
-      'Priority support',
+      'Gallery, single-image, and multi-image sharing',
+      'Up to 100 images in one multi-image link',
+      'Up to 20 active links per gallery',
+      'Expiry range: 1 hour to 1 year',
+      'Unlimited independent links per resource',
+      'Manual revoke at any time',
     ],
-    cta: 'Start free trial',
-    href: '/signup?plan=creator',
+    cta: 'Start sharing',
+    href: '/signup',
     highlighted: true,
   },
   {
-    name: 'Pro',
-    price: '$29',
-    period: '/month',
-    description: 'For teams and agencies',
+    name: 'Lifecycle',
+    price: 'V1',
+    period: 'operations',
+    description: 'Upload, session, and cleanup timelines',
     features: [
-      'Unlimited galleries',
-      '100 GB storage',
-      'Everything in Creator',
-      'Geographic analytics',
-      'Custom branding',
-      'API access',
-      'Team members',
-      'White-label options',
+      'Presigned upload URLs expire after 5 minutes',
+      'Pending uploads older than 30 minutes become failed',
+      'Failed uploads are purged after 24 hours',
+      'Soft-deleted images are removed from storage within 24 hours',
+      'Session duration: 30 days with sliding refresh',
     ],
-    cta: 'Contact sales',
-    href: '/signup?plan=pro',
+    cta: 'Read privacy policy',
+    href: '/privacy',
     highlighted: false,
   },
 ]
@@ -66,18 +62,15 @@ export function LandingPricing() {
   return (
     <section id="pricing" className="relative py-24 sm:py-32">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section header */}
         <div className="text-center mb-16">
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl text-white mb-4">
-            Simple pricing.{' '}
-            <span className="text-poof-violet">No surprises.</span>
+            Product constraints. <span className="text-poof-violet">Clearly defined.</span>
           </h2>
           <p className="text-lg text-poof-mist max-w-2xl mx-auto">
-            Start free, upgrade when you need more. No credit card required.
+            The platform enforces these limits server-side so behavior is consistent and predictable.
           </p>
         </div>
 
-        {/* Pricing cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
           {plans.map((plan, i) => (
             <GlassCard
@@ -89,31 +82,24 @@ export function LandingPricing() {
               style={{ animationDelay: `${i * 0.1}s` }}
               hover={!plan.highlighted}
             >
-              {/* Popular badge */}
               {plan.highlighted && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-poof-accent text-white text-xs font-medium">
                     <Sparkles className="w-3 h-3" />
-                    Most popular
+                    Core link behavior
                   </div>
                 </div>
               )}
 
-              {/* Plan header */}
               <div className="text-center mb-6 pt-2">
-                <h3 className="font-heading font-bold text-xl text-white mb-2">
-                  {plan.name}
-                </h3>
+                <h3 className="font-heading font-bold text-xl text-white mb-2">{plan.name}</h3>
                 <div className="flex items-baseline justify-center gap-1">
-                  <span className="font-heading font-extrabold text-4xl text-white">
-                    {plan.price}
-                  </span>
+                  <span className="font-heading font-extrabold text-4xl text-white">{plan.price}</span>
                   <span className="text-poof-mist text-sm">{plan.period}</span>
                 </div>
                 <p className="text-poof-mist text-sm mt-2">{plan.description}</p>
               </div>
 
-              {/* Features */}
               <ul className="space-y-3 mb-8">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-center gap-3 text-sm">
@@ -123,7 +109,6 @@ export function LandingPricing() {
                 ))}
               </ul>
 
-              {/* CTA */}
               <Button
                 asChild
                 className={cn(
@@ -139,18 +124,10 @@ export function LandingPricing() {
           ))}
         </div>
 
-        {/* FAQ teaser */}
         <div className="mt-16 text-center">
           <p className="text-poof-mist text-sm">
-            Questions? Check out our{' '}
-            <a href="#" className="text-poof-violet hover:underline">
-              FAQ
-            </a>{' '}
-            or{' '}
-            <a href="#" className="text-poof-violet hover:underline">
-              contact us
-            </a>
-            .
+            Need implementation details? Visit the <a href="#faq" className="text-poof-violet hover:underline">FAQ</a>{' '}
+            or read our <Link href="/terms" className="text-poof-violet hover:underline">Terms</Link>.
           </p>
         </div>
       </div>

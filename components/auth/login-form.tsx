@@ -91,7 +91,7 @@ export function LoginForm() {
           <Button
             type="button"
             variant="outline"
-            className="w-full text-white hover:text-gray-100 border-0 btn-press mb-6"
+            className="w-full text-white hover:text-gray-100 dark:text-white border-0 btn-press mb-6"
             onClick={handleGoogleLogin}
             disabled={loading}
           >

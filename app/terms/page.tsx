@@ -5,8 +5,17 @@ import { AnimatedBackground } from '@/components/poof/animated-background'
 import { GlassCard } from '@/components/poof/glass-card'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service — Poof',
-  description: 'Poof terms of service.',
+  title: 'Terms of Service',
+  description: 'Read the Poof terms of service for account rules, acceptable use, expiring links, and termination policies.',
+  alternates: {
+    canonical: '/terms',
+  },
+  openGraph: {
+    title: 'Poof Terms of Service',
+    description: 'The legal terms that govern using Poof photo sharing.',
+    url: '/terms',
+    type: 'article',
+  },
 }
 
 export default function TermsPage() {

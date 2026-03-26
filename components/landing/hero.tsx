@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { AnimatedBackground } from '@/components/poof/animated-background'
-import { ArrowRight, Clock, Eye, Lock } from 'lucide-react'
+import { ArrowRight, Clock, Images, Zap } from 'lucide-react'
 
 export function LandingHero() {
   return (
@@ -27,8 +27,8 @@ export function LandingHero() {
 
         {/* Subheadline */}
         <p className="text-lg sm:text-xl text-poof-mist max-w-2xl mx-auto mb-10 animate-fade-up stagger-2 text-balance">
-          Share photos with expiring links. When time is up, they poof. 
-          No trace. No forever. Just moments that matter, for as long as you choose.
+          Create galleries, share a single photo or a selected set, and control expiry exactly how you want.
+          When a link expires or is revoked, access ends instantly.
         </p>
 
         {/* CTA buttons */}
@@ -56,8 +56,8 @@ export function LandingHero() {
         {/* Feature pills */}
         <div className="flex flex-wrap items-center justify-center gap-4 animate-fade-up stagger-4">
           <FeaturePill icon={<Clock className="w-4 h-4" />} text="Expiring links" />
-          <FeaturePill icon={<Eye className="w-4 h-4" />} text="View limits" />
-          <FeaturePill icon={<Lock className="w-4 h-4" />} text="Password protection" />
+          <FeaturePill icon={<Images className="w-4 h-4" />} text="Gallery + image sharing" />
+          <FeaturePill icon={<Zap className="w-4 h-4" />} text="Instant revoke" />
         </div>
 
         {/* Demo preview */}
@@ -77,7 +77,7 @@ export function LandingHero() {
                 </div>
                 <div className="flex-1 mx-4">
                   <div className="max-w-xs mx-auto px-4 py-1.5 rounded-md bg-white/5 text-xs text-poof-mist font-mono">
-                    poof.so/g/abc123
+                    poof.k04.tech/shared/clxabc123
                   </div>
                 </div>
               </div>
