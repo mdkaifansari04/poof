@@ -10,6 +10,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -68,6 +78,13 @@ export default function GalleriesPage() {
   const [filterBy, setFilterBy] = useState<FilterOption>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedGalleries, setSelectedGalleries] = useState<Set<string>>(new Set())
+  const [deleteDialog, setDeleteDialog] = useState<{
+    open: boolean
+    ids: string[]
+  }>({
+    open: false,
+    ids: [],
+  })
 
   const galleriesQuery = useGalleries()
   const deleteGallery = useDeleteGallery()
@@ -151,16 +168,7 @@ export default function GalleriesPage() {
     setSelectedGalleries(new Set())
   }
 
-  const handleDeleteGallery = async (id: string, options?: { skipConfirm?: boolean }) => {
-    if (!options?.skipConfirm) {
-      const confirmed = window.confirm(
-        'Delete this gallery? This will remove it from your dashboard immediately.',
-      )
-      if (!confirmed) {
-        return
-      }
-    }
-
+  const deleteOneGallery = async (id: string) => {
     try {
       await deleteGallery.mutateAsync(id)
       setSelectedGalleries((previous) => {
@@ -172,6 +180,27 @@ export default function GalleriesPage() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to delete gallery'
       toast.error(message)
+    }
+  }
+
+  const openDeleteDialog = (ids: string[]) => {
+    if (ids.length === 0) {
+      return
+    }
+
+    setDeleteDialog({ open: true, ids })
+  }
+
+  const confirmDeleteDialog = async () => {
+    const ids = [...deleteDialog.ids]
+    setDeleteDialog({ open: false, ids: [] })
+
+    for (const id of ids) {
+      await deleteOneGallery(id)
+    }
+
+    if (ids.length > 1) {
+      clearSelection()
     }
   }
 
@@ -316,25 +345,7 @@ export default function GalleriesPage() {
               size="sm"
               className="text-red-400 hover:text-red-300"
               disabled={deleteGallery.isPending}
-              onClick={async () => {
-                const ids = [...selectedGalleries]
-
-                if (ids.length === 0) {
-                  return
-                }
-
-                const confirmed = window.confirm(`Delete ${ids.length} selected galleries?`)
-
-                if (!confirmed) {
-                  return
-                }
-
-                for (const id of ids) {
-                  await handleDeleteGallery(id, { skipConfirm: true })
-                }
-
-                clearSelection()
-              }}
+              onClick={() => openDeleteDialog([...selectedGalleries])}
             >
               <Trash2 className="w-4 h-4 mr-1" />
               Delete
@@ -354,7 +365,7 @@ export default function GalleriesPage() {
                 isSelected={selectedGalleries.has(gallery.id)}
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
-                onDelete={() => handleDeleteGallery(gallery.id)}
+                onDelete={() => openDeleteDialog([gallery.id])}
               />
             ))}
           </div>
@@ -368,7 +379,7 @@ export default function GalleriesPage() {
                 isSelected={selectedGalleries.has(gallery.id)}
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
-                onDelete={() => handleDeleteGallery(gallery.id)}
+                onDelete={() => openDeleteDialog([gallery.id])}
               />
             ))}
           </div>
@@ -378,6 +389,39 @@ export default function GalleriesPage() {
       ) : (
         <EmptyState type="galleries" />
       )}
+
+      <AlertDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) =>
+          setDeleteDialog((previous) => ({
+            ...previous,
+            open,
+          }))
+        }
+      >
+        <AlertDialogContent className="bg-poof-base border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Delete {deleteDialog.ids.length > 1 ? `${deleteDialog.ids.length} galleries` : 'gallery'}?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-poof-mist">
+              This action removes {deleteDialog.ids.length > 1 ? 'these galleries' : 'this gallery'} from your
+              dashboard immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-500/90 text-white"
+              onClick={() => void confirmDeleteDialog()}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
