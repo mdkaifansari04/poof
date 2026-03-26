@@ -10,6 +10,8 @@ import type {
 import type {
   CreateSharedResourceInput,
   CreateSharedResourceResponse,
+  UpdateSharedResourceInput,
+  UpdateSharedResourceResponse,
 } from '@/lib/types/shared-resource'
 import { queryKeys } from './queries'
 
@@ -133,6 +135,24 @@ export function useDeleteSharedResource() {
         id: string
         deleted: true
       }>,
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
+    },
+  })
+}
+
+export function useUpdateSharedResource() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      resourceId,
+      body,
+    }: {
+      resourceId: string
+      body: UpdateSharedResourceInput
+    }) =>
+      api.patch(`/shared-resources/${resourceId}`, body) as Promise<UpdateSharedResourceResponse>,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
     },

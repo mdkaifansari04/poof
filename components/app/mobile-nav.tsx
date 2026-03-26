@@ -6,7 +6,6 @@ import {
   LayoutDashboard, 
   ImageIcon, 
   Link2, 
-  BarChart3, 
   Settings 
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -15,7 +14,6 @@ const navItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Home' },
   { href: '/galleries', icon: ImageIcon, label: 'Galleries' },
   { href: '/links', icon: Link2, label: 'Links' },
-  { href: '/analytics', icon: BarChart3, label: 'Analytics' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ]
 

@@ -8,6 +8,11 @@ export type CreateSharedResourceInput = {
   expiresAt: string
 }
 
+export type UpdateSharedResourceInput = {
+  expiresAt?: string
+  reactivate?: boolean
+}
+
 export type SharedResourceListItem = {
   id: string
   type: SharedResourceType
@@ -55,4 +60,18 @@ export type CreateSharedResourceResponse = {
   expiresAt: string
   shareUrl: string
   createdAt: string
+}
+
+export type UpdateSharedResourceResponse = {
+  id: string
+  type: SharedResourceType
+  galleryId: string | null
+  imageIds: string[]
+  expiresAt: string
+  revokedAt: string | null
+  viewCount: number
+  createdAt: string
+  updatedAt: string
+  shareUrl: string
+  status: SharedResourceStatus
 }

@@ -1,8 +1,11 @@
 import { SharedResourceType } from '@prisma/client'
+import { z } from 'zod'
 import { requireRequestSession } from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
-import { handleApiError } from '@/app/api/_utils/http'
+import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
+import { buildShareUrl, getSharedResourceStatus } from '@/app/api/_utils/shared'
+import { MAX_SHARE_EXPIRY_MS, MIN_SHARE_EXPIRY_MS } from '@/lib/limits'
 import { prisma } from '@/lib/prisma'
 
 type RouteContext = {
@@ -31,6 +34,11 @@ async function resolveImageRecord(imageId: string) {
     },
   })
 }
+
+const updateSharedResourceSchema = z.object({
+  expiresAt: z.string().datetime().optional(),
+  reactivate: z.boolean().optional(),
+})
 
 export async function GET(_request: Request, context: RouteContext) {
   try {
@@ -219,6 +227,108 @@ export async function DELETE(request: Request, context: RouteContext) {
     return ok({
       id: resourceId,
       deleted: true,
+    })
+  } catch (error) {
+    return handleApiError(error)
+  }
+}
+
+export async function PATCH(request: Request, context: RouteContext) {
+  try {
+    const authResult = await requireRequestSession(request)
+
+    if (authResult.response) {
+      return authResult.response
+    }
+
+    const body = await parseJsonBody<unknown>(request)
+    const parsed = updateSharedResourceSchema.safeParse(body)
+
+    if (!parsed.success) {
+      throw apiErrors.validation(parsed.error.issues[0]?.message ?? 'Invalid request body')
+    }
+
+    const input = parsed.data
+    if (!input.expiresAt && input.reactivate !== true) {
+      throw apiErrors.validation('Provide expiresAt and/or reactivate=true')
+    }
+
+    const resourceId = await getRouteResourceId(context)
+
+    const resource = await prisma.sharedResource.findUnique({
+      where: { id: resourceId },
+      select: {
+        id: true,
+        userId: true,
+        type: true,
+        galleryId: true,
+        imageIds: true,
+        expiresAt: true,
+        revokedAt: true,
+        viewCount: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+
+    if (!resource) {
+      throw apiErrors.notFound('Shared resource not found')
+    }
+
+    if (resource.userId !== authResult.userId) {
+      throw apiErrors.forbidden('You do not have access to this shared resource')
+    }
+
+    const now = new Date()
+    let nextExpiresAt = resource.expiresAt
+
+    if (input.expiresAt) {
+      const parsedExpiresAt = new Date(input.expiresAt)
+      if (Number.isNaN(parsedExpiresAt.getTime())) {
+        throw apiErrors.validation('expiresAt must be a valid ISO timestamp')
+      }
+
+      const expiryDistance = parsedExpiresAt.getTime() - now.getTime()
+      if (expiryDistance <= 0) {
+        throw apiErrors.validation('expiresAt must be in the future')
+      }
+      if (expiryDistance < MIN_SHARE_EXPIRY_MS) {
+        throw apiErrors.validation('Expiry must be at least 1 hour from now')
+      }
+      if (expiryDistance > MAX_SHARE_EXPIRY_MS) {
+        throw apiErrors.validation('Expiry cannot be more than 1 year from now')
+      }
+
+      nextExpiresAt = parsedExpiresAt
+    }
+
+    if (input.reactivate === true && nextExpiresAt.getTime() <= now.getTime()) {
+      throw apiErrors.validation('Provide a future expiry to reactivate this link')
+    }
+
+    const updated = await prisma.sharedResource.update({
+      where: { id: resourceId },
+      data: {
+        expiresAt: nextExpiresAt,
+        revokedAt: input.reactivate === true ? null : undefined,
+      },
+      select: {
+        id: true,
+        type: true,
+        galleryId: true,
+        imageIds: true,
+        expiresAt: true,
+        revokedAt: true,
+        viewCount: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    })
+
+    return ok({
+      ...updated,
+      shareUrl: buildShareUrl(request, updated.id),
+      status: getSharedResourceStatus(updated),
     })
   } catch (error) {
     return handleApiError(error)

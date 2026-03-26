@@ -9,6 +9,7 @@ import { StatusBadge } from '@/components/poof/status-badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   AlertDialog,
@@ -47,6 +48,8 @@ import {
   AlertTriangle,
   CloudUpload,
   Copy,
+  Check,
+  Pencil,
   Link2,
   Clock3,
 } from 'lucide-react'
@@ -59,20 +62,25 @@ import {
   useFailUpload,
   useRevokeSharedResource,
   useRequestPresignedUrl,
+  useUpdateSharedResource,
   useUpdateGallery,
 } from '@/hooks/mutations'
 import { useGallery, useSharedResources } from '@/hooks/queries'
 import {
   MAX_FILE_SIZE_BYTES,
+  MAX_SHARE_EXPIRY_MS,
+  MIN_SHARE_EXPIRY_MS,
   SUPPORTED_IMAGE_MIME_TYPES,
 } from '@/lib/limits'
-import type { SharedResourceType } from '@/lib/types/shared-resource'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
 const supportedMimeSet = new Set<string>(SUPPORTED_IMAGE_MIME_TYPES)
+const DEFAULT_SHARE_EXPIRY_HOURS = 24
+const COPY_ICON_SUCCESS_MS = 2000
 
 type GalleryRouteParams = Promise<{ id: string }>
+type ShareExpiryMode = 'hours' | 'datetime'
 type UploadAlertState =
   | {
       status: 'idle'
@@ -90,6 +98,22 @@ type UploadAlertState =
       failed: number
       message: string
     }
+
+function toLocalDateTimeInputValue(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
+function getDefaultShareDateTimeValue(): string {
+  return toLocalDateTimeInputValue(
+    new Date(Date.now() + DEFAULT_SHARE_EXPIRY_HOURS * 60 * 60 * 1000),
+  )
+}
 
 function uploadWithPresignedUrl(
   file: File,
@@ -135,6 +159,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   const createSharedResource = useCreateSharedResource()
   const revokeSharedResource = useRevokeSharedResource()
   const deleteSharedResource = useDeleteSharedResource()
+  const updateSharedResource = useUpdateSharedResource()
 
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -147,10 +172,19 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   const [deleteImageTargetId, setDeleteImageTargetId] = useState<string | null>(null)
   const [selectedImageIds, setSelectedImageIds] = useState<Set<string>>(new Set())
   const [isShareModalOpen, setIsShareModalOpen] = useState(false)
-  const [shareType, setShareType] = useState<SharedResourceType>('GALLERY')
   const [shareImageIds, setShareImageIds] = useState<string[]>([])
-  const [shareExpiryHours, setShareExpiryHours] = useState('24')
+  const [shareExpiryMode, setShareExpiryMode] = useState<ShareExpiryMode>('hours')
+  const [shareExpiryHours, setShareExpiryHours] = useState(String(DEFAULT_SHARE_EXPIRY_HOURS))
+  const [shareExpiryDateTime, setShareExpiryDateTime] = useState(getDefaultShareDateTimeValue)
   const [lastCreatedShareUrl, setLastCreatedShareUrl] = useState<string | null>(null)
+  const [lastCreatedShareSignature, setLastCreatedShareSignature] = useState<string | null>(null)
+  const [copiedShareKey, setCopiedShareKey] = useState<string | null>(null)
+  const [revokingShareId, setRevokingShareId] = useState<string | null>(null)
+  const [isDeletingShare, setIsDeletingShare] = useState(false)
+  const [deleteShareTargetId, setDeleteShareTargetId] = useState<string | null>(null)
+  const [editShareTargetId, setEditShareTargetId] = useState<string | null>(null)
+  const [editShareExpiryDateTime, setEditShareExpiryDateTime] = useState('')
+  const [editShareReactivate, setEditShareReactivate] = useState(false)
   const [uploadAlert, setUploadAlert] = useState<UploadAlertState>({
     status: 'idle',
     progress: 0,
@@ -159,6 +193,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
     failed: 0,
     message: '',
   })
+  const copiedShareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const gallery = galleryQuery.data
   const allImages = gallery?.images ?? []
@@ -176,6 +211,14 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
       setEditName(gallery.name)
     }
   }, [gallery?.name])
+
+  useEffect(() => {
+    return () => {
+      if (copiedShareTimeoutRef.current) {
+        clearTimeout(copiedShareTimeoutRef.current)
+      }
+    }
+  }, [])
 
   const handleRenameCommit = async () => {
     const nextName = editName.trim()
@@ -241,37 +284,92 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
     setSelectedImageIds(new Set())
   }
 
-  const openShareModal = (type: SharedResourceType, imageIds: string[] = []) => {
-    setShareType(type)
+  const openShareModal = (imageIds: string[] = []) => {
     setShareImageIds(imageIds)
-    setShareExpiryHours('24')
+    setShareExpiryMode('hours')
+    setShareExpiryHours(String(DEFAULT_SHARE_EXPIRY_HOURS))
+    setShareExpiryDateTime(getDefaultShareDateTimeValue())
     setLastCreatedShareUrl(null)
+    setLastCreatedShareSignature(null)
+    setCopiedShareKey(null)
     setIsShareModalOpen(true)
   }
 
   const handleCreateShareLink = async () => {
-    const hours = Number(shareExpiryHours)
+    const nowMs = Date.now()
+    let expiresAtDate: Date
 
-    if (!Number.isFinite(hours) || hours <= 0) {
-      toast.error('Please enter a valid expiry in hours')
+    if (shareExpiryMode === 'hours') {
+      const hours = Number(shareExpiryHours)
+
+      if (!Number.isFinite(hours) || hours <= 0) {
+        toast.error('Please enter a valid expiry in hours')
+        return
+      }
+
+      expiresAtDate = new Date(nowMs + hours * 60 * 60 * 1000)
+    } else {
+      if (!shareExpiryDateTime) {
+        toast.error('Please choose an expiry date and time')
+        return
+      }
+
+      const parsedDateTime = new Date(shareExpiryDateTime)
+
+      if (Number.isNaN(parsedDateTime.getTime())) {
+        toast.error('Please choose a valid expiry date and time')
+        return
+      }
+
+      expiresAtDate = parsedDateTime
+    }
+
+    const expiryDistance = expiresAtDate.getTime() - nowMs
+
+    if (expiryDistance <= 0) {
+      toast.error('Expiry must be in the future')
       return
     }
 
-    const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString()
+    if (expiryDistance < MIN_SHARE_EXPIRY_MS) {
+      toast.error('Expiry must be at least 1 hour from now')
+      return
+    }
+
+    if (expiryDistance > MAX_SHARE_EXPIRY_MS) {
+      toast.error('Expiry cannot be more than 1 year from now')
+      return
+    }
+
+    const expiresAt = expiresAtDate.toISOString()
+    const selectedShareType =
+      shareImageIds.length === 0
+        ? 'GALLERY'
+        : shareImageIds.length === 1
+          ? 'IMAGE'
+          : 'MULTI_IMAGE'
 
     try {
       const created = await createSharedResource.mutateAsync({
-        type: shareType,
-        galleryId: shareType === 'GALLERY' ? id : undefined,
-        imageIds: shareType === 'GALLERY' ? undefined : shareImageIds,
+        type: selectedShareType,
+        galleryId: selectedShareType === 'GALLERY' ? id : undefined,
+        imageIds: selectedShareType === 'GALLERY' ? undefined : shareImageIds,
         expiresAt,
       })
 
       setLastCreatedShareUrl(created.shareUrl)
+      setLastCreatedShareSignature(currentShareDraftSignature)
       await navigator.clipboard.writeText(created.shareUrl)
+      setCopiedShareKey('latest')
+      if (copiedShareTimeoutRef.current) {
+        clearTimeout(copiedShareTimeoutRef.current)
+      }
+      copiedShareTimeoutRef.current = setTimeout(() => {
+        setCopiedShareKey((previous) => (previous === 'latest' ? null : previous))
+      }, COPY_ICON_SUCCESS_MS)
       toast.success('Share link created and copied')
       void sharedResourcesQuery.refetch()
-      if (shareType === 'MULTI_IMAGE') {
+      if (shareImageIds.length > 1) {
         clearImageSelection()
       }
     } catch (error) {
@@ -280,9 +378,16 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
     }
   }
 
-  const handleCopyShareLink = async (shareUrl: string) => {
+  const handleCopyShareLink = async (shareUrl: string, key: string) => {
     try {
       await navigator.clipboard.writeText(shareUrl)
+      setCopiedShareKey(key)
+      if (copiedShareTimeoutRef.current) {
+        clearTimeout(copiedShareTimeoutRef.current)
+      }
+      copiedShareTimeoutRef.current = setTimeout(() => {
+        setCopiedShareKey((previous) => (previous === key ? null : previous))
+      }, COPY_ICON_SUCCESS_MS)
       toast.success('Share link copied')
     } catch {
       toast.error('Failed to copy share link')
@@ -290,21 +395,78 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   }
 
   const handleRevokeShare = async (resourceId: string) => {
+    setRevokingShareId(resourceId)
     try {
       await revokeSharedResource.mutateAsync(resourceId)
       toast.success('Share link revoked')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to revoke share link'
       toast.error(message)
+    } finally {
+      setRevokingShareId((current) => (current === resourceId ? null : current))
     }
   }
 
   const handleDeleteShare = async (resourceId: string) => {
+    setIsDeletingShare(true)
     try {
       await deleteSharedResource.mutateAsync(resourceId)
+      setDeleteShareTargetId(null)
       toast.success('Share link deleted')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to delete share link'
+      toast.error(message)
+    } finally {
+      setIsDeletingShare(false)
+    }
+  }
+
+  const openEditShareModal = (resourceId: string) => {
+    const target = galleryShares.find((share) => share.id === resourceId)
+    if (!target) {
+      return
+    }
+
+    const expiresAtDate = new Date(target.expiresAt)
+    const fallback = new Date(Date.now() + 24 * 60 * 60 * 1000)
+    const initialDate = expiresAtDate.getTime() > Date.now() ? expiresAtDate : fallback
+
+    setEditShareTargetId(target.id)
+    setEditShareExpiryDateTime(toLocalDateTimeInputValue(initialDate))
+    setEditShareReactivate(target.status !== 'ACTIVE')
+  }
+
+  const handleUpdateShare = async () => {
+    if (!editShareTargetId) {
+      return
+    }
+
+    if (!editShareExpiryDateTime) {
+      toast.error('Please choose an expiry date and time')
+      return
+    }
+
+    const expiresAt = new Date(editShareExpiryDateTime)
+    if (Number.isNaN(expiresAt.getTime())) {
+      toast.error('Please choose a valid expiry date and time')
+      return
+    }
+
+    try {
+      await updateSharedResource.mutateAsync({
+        resourceId: editShareTargetId,
+        body: {
+          expiresAt: expiresAt.toISOString(),
+          reactivate: editShareReactivate || undefined,
+        },
+      })
+
+      setEditShareTargetId(null)
+      setEditShareExpiryDateTime('')
+      setEditShareReactivate(false)
+      toast.success(editShareReactivate ? 'Link updated and reactivated' : 'Link updated')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to update share link'
       toast.error(message)
     }
   }
@@ -483,10 +645,35 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   const deleteImageTarget = deleteImageTargetId
     ? allImages.find((image) => image.id === deleteImageTargetId) ?? null
     : null
-  const canCreateShareLink =
-    shareType === 'GALLERY' ||
-    (shareType === 'IMAGE' && shareImageIds.length === 1) ||
-    (shareType === 'MULTI_IMAGE' && shareImageIds.length >= 2)
+  const deleteShareTarget = deleteShareTargetId
+    ? galleryShares.find((share) => share.id === deleteShareTargetId) ?? null
+    : null
+  const editShareTarget = editShareTargetId
+    ? galleryShares.find((share) => share.id === editShareTargetId) ?? null
+    : null
+  const shareIntentLabel =
+    shareImageIds.length === 0
+      ? 'Sharing the entire gallery.'
+      : shareImageIds.length === 1
+        ? 'Sharing 1 selected image.'
+        : `Sharing ${shareImageIds.length} selected images.`
+  const shareType =
+    shareImageIds.length === 0 ? 'GALLERY' : shareImageIds.length === 1 ? 'IMAGE' : 'MULTI_IMAGE'
+  const currentShareDraftSignature = `${shareType}|${[...shareImageIds].sort().join(',')}|${shareExpiryMode}|${
+    shareExpiryMode === 'hours' ? shareExpiryHours.trim() : shareExpiryDateTime.trim()
+  }`
+  const isCreateLinkDisabled =
+    createSharedResource.isPending ||
+    (lastCreatedShareSignature !== null && lastCreatedShareSignature === currentShareDraftSignature)
+  const minShareDateTimeValue = useMemo(
+    () => toLocalDateTimeInputValue(new Date(Date.now() + MIN_SHARE_EXPIRY_MS)),
+    [isShareModalOpen],
+  )
+  const maxShareDateTimeValue = useMemo(
+    () => toLocalDateTimeInputValue(new Date(Date.now() + MAX_SHARE_EXPIRY_MS)),
+    [isShareModalOpen],
+  )
+  const minEditShareDateTimeValue = toLocalDateTimeInputValue(new Date(Date.now() + MIN_SHARE_EXPIRY_MS))
 
   const goToPrevPhoto = () => {
     if (currentPhotoIndex <= 0) return
@@ -590,7 +777,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
           </Button>
           <Button
             className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press"
-            onClick={() => openShareModal('GALLERY')}
+            onClick={() => openShareModal()}
           >
             <Share2 className="w-4 h-4 mr-2" />
             Share gallery
@@ -635,16 +822,9 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                 Clear
               </Button>
               <Button
-                className="bg-poof-violet hover:bg-poof-violet/90 text-white"
-                onClick={() => {
-                  if (selectedImageIds.size === 1) {
-                    openShareModal('IMAGE', selectedImageList.map((image) => image.id))
-                  } else {
-                    openShareModal('MULTI_IMAGE', selectedImageList.map((image) => image.id))
-                  }
-                }}
+                className="bg-poof-accent hover:bg-poof-accent/90 text-white px-5"
+                onClick={() => openShareModal(selectedImageList.map((image) => image.id))}
               >
-                <Share2 className="w-4 h-4 mr-2" />
                 Share selected
               </Button>
             </div>
@@ -658,7 +838,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
           <Button
             size="sm"
             className="bg-poof-accent hover:bg-poof-accent/90 text-white"
-            onClick={() => openShareModal('GALLERY')}
+            onClick={() => openShareModal()}
           >
             <Plus className="w-4 h-4 mr-1" />
             New link
@@ -706,9 +886,23 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                     variant="ghost"
                     size="sm"
                     className="text-poof-mist hover:text-white"
-                    onClick={() => void handleCopyShareLink(share.shareUrl)}
+                    onClick={() => openEditShareModal(share.id)}
+                    disabled={updateSharedResource.isPending || isDeletingShare}
                   >
-                    <Copy className="w-4 h-4 mr-1" />
+                    <Pencil className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-poof-mist hover:text-white"
+                    onClick={() => void handleCopyShareLink(share.shareUrl, `share-${share.id}`)}
+                  >
+                    {copiedShareKey === `share-${share.id}` ? (
+                      <Check className="w-4 h-4 mr-1" />
+                    ) : (
+                      <Copy className="w-4 h-4 mr-1" />
+                    )}
                     Copy
                   </Button>
                   {share.status === 'ACTIVE' && (
@@ -717,17 +911,33 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                       size="sm"
                       className="text-poof-peach hover:text-poof-peach"
                       onClick={() => void handleRevokeShare(share.id)}
+                      disabled={revokingShareId === share.id || isDeletingShare}
                     >
-                      Revoke
+                      {revokingShareId === share.id ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                          Revoking...
+                        </>
+                      ) : (
+                        'Revoke'
+                      )}
                     </Button>
                   )}
                   <Button
                     variant="ghost"
                     size="sm"
                     className="text-red-400 hover:text-red-300"
-                    onClick={() => void handleDeleteShare(share.id)}
+                    onClick={() => setDeleteShareTargetId(share.id)}
+                    disabled={isDeletingShare}
                   >
-                    Delete
+                    {isDeletingShare && deleteShareTargetId === share.id ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        Deleting...
+                      </>
+                    ) : (
+                      'Delete'
+                    )}
                   </Button>
                 </div>
               </div>
@@ -797,7 +1007,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                     className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
                     onClick={(event) => {
                       event.stopPropagation()
-                      openShareModal('IMAGE', [image.id])
+                      openShareModal([image.id])
                     }}
                     disabled={!canPreview}
                   >
@@ -943,81 +1153,75 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <button
-                className={cn(
-                  'rounded-lg border px-3 py-2 text-sm transition-colors',
-                  shareType === 'GALLERY'
-                    ? 'border-poof-violet bg-poof-violet/20 text-poof-violet'
-                    : 'border-white/10 text-poof-mist hover:text-white',
-                )}
-                onClick={() => {
-                  setShareType('GALLERY')
-                  setShareImageIds([])
-                }}
-              >
-                Gallery
-              </button>
-              <button
-                className={cn(
-                  'rounded-lg border px-3 py-2 text-sm transition-colors',
-                  shareType === 'IMAGE'
-                    ? 'border-poof-violet bg-poof-violet/20 text-poof-violet'
-                    : 'border-white/10 text-poof-mist hover:text-white',
-                )}
-                disabled={shareImageIds.length !== 1}
-                onClick={() => {
-                  if (shareImageIds.length === 1) {
-                    setShareType('IMAGE')
-                  }
-                }}
-              >
-                Single Image
-              </button>
-              <button
-                className={cn(
-                  'rounded-lg border px-3 py-2 text-sm transition-colors',
-                  shareType === 'MULTI_IMAGE'
-                    ? 'border-poof-violet bg-poof-violet/20 text-poof-violet'
-                    : 'border-white/10 text-poof-mist hover:text-white',
-                )}
-                disabled={shareImageIds.length < 2}
-                onClick={() => {
-                  if (shareImageIds.length >= 2) {
-                    setShareType('MULTI_IMAGE')
-                  }
-                }}
-              >
-                Multi Image
-              </button>
-            </div>
-
             <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm">
-              {shareType === 'GALLERY' && (
-                <p className="text-poof-mist">Sharing the entire gallery.</p>
-              )}
-              {shareType !== 'GALLERY' && (
-                <p className="text-poof-mist">
-                  {shareImageIds.length} image{shareImageIds.length === 1 ? '' : 's'} selected.
-                </p>
-              )}
+              <p className="text-poof-mist">{shareIntentLabel}</p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm text-poof-mist">Expiry (hours from now)</label>
-              <Input
-                type="number"
-                min={1}
-                max={24 * 365}
-                value={shareExpiryHours}
-                onChange={(event) => setShareExpiryHours(event.target.value)}
-                className="bg-white/5 border-white/10 text-white"
-              />
+            <div className="space-y-3">
+              <label className="text-sm text-poof-mist">Expiry</label>
+              <Tabs
+                value={shareExpiryMode}
+                onValueChange={(value) => setShareExpiryMode(value as ShareExpiryMode)}
+              >
+                <TabsList className="grid h-10 w-full grid-cols-2 border border-white/10 bg-white/5">
+                  <TabsTrigger
+                    value="hours"
+                    className="text-poof-mist data-[state=active]:bg-poof-violet/30 data-[state=active]:text-white"
+                  >
+                    Hours from now
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="datetime"
+                    className="text-poof-mist data-[state=active]:bg-poof-violet/30 data-[state=active]:text-white"
+                  >
+                    Date & time
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="hours" className="space-y-2">
+                  <Input
+                    type="number"
+                    min={1}
+                    max={24 * 365}
+                    value={shareExpiryHours}
+                    onChange={(event) => setShareExpiryHours(event.target.value)}
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                  <p className="text-xs text-poof-mist">Minimum 1 hour, maximum 1 year.</p>
+                </TabsContent>
+
+                <TabsContent value="datetime" className="space-y-2">
+                  <Input
+                    type="datetime-local"
+                    value={shareExpiryDateTime}
+                    min={minShareDateTimeValue}
+                    max={maxShareDateTimeValue}
+                    onChange={(event) => setShareExpiryDateTime(event.target.value)}
+                    className="bg-white/5 border-white/10 text-white"
+                  />
+                  <p className="text-xs text-poof-mist">Uses your local timezone.</p>
+                </TabsContent>
+              </Tabs>
             </div>
 
             {lastCreatedShareUrl && (
               <div className="rounded-lg border border-poof-mint/30 bg-poof-mint/10 p-3">
-                <p className="text-xs text-poof-mint mb-1">Latest link</p>
+                <div className="flex items-center justify-between gap-2 mb-1">
+                  <p className="text-xs text-poof-mint">Latest link</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 border-poof-mint/40 text-poof-mint hover:bg-poof-mint/10"
+                    onClick={() => void handleCopyShareLink(lastCreatedShareUrl, 'latest')}
+                  >
+                    {copiedShareKey === 'latest' ? (
+                      <Check className="w-3.5 h-3.5 mr-1" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5 mr-1" />
+                    )}
+                    Copy
+                  </Button>
+                </div>
                 <p className="font-mono text-xs text-white break-all">{lastCreatedShareUrl}</p>
               </div>
             )}
@@ -1027,13 +1231,14 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                 variant="outline"
                 className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
                 onClick={() => setIsShareModalOpen(false)}
+                disabled={createSharedResource.isPending}
               >
                 Cancel
               </Button>
               <Button
                 className="bg-poof-accent hover:bg-poof-accent/90 text-white"
                 onClick={() => void handleCreateShareLink()}
-                disabled={!canCreateShareLink || createSharedResource.isPending}
+                disabled={isCreateLinkDisabled}
               >
                 {createSharedResource.isPending ? (
                   <>
@@ -1048,12 +1253,92 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                 )}
               </Button>
             </div>
+            {lastCreatedShareSignature !== null &&
+              lastCreatedShareSignature === currentShareDraftSignature &&
+              !createSharedResource.isPending && (
+                <p className="text-right text-xs text-poof-mist">
+                  Change expiry input to generate another link.
+                </p>
+              )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(editShareTargetId)}
+        onOpenChange={(open) => {
+          if (!open && !updateSharedResource.isPending) {
+            setEditShareTargetId(null)
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-lg bg-poof-base border-white/10 text-white">
+          <div className="space-y-5">
+            <div>
+              <h2 className="font-heading font-bold text-2xl">Edit share link</h2>
+              <p className="text-poof-mist text-sm mt-1">Extend expiry or reactivate this link.</p>
+            </div>
+
+            {editShareTarget && (
+              <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+                <p className="font-mono text-xs text-poof-violet break-all">{editShareTarget.shareUrl}</p>
+                <p className="text-xs text-poof-mist mt-1">Current status: {editShareTarget.status}</p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <label className="text-sm text-poof-mist">New expiry (date & time)</label>
+              <Input
+                type="datetime-local"
+                value={editShareExpiryDateTime}
+                min={minEditShareDateTimeValue}
+                onChange={(event) => setEditShareExpiryDateTime(event.target.value)}
+                className="bg-white/5 border-white/10 text-white"
+              />
+            </div>
+
+            <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+              <Checkbox
+                checked={editShareReactivate}
+                onCheckedChange={(checked) => setEditShareReactivate(Boolean(checked))}
+                className="border-white/30 data-[state=checked]:bg-poof-accent data-[state=checked]:border-poof-accent"
+              />
+              <span className="text-sm text-poof-mist">Reactivate link</span>
+            </label>
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                onClick={() => setEditShareTargetId(null)}
+                disabled={updateSharedResource.isPending}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+                onClick={() => void handleUpdateShare()}
+                disabled={updateSharedResource.isPending}
+              >
+                {updateSharedResource.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save changes'
+                )}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
 
       <Dialog open={Boolean(lightboxPhoto)} onOpenChange={() => setLightboxPhoto(null)}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-white/10">
+        <DialogContent
+          className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-white/10"
+          showCloseButton={false}
+        >
           <div className="relative w-full h-[90vh] flex items-center justify-center">
             <button
               onClick={() => setLightboxPhoto(null)}
@@ -1173,6 +1458,52 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
               }}
             >
               Delete image
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={Boolean(deleteShareTargetId)}
+        onOpenChange={(open) => {
+          if (!open && !isDeletingShare) {
+            setDeleteShareTargetId(null)
+          }
+        }}
+      >
+        <AlertDialogContent className="bg-poof-base border-white/10 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete share link?</AlertDialogTitle>
+            <AlertDialogDescription className="text-poof-mist">
+              {deleteShareTarget
+                ? `This will permanently remove this ${deleteShareTarget.type.toLowerCase()} link from your history.`
+                : 'This will permanently remove this share link from your history.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+              disabled={isDeletingShare}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-500 hover:bg-red-500/90 text-white"
+              onClick={() => {
+                if (deleteShareTargetId) {
+                  void handleDeleteShare(deleteShareTargetId)
+                }
+              }}
+              disabled={isDeletingShare}
+            >
+              {isDeletingShare ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete link'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
