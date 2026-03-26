@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Eye, EyeOff, Loader2, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { authClient } from '@/lib/auth-client'
 
 type PasswordStrength = 'weak' | 'fair' | 'good' | 'strong'
 
@@ -61,38 +62,56 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-    setLoading(true)
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    // Mock validation
     if (!name || !email || !password) {
       setError('Please fill in all fields')
-      setLoading(false)
       return
     }
 
     if (!agreedToTerms) {
       setError('You must agree to the terms')
-      setLoading(false)
       return
     }
 
-    setLoading(false)
-    setSuccess(true)
-    
-    // Redirect after success animation
-    setTimeout(() => {
-      router.push('/dashboard')
-    }, 1000)
+    setLoading(true)
+
+    try {
+      const result = await authClient.signUp.email({
+        name,
+        email,
+        password,
+      })
+
+      if (result.error) {
+        setError(result.error.message ?? 'Unable to create account')
+        return
+      }
+
+      setSuccess(true)
+      
+      // Redirect after success animation
+      setTimeout(() => {
+        router.push('/dashboard')
+      }, 500)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to create account')
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleGoogleSignup = async () => {
+    setError(null)
     setLoading(true)
-    // Simulate OAuth redirect
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/dashboard')
+    try {
+      await authClient.signIn.social({
+        provider: 'google',
+        callbackURL: '/dashboard',
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-up failed')
+      setLoading(false)
+    }
   }
 
   return (
@@ -250,9 +269,9 @@ export default function SignupPage() {
               />
               <label htmlFor="terms" className="text-sm text-poof-mist cursor-pointer leading-relaxed">
                 I agree to the{' '}
-                <a href="#" target="_blank" className="text-poof-violet hover:underline">Terms of Service</a>
+                <Link href="/terms" className="text-poof-violet hover:underline">Terms of Service</Link>
                 {' '}and{' '}
-                <a href="#" target="_blank" className="text-poof-violet hover:underline">Privacy Policy</a>
+                <Link href="/privacy" className="text-poof-violet hover:underline">Privacy Policy</Link>
               </label>
             </div>
 

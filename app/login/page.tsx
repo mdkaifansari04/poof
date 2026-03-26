@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Loader2, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,32 +26,51 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    // Mock validation
     if (!email || !password) {
       setError("Please fill in all fields");
-      setLoading(false);
       return;
     }
 
-    setLoading(false);
-    setSuccess(true);
+    setLoading(true);
 
-    // Redirect after success animation
-    setTimeout(() => {
-      router.push("/dashboard");
-    }, 1000);
+    try {
+      const result = await authClient.signIn.email({
+        email,
+        password,
+        rememberMe,
+      });
+
+      if (result.error) {
+        setError(result.error.message ?? "Invalid email or password");
+        return;
+      }
+
+      setSuccess(true);
+
+      // Redirect after success animation
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to sign in");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleLogin = async () => {
+    setError(null);
     setLoading(true);
-    // Simulate OAuth redirect
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    router.push("/dashboard");
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: "/dashboard",
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
+      setLoading(false);
+    }
   };
 
   return (
@@ -233,6 +253,20 @@ export default function LoginPage() {
             >
               Prefer a magic link?
             </Link>
+          </div>
+
+          <div className="mt-4 text-center">
+            <p className="text-xs text-poof-mist">
+              By continuing, you agree to our{" "}
+              <Link href="/terms" className="text-poof-violet hover:underline">
+                Terms
+              </Link>{" "}
+              and{" "}
+              <Link href="/privacy" className="text-poof-violet hover:underline">
+                Privacy Policy
+              </Link>
+              .
+            </p>
           </div>
 
           {/* Sign up link */}

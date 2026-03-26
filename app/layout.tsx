@@ -53,7 +53,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body className={`${dmSans.variable} ${syne.variable} font-sans antialiased bg-poof-base text-white`}>
+      <body suppressHydrationWarning className={`${dmSans.variable} ${syne.variable} font-sans antialiased bg-poof-base text-white`}>
         <QueryProvider>
           {children}
           <Toaster 
