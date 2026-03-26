@@ -14,6 +14,9 @@ import {
 import { prisma } from '@/lib/prisma'
 import { uploadService } from '@/lib/upload'
 
+const SUPPORT_EMAIL = 'poof-support@k04.tech'
+const HELLO_EMAIL = 'hello-poof@k04.tech'
+
 const presignSchema = z.object({
   fileName: z.string().trim().min(1).max(255),
   mimeType: z.string().trim().min(1),
@@ -71,7 +74,9 @@ export async function POST(request: Request) {
     })
 
     if (imageCount >= MAX_IMAGES_PER_GALLERY) {
-      throw apiErrors.validation(`Maximum ${MAX_IMAGES_PER_GALLERY} images allowed per gallery`)
+      throw apiErrors.validation(
+        `Maximum ${MAX_IMAGES_PER_GALLERY} images allowed per gallery on the free plan. For higher limits, contact ${SUPPORT_EMAIL} or ${HELLO_EMAIL}.`,
+      )
     }
 
     const imageId = randomUUID().replace(/-/g, '')

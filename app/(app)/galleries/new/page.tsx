@@ -22,7 +22,11 @@ import {
   useFailUpload,
   useRequestPresignedUrl,
 } from "@/hooks/mutations";
-import { MAX_FILE_SIZE_BYTES, SUPPORTED_IMAGE_MIME_TYPES } from "@/lib/limits";
+import {
+  MAX_FILE_SIZE_BYTES,
+  MAX_IMAGES_PER_GALLERY,
+  SUPPORTED_IMAGE_MIME_TYPES,
+} from "@/lib/limits";
 import { api } from "@/lib/axios";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -420,6 +424,9 @@ export default function NewGalleryPage() {
                     </div>
                     <p className="text-xs text-poof-mist">
                       Max {formatBytes(MAX_FILE_SIZE_BYTES)} per file
+                    </p>
+                    <p className="text-xs text-poof-mist mt-1">
+                      Max {MAX_IMAGES_PER_GALLERY} images per gallery
                     </p>
                   </div>
                 </div>

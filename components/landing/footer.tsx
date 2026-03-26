@@ -12,7 +12,8 @@ const footerLinks = {
   company: [
     { label: 'Sign in', href: '/signin' },
     { label: 'Create account', href: '/signup' },
-    { label: 'Contact', href: 'mailto:hello@poof.app' },
+    { label: 'Support', href: 'mailto:poof-support@k04.tech' },
+    { label: 'Contact', href: 'mailto:hello-poof@k04.tech' },
   ],
   legal: [
     { label: 'Privacy Policy', href: '/privacy' },
@@ -21,7 +22,7 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { icon: <Mail className="w-5 h-5" />, href: 'mailto:hello@poof.app', label: 'Email' },
+  { icon: <Mail className="w-5 h-5" />, href: 'mailto:hello-poof@k04.tech', label: 'Email' },
 ]
 
 export function LandingFooter() {

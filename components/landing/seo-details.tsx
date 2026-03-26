@@ -34,8 +34,8 @@ const faqItems = [
 const limits = [
   ['Max file size', '10 MB per image'],
   ['Allowed MIME types', 'image/jpeg, image/png, image/webp, image/heic'],
-  ['Max galleries per user', '50'],
-  ['Max images per gallery', '500'],
+  ['Max galleries per user', '3'],
+  ['Max images per gallery', '10'],
   ['Max images in multi-image link', '100'],
   ['Max active links per gallery', '20'],
   ['Expiry window', '1 hour to 1 year'],
@@ -100,6 +100,17 @@ export function LandingSeoDetails() {
               </tbody>
             </table>
           </div>
+          <p className="text-poof-mist text-sm mt-4">
+            Need higher limits? Contact{' '}
+            <a href="mailto:poof-support@k04.tech" className="text-poof-violet hover:underline">
+              poof-support@k04.tech
+            </a>{' '}
+            or{' '}
+            <a href="mailto:hello-poof@k04.tech" className="text-poof-violet hover:underline">
+              hello-poof@k04.tech
+            </a>
+            .
+          </p>
         </article>
 
         <article>

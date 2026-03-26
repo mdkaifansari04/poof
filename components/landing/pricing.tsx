@@ -8,24 +8,24 @@ import { cn } from '@/lib/utils'
 
 const plans = [
   {
-    name: 'Account Limits',
-    price: 'V1',
-    period: 'constraints',
-    description: 'Server-enforced limits for predictable usage',
+    name: 'Free',
+    price: '$0',
+    period: 'for now',
+    description: 'Temporary free plan with strict limits',
     features: [
-      'Up to 50 galleries per account',
-      'Up to 500 images per gallery',
+      'Up to 3 galleries per account',
+      'Up to 10 images per gallery',
       'Maximum 10 MB per image',
       'Allowed types: JPEG, PNG, WEBP, HEIC',
-      'One account per user',
+      'Share gallery, single image, or multi-image link',
     ],
     cta: 'Create account',
     href: '/signup',
-    highlighted: false,
+    highlighted: true,
   },
   {
-    name: 'Share Rules',
-    price: 'V1',
+    name: 'Sharing Rules',
+    price: 'Included',
     period: 'behavior',
     description: 'How link creation and expiry work',
     features: [
@@ -38,11 +38,11 @@ const plans = [
     ],
     cta: 'Start sharing',
     href: '/signup',
-    highlighted: true,
+    highlighted: false,
   },
   {
     name: 'Lifecycle',
-    price: 'V1',
+    price: 'Included',
     period: 'operations',
     description: 'Upload, session, and cleanup timelines',
     features: [
@@ -64,10 +64,10 @@ export function LandingPricing() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-5xl text-white mb-4">
-            Product constraints. <span className="text-poof-violet">Clearly defined.</span>
+            Free plan. <span className="text-poof-violet">Clear limits.</span>
           </h2>
           <p className="text-lg text-poof-mist max-w-2xl mx-auto">
-            The platform enforces these limits server-side so behavior is consistent and predictable.
+            Poof is currently free. Limits are enforced server-side for predictable performance.
           </p>
         </div>
 
@@ -86,7 +86,7 @@ export function LandingPricing() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-poof-accent text-white text-xs font-medium">
                     <Sparkles className="w-3 h-3" />
-                    Core link behavior
+                    Active plan
                   </div>
                 </div>
               )}
@@ -126,7 +126,15 @@ export function LandingPricing() {
 
         <div className="mt-16 text-center">
           <p className="text-poof-mist text-sm">
-            Need implementation details? Visit the <a href="#faq" className="text-poof-violet hover:underline">FAQ</a>{' '}
+            Need higher limits? Contact{' '}
+            <a href="mailto:poof-support@k04.tech" className="text-poof-violet hover:underline">
+              poof-support@k04.tech
+            </a>{' '}
+            or{' '}
+            <a href="mailto:hello-poof@k04.tech" className="text-poof-violet hover:underline">
+              hello-poof@k04.tech
+            </a>
+            . You can also visit the <a href="#faq" className="text-poof-violet hover:underline">FAQ</a>{' '}
             or read our <Link href="/terms" className="text-poof-violet hover:underline">Terms</Link>.
           </p>
         </div>

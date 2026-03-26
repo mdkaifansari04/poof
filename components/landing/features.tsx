@@ -57,7 +57,7 @@ const features = [
 ]
 
 const quickFeatures = [
-  { icon: <ImageIcon className="w-5 h-5" />, text: 'Up to 50 galleries per account' },
+  { icon: <ImageIcon className="w-5 h-5" />, text: 'Up to 3 galleries per account' },
   { icon: <Link2 className="w-5 h-5" />, text: 'Multiple independent links per gallery' },
   { icon: <ShieldCheck className="w-5 h-5" />, text: 'Auth sessions with secure cookies' },
 ]

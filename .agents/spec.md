@@ -872,8 +872,8 @@ export function useDeleteSharedResource() {
 |---|---|
 | Max file size | 10 MB per image |
 | Supported MIME types | `image/jpeg`, `image/png`, `image/webp`, `image/heic` |
-| Max images per gallery | 500 |
-| Max galleries per user | 50 |
+| Max images per gallery | 10 (temporary free-plan cap) |
+| Max galleries per user | 3 (temporary free-plan cap) |
 | Max images in a MULTI_IMAGE share | 100 |
 | Max active share links per gallery | 20 |
 | Presigned URL TTL | 5 minutes (300 seconds) |

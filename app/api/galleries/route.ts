@@ -6,6 +6,9 @@ import { ok } from '@/app/api/_utils/response'
 import { MAX_GALLERIES_PER_USER } from '@/lib/limits'
 import { prisma } from '@/lib/prisma'
 
+const SUPPORT_EMAIL = 'poof-support@k04.tech'
+const HELLO_EMAIL = 'hello-poof@k04.tech'
+
 const createGallerySchema = z.object({
   name: z.string().trim().min(1).max(60),
   description: z.string().trim().max(500).optional(),
@@ -89,7 +92,9 @@ export async function POST(request: Request) {
     })
 
     if (existingCount >= MAX_GALLERIES_PER_USER) {
-      throw apiErrors.validation(`Maximum ${MAX_GALLERIES_PER_USER} galleries allowed per user`)
+      throw apiErrors.validation(
+        `Maximum ${MAX_GALLERIES_PER_USER} galleries allowed per user on the free plan. For higher limits, contact ${SUPPORT_EMAIL} or ${HELLO_EMAIL}.`,
+      )
     }
 
     const gallery = await prisma.gallery.create({

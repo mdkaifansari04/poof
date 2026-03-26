@@ -43,7 +43,15 @@ export default async function SettingsPage() {
           <div className="space-y-3">
             <h2 className="font-heading font-bold text-xl text-white">Privacy & legal</h2>
             <p className="text-poof-mist text-sm">
-              Review legal and privacy docs, or contact support addresses listed there.
+              Review legal and privacy docs, or contact support at{' '}
+              <a href="mailto:poof-support@k04.tech" className="text-poof-violet hover:underline">
+                poof-support@k04.tech
+              </a>{' '}
+              and{' '}
+              <a href="mailto:hello-poof@k04.tech" className="text-poof-violet hover:underline">
+                hello-poof@k04.tech
+              </a>
+              .
             </p>
             <div className="flex flex-wrap items-center gap-2">
               <Button

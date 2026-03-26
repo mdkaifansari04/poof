@@ -6,8 +6,9 @@ export const SUPPORTED_IMAGE_MIME_TYPES = [
   'image/heic',
 ] as const
 
-export const MAX_IMAGES_PER_GALLERY = 500
-export const MAX_GALLERIES_PER_USER = 50
+// Temporary free-tier limits
+export const MAX_IMAGES_PER_GALLERY = 10
+export const MAX_GALLERIES_PER_USER = 3
 export const PRESIGNED_URL_TTL_SECONDS = 300
 export const MAX_IMAGES_PER_MULTI_SHARE = 100
 export const MAX_ACTIVE_SHARE_LINKS_PER_GALLERY = 20

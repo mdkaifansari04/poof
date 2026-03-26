@@ -68,6 +68,7 @@ import {
 import { useGallery, useSharedResources } from '@/hooks/queries'
 import {
   MAX_FILE_SIZE_BYTES,
+  MAX_IMAGES_PER_GALLERY,
   MAX_SHARE_EXPIRY_MS,
   MIN_SHARE_EXPIRY_MS,
   SUPPORTED_IMAGE_MIME_TYPES,
@@ -1097,6 +1098,9 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                 Allowed: image/jpeg, image/png, image/webp, image/heic
               </p>
               <p className="text-xs text-poof-mist mt-1">Max size: 10MB per file</p>
+              <p className="text-xs text-poof-mist mt-1">
+                Max images per gallery: {MAX_IMAGES_PER_GALLERY}
+              </p>
             </div>
 
             <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
