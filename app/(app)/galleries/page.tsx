@@ -46,7 +46,7 @@ import {
   Link2,
 } from 'lucide-react'
 import { useDeleteGallery } from '@/hooks/mutations'
-import { useGalleries } from '@/hooks/queries'
+import { useGalleries, useSharedResources } from '@/hooks/queries'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -63,15 +63,6 @@ type GalleryView = {
   createdAt: Date
 }
 
-type ShareLinkStub = {
-  id: string
-  galleryId: string
-  status: 'active' | 'expired' | 'revoked'
-  expiresAt: Date | null
-}
-
-const shareLinks: ShareLinkStub[] = []
-
 export default function GalleriesPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
@@ -87,6 +78,7 @@ export default function GalleriesPage() {
   })
 
   const galleriesQuery = useGalleries()
+  const sharedResourcesQuery = useSharedResources()
   const deleteGallery = useDeleteGallery()
 
   const galleries = useMemo<GalleryView[]>(() => {
@@ -103,6 +95,21 @@ export default function GalleriesPage() {
   }, [galleriesQuery.data])
 
   const filteredGalleries = useMemo(() => {
+    const shareLinks = (sharedResourcesQuery.data ?? []).map((resource) => {
+      const status: 'active' | 'expired' | 'revoked' =
+        resource.status === 'ACTIVE'
+          ? 'active'
+          : resource.status === 'REVOKED'
+            ? 'revoked'
+            : 'expired'
+
+      return {
+        galleryId: resource.galleryId,
+        status,
+        expiresAt: resource.status === 'ACTIVE' ? new Date(resource.expiresAt) : null,
+      }
+    })
+
     let next = [...galleries]
 
     if (searchQuery) {
@@ -150,7 +157,33 @@ export default function GalleriesPage() {
     }
 
     return next
-  }, [filterBy, galleries, searchQuery, sortBy])
+  }, [filterBy, galleries, searchQuery, sharedResourcesQuery.data, sortBy])
+
+  const shareLinksByGalleryId = useMemo(() => {
+    const shareLinks = (sharedResourcesQuery.data ?? []).map((resource) => {
+      const status: 'active' | 'expired' | 'revoked' =
+        resource.status === 'ACTIVE'
+          ? 'active'
+          : resource.status === 'REVOKED'
+            ? 'revoked'
+            : 'expired'
+
+      return {
+        galleryId: resource.galleryId,
+        status,
+        expiresAt: resource.status === 'ACTIVE' ? new Date(resource.expiresAt) : null,
+      }
+    })
+
+    const grouped = new Map<string, typeof shareLinks>()
+    for (const link of shareLinks) {
+      if (!link.galleryId) continue
+      const existing = grouped.get(link.galleryId) ?? []
+      grouped.set(link.galleryId, [...existing, link])
+    }
+
+    return grouped
+  }, [sharedResourcesQuery.data])
 
   const toggleSelection = (id: string) => {
     const next = new Set(selectedGalleries)
@@ -366,6 +399,7 @@ export default function GalleriesPage() {
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
                 onDelete={() => openDeleteDialog([gallery.id])}
+                links={shareLinksByGalleryId.get(gallery.id) ?? []}
               />
             ))}
           </div>
@@ -380,6 +414,7 @@ export default function GalleriesPage() {
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
                 onDelete={() => openDeleteDialog([gallery.id])}
+                links={shareLinksByGalleryId.get(gallery.id) ?? []}
               />
             ))}
           </div>
@@ -433,6 +468,11 @@ interface GalleryCardProps {
   onToggleSelect: () => void
   isSelecting: boolean
   onDelete: () => void
+  links: {
+    galleryId: string | null
+    status: 'active' | 'expired' | 'revoked'
+    expiresAt: Date | null
+  }[]
 }
 
 function GalleryGridCard({
@@ -442,8 +482,8 @@ function GalleryGridCard({
   onToggleSelect,
   isSelecting,
   onDelete,
+  links,
 }: GalleryCardProps) {
-  const links = shareLinks.filter((link) => link.galleryId === gallery.id)
   const activeLinks = links.filter((link) => link.status === 'active')
   const hasExpiring = activeLinks.some((link) => {
     if (!link.expiresAt) return false
@@ -555,8 +595,8 @@ function GalleryListRow({
   onToggleSelect,
   isSelecting,
   onDelete,
+  links,
 }: GalleryCardProps) {
-  const links = shareLinks.filter((link) => link.galleryId === gallery.id)
   const activeLinks = links.filter((link) => link.status === 'active')
 
   return (

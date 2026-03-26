@@ -7,6 +7,10 @@ import type {
   PresignUploadResponse,
   UpdateGalleryInput,
 } from '@/lib/types/gallery'
+import type {
+  CreateSharedResourceInput,
+  CreateSharedResourceResponse,
+} from '@/lib/types/shared-resource'
 import { queryKeys } from './queries'
 
 export function useCreateGallery() {
@@ -95,12 +99,8 @@ export function useCreateSharedResource() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (body: {
-      type: 'GALLERY' | 'IMAGE' | 'MULTI_IMAGE'
-      galleryId?: string
-      imageIds?: string[]
-      expiresAt: string
-    }) => api.post('/shared-resources', body),
+    mutationFn: (body: CreateSharedResourceInput) =>
+      api.post('/shared-resources', body) as Promise<CreateSharedResourceResponse>,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
     },
@@ -112,7 +112,11 @@ export function useRevokeSharedResource() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (resourceId: string) => api.post(`/shared-resources/${resourceId}/revoke`),
+    mutationFn: (resourceId: string) =>
+      api.post(`/shared-resources/${resourceId}/revoke`) as Promise<{
+        id: string
+        revokedAt: string
+      }>,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
     },
@@ -124,7 +128,11 @@ export function useDeleteSharedResource() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (resourceId: string) => api.delete(`/shared-resources/${resourceId}`),
+    mutationFn: (resourceId: string) =>
+      api.delete(`/shared-resources/${resourceId}`) as Promise<{
+        id: string
+        deleted: true
+      }>,
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
     },

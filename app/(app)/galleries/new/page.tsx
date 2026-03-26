@@ -1,11 +1,11 @@
-'use client'
+"use client";
 
-import { useCallback, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { GlassCard } from '@/components/poof/glass-card'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { GlassCard } from "@/components/poof/glass-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   X,
   Upload,
@@ -15,42 +15,42 @@ import {
   Loader2,
   ArrowLeft,
   ArrowRight,
-} from 'lucide-react'
+} from "lucide-react";
 import {
   useConfirmUpload,
   useCreateGallery,
   useFailUpload,
   useRequestPresignedUrl,
-} from '@/hooks/mutations'
-import {
-  MAX_FILE_SIZE_BYTES,
-  SUPPORTED_IMAGE_MIME_TYPES,
-} from '@/lib/limits'
-import { api } from '@/lib/axios'
-import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
+} from "@/hooks/mutations";
+import { MAX_FILE_SIZE_BYTES, SUPPORTED_IMAGE_MIME_TYPES } from "@/lib/limits";
+import { api } from "@/lib/axios";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-type Step = 1 | 2 | 3
+type Step = 1 | 2 | 3;
 
 type UploadedPhoto = {
-  id: string
-  imageId: string | null
-  file: File
-  preview: string
-  progress: number
-  status: 'uploading' | 'complete' | 'error'
-  errorMessage: string | null
-}
+  id: string;
+  imageId: string | null;
+  file: File;
+  preview: string;
+  progress: number;
+  status: "uploading" | "complete" | "error";
+  errorMessage: string | null;
+};
 
-const acceptedFormats = ['JPG', 'PNG', 'WEBP', 'HEIC']
-const supportedMimeSet = new Set<string>(SUPPORTED_IMAGE_MIME_TYPES)
+const acceptedFormats = ["JPG", "PNG", "WEBP", "HEIC"];
+const supportedMimeSet = new Set<string>(SUPPORTED_IMAGE_MIME_TYPES);
 
 function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const units = ['B', 'KB', 'MB', 'GB']
-  const order = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1)
-  const value = bytes / 1024 ** order
-  return `${value.toFixed(order === 0 ? 0 : 1)} ${units[order]}`
+  if (bytes === 0) return "0 B";
+  const units = ["B", "KB", "MB", "GB"];
+  const order = Math.min(
+    Math.floor(Math.log(bytes) / Math.log(1024)),
+    units.length - 1,
+  );
+  const value = bytes / 1024 ** order;
+  return `${value.toFixed(order === 0 ? 0 : 1)} ${units[order]}`;
 }
 
 function uploadWithPresignedUrl(
@@ -59,96 +59,99 @@ function uploadWithPresignedUrl(
   onProgress: (progress: number) => void,
 ): Promise<void> {
   return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('PUT', presignedUrl)
-    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", presignedUrl);
+    xhr.setRequestHeader(
+      "Content-Type",
+      file.type || "application/octet-stream",
+    );
 
     xhr.upload.onprogress = (event) => {
-      if (!event.lengthComputable) return
-      onProgress(Math.round((event.loaded / event.total) * 100))
-    }
+      if (!event.lengthComputable) return;
+      onProgress(Math.round((event.loaded / event.total) * 100));
+    };
 
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        onProgress(100)
-        resolve()
+        onProgress(100);
+        resolve();
       } else {
-        reject(new Error(`Upload failed with status ${xhr.status}`))
+        reject(new Error(`Upload failed with status ${xhr.status}`));
       }
-    }
+    };
 
-    xhr.onerror = () => reject(new Error('Network error during upload'))
-    xhr.send(file)
-  })
+    xhr.onerror = () => reject(new Error("Network error during upload"));
+    xhr.send(file);
+  });
 }
 
 export default function NewGalleryPage() {
-  const router = useRouter()
-  const [step, setStep] = useState<Step>(1)
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [photos, setPhotos] = useState<UploadedPhoto[]>([])
-  const [coverPhotoId, setCoverPhotoId] = useState<string | null>(null)
-  const [dragOver, setDragOver] = useState(false)
-  const [creating, setCreating] = useState(false)
-  const [galleryId, setGalleryId] = useState<string | null>(null)
+  const router = useRouter();
+  const [step, setStep] = useState<Step>(1);
+  const [name, setName] = useState("");
+  const [photos, setPhotos] = useState<UploadedPhoto[]>([]);
+  const [coverPhotoId, setCoverPhotoId] = useState<string | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [galleryId, setGalleryId] = useState<string | null>(null);
 
-  const createGallery = useCreateGallery()
-  const requestPresign = useRequestPresignedUrl()
-  const confirmUpload = useConfirmUpload()
-  const failUpload = useFailUpload()
+  const createGallery = useCreateGallery();
+  const requestPresign = useRequestPresignedUrl();
+  const confirmUpload = useConfirmUpload();
+  const failUpload = useFailUpload();
 
   const ensureGallery = useCallback(async (): Promise<string> => {
     if (galleryId) {
-      return galleryId
+      return galleryId;
     }
 
     const created = await createGallery.mutateAsync({
       name: name.trim(),
-      description: description.trim() || undefined,
-    })
+    });
 
-    setGalleryId(created.id)
-    return created.id
-  }, [createGallery, description, galleryId, name])
+    setGalleryId(created.id);
+    return created.id;
+  }, [createGallery, galleryId, name]);
 
   const setPhotoState = useCallback(
     (photoId: string, patch: Partial<UploadedPhoto>) => {
       setPhotos((previous) =>
-        previous.map((photo) => (photo.id === photoId ? { ...photo, ...patch } : photo)),
-      )
+        previous.map((photo) =>
+          photo.id === photoId ? { ...photo, ...patch } : photo,
+        ),
+      );
     },
     [],
-  )
+  );
 
   const uploadPhoto = useCallback(
     async (photoId: string, file: File) => {
       if (!supportedMimeSet.has(file.type)) {
         setPhotoState(photoId, {
-          status: 'error',
+          status: "error",
           progress: 0,
-          errorMessage: 'Unsupported file type',
-        })
-        toast.error(`${file.name}: unsupported file type`)
-        return
+          errorMessage: "Unsupported file type",
+        });
+        toast.error(`${file.name}: unsupported file type`);
+        return;
       }
 
       if (file.size > MAX_FILE_SIZE_BYTES) {
         setPhotoState(photoId, {
-          status: 'error',
+          status: "error",
           progress: 0,
-          errorMessage: 'Exceeds 10MB',
-        })
-        toast.error(`${file.name}: exceeds 10MB`)
-        return
+          errorMessage: "Exceeds 10MB",
+        });
+        toast.error(`${file.name}: exceeds 10MB`);
+        return;
       }
 
-      let uploadedImageId: string | null = null
-      let ensuredGalleryId: string | null = null
+      let uploadedImageId: string | null = null;
+      let ensuredGalleryId: string | null = null;
       try {
-        ensuredGalleryId = await ensureGallery()
+        ensuredGalleryId = await ensureGallery();
         if (!ensuredGalleryId) {
-          throw new Error('Failed to create gallery')
+          throw new Error("Failed to create gallery");
         }
 
         const presigned = await requestPresign.mutateAsync({
@@ -156,29 +159,33 @@ export default function NewGalleryPage() {
           mimeType: file.type,
           fileSize: file.size,
           galleryId: ensuredGalleryId,
-        })
+        });
 
-        uploadedImageId = presigned.imageId
+        uploadedImageId = presigned.imageId;
         if (!uploadedImageId) {
-          throw new Error('Upload failed to initialize')
+          throw new Error("Upload failed to initialize");
         }
 
-        setPhotoState(photoId, { imageId: uploadedImageId })
+        setPhotoState(photoId, { imageId: uploadedImageId });
 
-        await uploadWithPresignedUrl(file, presigned.presignedUrl, (progress) => {
-          setPhotoState(photoId, { progress })
-        })
+        await uploadWithPresignedUrl(
+          file,
+          presigned.presignedUrl,
+          (progress) => {
+            setPhotoState(photoId, { progress });
+          },
+        );
 
         await confirmUpload.mutateAsync({
           imageId: uploadedImageId,
           galleryId: ensuredGalleryId,
-        })
+        });
 
         setPhotoState(photoId, {
-          status: 'complete',
+          status: "complete",
           progress: 100,
           errorMessage: null,
-        })
+        });
       } catch (error) {
         if (uploadedImageId && ensuredGalleryId) {
           await failUpload
@@ -186,24 +193,25 @@ export default function NewGalleryPage() {
               imageId: uploadedImageId,
               galleryId: ensuredGalleryId,
             })
-            .catch(() => undefined)
+            .catch(() => undefined);
         }
 
-        const message = error instanceof Error ? error.message : 'Upload failed'
+        const message =
+          error instanceof Error ? error.message : "Upload failed";
         setPhotoState(photoId, {
-          status: 'error',
+          status: "error",
           errorMessage: message,
-        })
-        toast.error(`${file.name}: ${message}`)
+        });
+        toast.error(`${file.name}: ${message}`);
       }
     },
     [confirmUpload, ensureGallery, failUpload, requestPresign, setPhotoState],
-  )
+  );
 
   const handleFiles = useCallback(
     (files: FileList | null) => {
       if (!files || files.length === 0) {
-        return
+        return;
       }
 
       const incoming = Array.from(files).map<UploadedPhoto>((file) => ({
@@ -212,76 +220,79 @@ export default function NewGalleryPage() {
         file,
         preview: URL.createObjectURL(file),
         progress: 0,
-        status: 'uploading',
+        status: "uploading",
         errorMessage: null,
-      }))
+      }));
 
-      setPhotos((previous) => [...previous, ...incoming])
+      setPhotos((previous) => [...previous, ...incoming]);
 
       if (!coverPhotoId && incoming.length > 0) {
-        setCoverPhotoId(incoming[0]?.id ?? null)
+        setCoverPhotoId(incoming[0]?.id ?? null);
       }
 
       for (const photo of incoming) {
-        void uploadPhoto(photo.id, photo.file)
+        void uploadPhoto(photo.id, photo.file);
       }
     },
     [coverPhotoId, uploadPhoto],
-  )
+  );
 
   const handleDrop = useCallback(
     (event: React.DragEvent) => {
-      event.preventDefault()
-      setDragOver(false)
-      handleFiles(event.dataTransfer.files)
+      event.preventDefault();
+      setDragOver(false);
+      handleFiles(event.dataTransfer.files);
     },
     [handleFiles],
-  )
+  );
 
   const removePhoto = async (photoId: string) => {
-    const target = photos.find((photo) => photo.id === photoId)
-    if (!target) return
+    const target = photos.find((photo) => photo.id === photoId);
+    if (!target) return;
 
-    setPhotos((previous) => previous.filter((photo) => photo.id !== photoId))
+    setPhotos((previous) => previous.filter((photo) => photo.id !== photoId));
 
     if (coverPhotoId === photoId) {
-      const next = photos.find((photo) => photo.id !== photoId)
-      setCoverPhotoId(next?.id ?? null)
+      const next = photos.find((photo) => photo.id !== photoId);
+      setCoverPhotoId(next?.id ?? null);
     }
 
-    URL.revokeObjectURL(target.preview)
+    URL.revokeObjectURL(target.preview);
 
     if (target.imageId) {
-      await api.delete(`/images/${target.imageId}`).catch(() => undefined)
+      await api.delete(`/images/${target.imageId}`).catch(() => undefined);
     }
-  }
+  };
 
   const totalSize = useMemo(
     () => photos.reduce((sum, photo) => sum + photo.file.size, 0),
     [photos],
-  )
-  const allUploaded = photos.length > 0 && photos.every((photo) => photo.status === 'complete')
+  );
+  const allUploaded =
+    photos.length > 0 && photos.every((photo) => photo.status === "complete");
 
   const handleCreate = async () => {
-    setCreating(true)
+    setCreating(true);
 
     try {
-      const ensuredGalleryId = await ensureGallery()
-      const coverImageId = photos.find((photo) => photo.id === coverPhotoId)?.imageId ?? null
+      const ensuredGalleryId = await ensureGallery();
+      const coverImageId =
+        photos.find((photo) => photo.id === coverPhotoId)?.imageId ?? null;
 
       if (coverImageId) {
-        await api.patch(`/galleries/${ensuredGalleryId}`, { coverImageId })
+        await api.patch(`/galleries/${ensuredGalleryId}`, { coverImageId });
       }
 
-      toast.success('Gallery created')
-      router.push(`/galleries/${ensuredGalleryId}`)
+      toast.success("Gallery created");
+      router.push(`/galleries/${ensuredGalleryId}`);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to create gallery'
-      toast.error(message)
+      const message =
+        error instanceof Error ? error.message : "Failed to create gallery";
+      toast.error(message);
     } finally {
-      setCreating(false)
+      setCreating(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-poof-base/95 backdrop-blur-xl overflow-y-auto">
@@ -301,8 +312,8 @@ export default function NewGalleryPage() {
                 <div
                   key={index}
                   className={cn(
-                    'w-8 h-1 rounded-full transition-colors',
-                    index <= step ? 'bg-poof-accent' : 'bg-white/10',
+                    "w-8 h-1 rounded-full transition-colors",
+                    index <= step ? "bg-poof-accent" : "bg-white/10",
                   )}
                 />
               ))}
@@ -326,22 +337,16 @@ export default function NewGalleryPage() {
                 <div className="space-y-4">
                   <Input
                     value={name}
-                    onChange={(event) => setName(event.target.value.slice(0, 60))}
+                    onChange={(event) =>
+                      setName(event.target.value.slice(0, 60))
+                    }
                     placeholder="Gallery name..."
                     className="text-center text-2xl font-heading font-bold bg-transparent border-0 border-b-2 border-white/10 rounded-none focus:border-poof-accent px-4 py-6 text-white placeholder:text-poof-mist/30"
                     autoFocus
                   />
-                  <p className="text-xs text-poof-mist">{name.length}/60 characters</p>
-                </div>
-
-                <div className="space-y-4">
-                  <Textarea
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    placeholder="Add a description (optional)"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50 resize-none"
-                    rows={3}
-                  />
+                  <p className="text-xs text-poof-mist">
+                    {name.length}/60 characters
+                  </p>
                 </div>
 
                 <Button
@@ -361,36 +366,43 @@ export default function NewGalleryPage() {
                   <h2 className="font-heading font-extrabold text-3xl text-white mb-2">
                     Add your photos
                   </h2>
-                  <p className="text-poof-mist">Drag and drop or click to upload</p>
+                  <p className="text-poof-mist">
+                    Drag and drop or click to upload
+                  </p>
                 </div>
 
                 <div
                   onDrop={handleDrop}
                   onDragOver={(event) => {
-                    event.preventDefault()
-                    setDragOver(true)
+                    event.preventDefault();
+                    setDragOver(true);
                   }}
                   onDragLeave={() => setDragOver(false)}
                   className={cn(
-                    'relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300',
+                    "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300",
                     dragOver
-                      ? 'border-poof-accent bg-poof-accent/10'
-                      : 'border-white/20 hover:border-white/30',
+                      ? "border-poof-accent bg-poof-accent/10"
+                      : "border-white/20 hover:border-white/30",
                   )}
                 >
                   <input
                     type="file"
-                    accept={SUPPORTED_IMAGE_MIME_TYPES.join(',')}
+                    accept={SUPPORTED_IMAGE_MIME_TYPES.join(",")}
                     multiple
                     onChange={(event) => handleFiles(event.target.files)}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
 
-                  <div className={cn('transition-transform duration-300', dragOver && 'scale-110')}>
+                  <div
+                    className={cn(
+                      "transition-transform duration-300",
+                      dragOver && "scale-110",
+                    )}
+                  >
                     <Upload
                       className={cn(
-                        'w-12 h-12 mx-auto mb-4 transition-colors',
-                        dragOver ? 'text-poof-accent' : 'text-poof-mist',
+                        "w-12 h-12 mx-auto mb-4 transition-colors",
+                        dragOver ? "text-poof-accent" : "text-poof-mist",
                       )}
                     />
                     <p className="text-white font-medium mb-2">
@@ -416,10 +428,17 @@ export default function NewGalleryPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <p className="text-sm text-poof-mist">
-                        {photos.length} photo{photos.length !== 1 ? 's' : ''} · {formatBytes(totalSize)}
+                        {photos.length} photo{photos.length !== 1 ? "s" : ""} ·{" "}
+                        {formatBytes(totalSize)}
                       </p>
                       <button
-                        onClick={() => document.querySelector<HTMLInputElement>('input[type="file"]')?.click()}
+                        onClick={() =>
+                          document
+                            .querySelector<HTMLInputElement>(
+                              'input[type="file"]',
+                            )
+                            ?.click()
+                        }
                         className="text-sm text-poof-violet hover:underline"
                       >
                         Add more
@@ -428,14 +447,17 @@ export default function NewGalleryPage() {
 
                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                       {photos.map((photo) => (
-                        <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden group">
+                        <div
+                          key={photo.id}
+                          className="relative aspect-square rounded-lg overflow-hidden group"
+                        >
                           <img
                             src={photo.preview}
                             alt={photo.file.name}
                             className="w-full h-full object-cover"
                           />
 
-                          {photo.status === 'uploading' && (
+                          {photo.status === "uploading" && (
                             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                               <svg className="w-10 h-10" viewBox="0 0 36 36">
                                 <circle
@@ -463,13 +485,13 @@ export default function NewGalleryPage() {
                             </div>
                           )}
 
-                          {photo.status === 'complete' && (
+                          {photo.status === "complete" && (
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                               <Check className="w-6 h-6 text-poof-mint" />
                             </div>
                           )}
 
-                          {photo.status === 'error' && (
+                          {photo.status === "error" && (
                             <div className="absolute inset-0 bg-red-500/20 flex items-center justify-center">
                               <AlertCircle className="w-6 h-6 text-red-400" />
                             </div>
@@ -483,8 +505,12 @@ export default function NewGalleryPage() {
                           </button>
 
                           <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                            <p className="text-xs text-white truncate">{photo.file.name}</p>
-                            <p className="text-xs text-poof-mist">{formatBytes(photo.file.size)}</p>
+                            <p className="text-xs text-white truncate">
+                              {photo.file.name}
+                            </p>
+                            <p className="text-xs text-poof-mist">
+                              {formatBytes(photo.file.size)}
+                            </p>
                           </div>
                         </div>
                       ))}
@@ -519,7 +545,9 @@ export default function NewGalleryPage() {
                   <h2 className="font-heading font-extrabold text-3xl text-white mb-2">
                     Pick your cover photo
                   </h2>
-                  <p className="text-poof-mist">This is what people will see first</p>
+                  <p className="text-poof-mist">
+                    This is what people will see first
+                  </p>
                 </div>
 
                 <div className="flex overflow-x-auto gap-3 pb-4 snap-x">
@@ -528,13 +556,17 @@ export default function NewGalleryPage() {
                       key={photo.id}
                       onClick={() => setCoverPhotoId(photo.id)}
                       className={cn(
-                        'relative flex-shrink-0 w-28 h-28 rounded-lg overflow-hidden transition-all snap-start',
+                        "relative flex-shrink-0 w-28 h-28 rounded-lg overflow-hidden transition-all snap-start",
                         coverPhotoId === photo.id
-                          ? 'ring-2 ring-poof-violet scale-105'
-                          : 'opacity-60 hover:opacity-100',
+                          ? "ring-2 ring-poof-violet scale-105"
+                          : "opacity-60 hover:opacity-100",
                       )}
                     >
-                      <img src={photo.preview} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={photo.preview}
+                        alt=""
+                        className="w-full h-full object-cover"
+                      />
                       {coverPhotoId === photo.id && (
                         <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-poof-violet flex items-center justify-center">
                           <Star className="w-3 h-3 text-white fill-white" />
@@ -549,7 +581,10 @@ export default function NewGalleryPage() {
                     <div className="aspect-video">
                       {coverPhotoId ? (
                         <img
-                          src={photos.find((photo) => photo.id === coverPhotoId)?.preview}
+                          src={
+                            photos.find((photo) => photo.id === coverPhotoId)
+                              ?.preview
+                          }
                           alt=""
                           className="w-full h-full object-cover"
                         />
@@ -558,8 +593,12 @@ export default function NewGalleryPage() {
                       )}
                     </div>
                     <div className="p-4">
-                      <h3 className="font-heading font-bold text-white truncate">{name}</h3>
-                      <p className="text-poof-mist text-sm">{photos.length} photos</p>
+                      <h3 className="font-heading font-bold text-white truncate">
+                        {name}
+                      </h3>
+                      <p className="text-poof-mist text-sm">
+                        {photos.length} photos
+                      </p>
                     </div>
                   </GlassCard>
                 </div>
@@ -597,5 +636,5 @@ export default function NewGalleryPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

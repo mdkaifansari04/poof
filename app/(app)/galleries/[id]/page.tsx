@@ -4,8 +4,11 @@ import { useEffect, useMemo, useRef, useState, use } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/poof/glass-card'
+import { Countdown } from '@/components/poof/countdown'
+import { StatusBadge } from '@/components/poof/status-badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import {
   AlertDialog,
@@ -43,20 +46,27 @@ import {
   CheckCircle2,
   AlertTriangle,
   CloudUpload,
+  Copy,
+  Link2,
+  Clock3,
 } from 'lucide-react'
 import {
+  useCreateSharedResource,
   useConfirmUpload,
+  useDeleteSharedResource,
   useDeleteGallery,
   useDeleteImage,
   useFailUpload,
+  useRevokeSharedResource,
   useRequestPresignedUrl,
   useUpdateGallery,
 } from '@/hooks/mutations'
-import { useGallery } from '@/hooks/queries'
+import { useGallery, useSharedResources } from '@/hooks/queries'
 import {
   MAX_FILE_SIZE_BYTES,
   SUPPORTED_IMAGE_MIME_TYPES,
 } from '@/lib/limits'
+import type { SharedResourceType } from '@/lib/types/shared-resource'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -121,6 +131,10 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   const requestPresign = useRequestPresignedUrl()
   const confirmUpload = useConfirmUpload()
   const failUpload = useFailUpload()
+  const sharedResourcesQuery = useSharedResources()
+  const createSharedResource = useCreateSharedResource()
+  const revokeSharedResource = useRevokeSharedResource()
+  const deleteSharedResource = useDeleteSharedResource()
 
   const [lightboxPhoto, setLightboxPhoto] = useState<string | null>(null)
   const [isEditing, setIsEditing] = useState(false)
@@ -131,6 +145,12 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   const [queuedFiles, setQueuedFiles] = useState<File[]>([])
   const [isDeleteGalleryModalOpen, setIsDeleteGalleryModalOpen] = useState(false)
   const [deleteImageTargetId, setDeleteImageTargetId] = useState<string | null>(null)
+  const [selectedImageIds, setSelectedImageIds] = useState<Set<string>>(new Set())
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [shareType, setShareType] = useState<SharedResourceType>('GALLERY')
+  const [shareImageIds, setShareImageIds] = useState<string[]>([])
+  const [shareExpiryHours, setShareExpiryHours] = useState('24')
+  const [lastCreatedShareUrl, setLastCreatedShareUrl] = useState<string | null>(null)
   const [uploadAlert, setUploadAlert] = useState<UploadAlertState>({
     status: 'idle',
     progress: 0,
@@ -146,6 +166,10 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
     () => allImages.filter((image) => image.uploadStatus === 'CONFIRMED'),
     [allImages],
   )
+  const galleryShares = useMemo(() => {
+    const resources = sharedResourcesQuery.data ?? []
+    return resources.filter((resource) => resource.galleryId === id)
+  }, [id, sharedResourcesQuery.data])
 
   useEffect(() => {
     if (gallery?.name) {
@@ -186,10 +210,101 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
     try {
       await deleteImage.mutateAsync(imageId)
       setLightboxPhoto((current) => (current === imageId ? null : current))
+      setSelectedImageIds((previous) => {
+        const next = new Set(previous)
+        next.delete(imageId)
+        return next
+      })
       setDeleteImageTargetId(null)
       toast.success('Image deleted')
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Failed to delete image'
+      toast.error(message)
+    }
+  }
+
+  const toggleImageSelection = (imageId: string) => {
+    setSelectedImageIds((previous) => {
+      const next = new Set(previous)
+
+      if (next.has(imageId)) {
+        next.delete(imageId)
+      } else {
+        next.add(imageId)
+      }
+
+      return next
+    })
+  }
+
+  const clearImageSelection = () => {
+    setSelectedImageIds(new Set())
+  }
+
+  const openShareModal = (type: SharedResourceType, imageIds: string[] = []) => {
+    setShareType(type)
+    setShareImageIds(imageIds)
+    setShareExpiryHours('24')
+    setLastCreatedShareUrl(null)
+    setIsShareModalOpen(true)
+  }
+
+  const handleCreateShareLink = async () => {
+    const hours = Number(shareExpiryHours)
+
+    if (!Number.isFinite(hours) || hours <= 0) {
+      toast.error('Please enter a valid expiry in hours')
+      return
+    }
+
+    const expiresAt = new Date(Date.now() + hours * 60 * 60 * 1000).toISOString()
+
+    try {
+      const created = await createSharedResource.mutateAsync({
+        type: shareType,
+        galleryId: shareType === 'GALLERY' ? id : undefined,
+        imageIds: shareType === 'GALLERY' ? undefined : shareImageIds,
+        expiresAt,
+      })
+
+      setLastCreatedShareUrl(created.shareUrl)
+      await navigator.clipboard.writeText(created.shareUrl)
+      toast.success('Share link created and copied')
+      void sharedResourcesQuery.refetch()
+      if (shareType === 'MULTI_IMAGE') {
+        clearImageSelection()
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to create share link'
+      toast.error(message)
+    }
+  }
+
+  const handleCopyShareLink = async (shareUrl: string) => {
+    try {
+      await navigator.clipboard.writeText(shareUrl)
+      toast.success('Share link copied')
+    } catch {
+      toast.error('Failed to copy share link')
+    }
+  }
+
+  const handleRevokeShare = async (resourceId: string) => {
+    try {
+      await revokeSharedResource.mutateAsync(resourceId)
+      toast.success('Share link revoked')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to revoke share link'
+      toast.error(message)
+    }
+  }
+
+  const handleDeleteShare = async (resourceId: string) => {
+    try {
+      await deleteSharedResource.mutateAsync(resourceId)
+      toast.success('Share link deleted')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to delete share link'
       toast.error(message)
     }
   }
@@ -364,9 +479,14 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   const currentPhotoIndex = lightboxPhoto
     ? confirmedImages.findIndex((image) => image.id === lightboxPhoto)
     : -1
+  const selectedImageList = confirmedImages.filter((image) => selectedImageIds.has(image.id))
   const deleteImageTarget = deleteImageTargetId
     ? allImages.find((image) => image.id === deleteImageTargetId) ?? null
     : null
+  const canCreateShareLink =
+    shareType === 'GALLERY' ||
+    (shareType === 'IMAGE' && shareImageIds.length === 1) ||
+    (shareType === 'MULTI_IMAGE' && shareImageIds.length >= 2)
 
   const goToPrevPhoto = () => {
     if (currentPhotoIndex <= 0) return
@@ -468,7 +588,10 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
               </>
             )}
           </Button>
-          <Button className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press" disabled>
+          <Button
+            className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press"
+            onClick={() => openShareModal('GALLERY')}
+          >
             <Share2 className="w-4 h-4 mr-2" />
             Share gallery
           </Button>
@@ -497,6 +620,124 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
         </div>
       </div>
 
+      {selectedImageIds.size > 0 && (
+        <GlassCard className="p-4" hover={false}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <p className="text-sm text-white">
+              {selectedImageIds.size} selected
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                onClick={clearImageSelection}
+              >
+                Clear
+              </Button>
+              <Button
+                className="bg-poof-violet hover:bg-poof-violet/90 text-white"
+                onClick={() => {
+                  if (selectedImageIds.size === 1) {
+                    openShareModal('IMAGE', selectedImageList.map((image) => image.id))
+                  } else {
+                    openShareModal('MULTI_IMAGE', selectedImageList.map((image) => image.id))
+                  }
+                }}
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share selected
+              </Button>
+            </div>
+          </div>
+        </GlassCard>
+      )}
+
+      <GlassCard className="p-4" hover={false}>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <h3 className="text-white font-medium">Share links</h3>
+          <Button
+            size="sm"
+            className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+            onClick={() => openShareModal('GALLERY')}
+          >
+            <Plus className="w-4 h-4 mr-1" />
+            New link
+          </Button>
+        </div>
+
+        {galleryShares.length > 0 ? (
+          <div className="space-y-2">
+            {galleryShares.map((share) => (
+              <div
+                key={share.id}
+                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+              >
+                <div className="min-w-0">
+                  <p className="text-xs text-poof-mist font-mono truncate">{share.shareUrl}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <StatusBadge
+                      variant={
+                        share.status === 'ACTIVE'
+                          ? 'active'
+                          : share.status === 'REVOKED'
+                            ? 'revoked'
+                            : 'expired'
+                      }
+                      className="text-[10px]"
+                    >
+                      {share.status}
+                    </StatusBadge>
+                    <span className="text-[11px] text-poof-mist inline-flex items-center gap-1">
+                      <Clock3 className="w-3 h-3" />
+                      {share.status === 'ACTIVE' ? (
+                        <Countdown expiresAt={new Date(share.expiresAt)} />
+                      ) : share.status === 'REVOKED' ? (
+                        'Revoked'
+                      ) : (
+                        'Poofed'
+                      )}
+                    </span>
+                    <span className="text-[11px] text-poof-mist">{share.viewCount} views</span>
+                    <span className="text-[11px] text-poof-mist">{share.type}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-poof-mist hover:text-white"
+                    onClick={() => void handleCopyShareLink(share.shareUrl)}
+                  >
+                    <Copy className="w-4 h-4 mr-1" />
+                    Copy
+                  </Button>
+                  {share.status === 'ACTIVE' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-poof-peach hover:text-poof-peach"
+                      onClick={() => void handleRevokeShare(share.id)}
+                    >
+                      Revoke
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-400 hover:text-red-300"
+                    onClick={() => void handleDeleteShare(share.id)}
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-poof-mist">No share links yet.</p>
+        )}
+      </GlassCard>
+
       {allImages.length > 0 ? (
         <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
           {allImages.map((image, index) => {
@@ -507,6 +748,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                 key={image.id}
                 className={cn(
                   'break-inside-avoid group relative rounded-lg overflow-hidden animate-fade-up',
+                  selectedImageIds.has(image.id) && 'ring-2 ring-poof-violet',
                   canPreview ? 'cursor-pointer' : 'cursor-not-allowed',
                 )}
                 style={{ animationDelay: `${index * 0.05}s` }}
@@ -533,6 +775,16 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                 <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-black/50 text-[10px] text-white">
                   {image.uploadStatus}
                 </div>
+                {canPreview && (
+                  <div className="absolute top-2 right-2 z-10">
+                    <Checkbox
+                      checked={selectedImageIds.has(image.id)}
+                      onCheckedChange={() => toggleImageSelection(image.id)}
+                      onClick={(event) => event.stopPropagation()}
+                      className="w-4 h-4 border-white/50 bg-black/50 data-[state=checked]:bg-poof-violet data-[state=checked]:border-poof-violet"
+                    />
+                  </div>
+                )}
 
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <button
@@ -543,7 +795,11 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                   </button>
                   <button
                     className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-                    disabled
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      openShareModal('IMAGE', [image.id])
+                    }}
+                    disabled={!canPreview}
                   >
                     <Share2 className="w-5 h-5" />
                   </button>
@@ -669,6 +925,125 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                   <>
                     <CloudUpload className="w-4 h-4 mr-2" />
                     Upload {queuedFiles.length > 0 ? `(${queuedFiles.length})` : ''}
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
+        <DialogContent className="sm:max-w-lg bg-poof-base border-white/10 text-white">
+          <div className="space-y-5">
+            <div>
+              <h2 className="font-heading font-bold text-2xl">Create share link</h2>
+              <p className="text-poof-mist text-sm mt-1">
+                Generate an expiring link for this gallery or selected images.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <button
+                className={cn(
+                  'rounded-lg border px-3 py-2 text-sm transition-colors',
+                  shareType === 'GALLERY'
+                    ? 'border-poof-violet bg-poof-violet/20 text-poof-violet'
+                    : 'border-white/10 text-poof-mist hover:text-white',
+                )}
+                onClick={() => {
+                  setShareType('GALLERY')
+                  setShareImageIds([])
+                }}
+              >
+                Gallery
+              </button>
+              <button
+                className={cn(
+                  'rounded-lg border px-3 py-2 text-sm transition-colors',
+                  shareType === 'IMAGE'
+                    ? 'border-poof-violet bg-poof-violet/20 text-poof-violet'
+                    : 'border-white/10 text-poof-mist hover:text-white',
+                )}
+                disabled={shareImageIds.length !== 1}
+                onClick={() => {
+                  if (shareImageIds.length === 1) {
+                    setShareType('IMAGE')
+                  }
+                }}
+              >
+                Single Image
+              </button>
+              <button
+                className={cn(
+                  'rounded-lg border px-3 py-2 text-sm transition-colors',
+                  shareType === 'MULTI_IMAGE'
+                    ? 'border-poof-violet bg-poof-violet/20 text-poof-violet'
+                    : 'border-white/10 text-poof-mist hover:text-white',
+                )}
+                disabled={shareImageIds.length < 2}
+                onClick={() => {
+                  if (shareImageIds.length >= 2) {
+                    setShareType('MULTI_IMAGE')
+                  }
+                }}
+              >
+                Multi Image
+              </button>
+            </div>
+
+            <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm">
+              {shareType === 'GALLERY' && (
+                <p className="text-poof-mist">Sharing the entire gallery.</p>
+              )}
+              {shareType !== 'GALLERY' && (
+                <p className="text-poof-mist">
+                  {shareImageIds.length} image{shareImageIds.length === 1 ? '' : 's'} selected.
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-poof-mist">Expiry (hours from now)</label>
+              <Input
+                type="number"
+                min={1}
+                max={24 * 365}
+                value={shareExpiryHours}
+                onChange={(event) => setShareExpiryHours(event.target.value)}
+                className="bg-white/5 border-white/10 text-white"
+              />
+            </div>
+
+            {lastCreatedShareUrl && (
+              <div className="rounded-lg border border-poof-mint/30 bg-poof-mint/10 p-3">
+                <p className="text-xs text-poof-mint mb-1">Latest link</p>
+                <p className="font-mono text-xs text-white break-all">{lastCreatedShareUrl}</p>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                onClick={() => setIsShareModalOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+                onClick={() => void handleCreateShareLink()}
+                disabled={!canCreateShareLink || createSharedResource.isPending}
+              >
+                {createSharedResource.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Link2 className="w-4 h-4 mr-2" />
+                    Create link
                   </>
                 )}
               </Button>

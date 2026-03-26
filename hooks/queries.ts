@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/axios'
 import type { GalleryDetail, GalleryListItem } from '@/lib/types/gallery'
+import type { PublicSharedResource, SharedResourceListItem } from '@/lib/types/shared-resource'
 
 export const queryKeys = {
   galleries: () => ['galleries'] as const,
@@ -30,7 +31,7 @@ export function useGallery(id: string) {
 export function useSharedResources() {
   return useQuery({
     queryKey: queryKeys.sharedResources(),
-    queryFn: () => api.get('/shared-resources'),
+    queryFn: () => api.get('/shared-resources') as Promise<SharedResourceListItem[]>,
   })
 }
 
@@ -38,7 +39,7 @@ export function useSharedResources() {
 export function usePublicSharedResource(resourceId: string) {
   return useQuery({
     queryKey: queryKeys.publicSharedResource(resourceId),
-    queryFn: () => api.get(`/shared-resources/${resourceId}`),
+    queryFn: () => api.get(`/shared-resources/${resourceId}`) as Promise<PublicSharedResource>,
     enabled: Boolean(resourceId),
     retry: false,
   })

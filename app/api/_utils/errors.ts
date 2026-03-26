@@ -22,6 +22,12 @@ export const apiErrors = {
   notFound(message = 'Resource not found') {
     return new ApiRouteError('NOT_FOUND', message, 404)
   },
+  expired(message = 'Resource has expired') {
+    return new ApiRouteError('EXPIRED', message, 410)
+  },
+  revoked(message = 'Resource has been revoked') {
+    return new ApiRouteError('REVOKED', message, 410)
+  },
   validation(message = 'Invalid request body') {
     return new ApiRouteError('VALIDATION_ERROR', message, 422)
   },
