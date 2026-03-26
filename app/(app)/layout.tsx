@@ -1,12 +1,23 @@
+import { headers } from 'next/headers'
+import { redirect } from 'next/navigation'
 import { AppSidebar } from '@/components/app/sidebar'
 import { AppHeader } from '@/components/app/header'
 import { AppMobileNav } from '@/components/app/mobile-nav'
+import { auth } from '@/lib/auth'
 
-export default function AppLayout({
+export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  })
+
+  if (!session) {
+    redirect('/signin')
+  }
+
   return (
     <div className="min-h-screen bg-poof-base">
       {/* Desktop sidebar */}

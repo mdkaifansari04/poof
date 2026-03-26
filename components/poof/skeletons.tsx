@@ -2,11 +2,12 @@ import { cn } from '@/lib/utils'
 
 interface SkeletonProps {
   className?: string
+  style?: React.CSSProperties
 }
 
-export function SkeletonBox({ className }: SkeletonProps) {
+export function SkeletonBox({ className, style }: SkeletonProps) {
   return (
-    <div className={cn('skeleton-shimmer rounded-lg', className)} />
+    <div className={cn('skeleton-shimmer rounded-lg', className)} style={style} />
   )
 }
 

@@ -1,0 +1,136 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String?
+  image         String?
+  emailVerified Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  sessions        Session[]
+  accounts        Account[]
+  galleries       Gallery[]
+  sharedResources SharedResource[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  userId                String
+  accountId             String
+  providerId            String
+  accessToken           String?
+  refreshToken          String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  idToken               String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Gallery {
+  id           String    @id @default(cuid())
+  userId       String
+  name         String
+  description  String?
+  coverImageId String?
+  deletedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  images          Image[]
+  sharedResources SharedResource[]
+
+  @@index([userId])
+  @@index([deletedAt])
+}
+
+model Image {
+  id           String       @id @default(cuid())
+  galleryId    String
+  userId       String
+  fileName     String
+  fileSize     Int
+  mimeType     String
+  r2Key        String       @unique
+  r2Url        String
+  width        Int?
+  height       Int?
+  uploadStatus UploadStatus @default(PENDING)
+  deletedAt    DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([galleryId])
+  @@index([userId])
+  @@index([deletedAt])
+}
+
+enum UploadStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+}
+
+model SharedResource {
+  id        String             @id @default(cuid())
+  userId    String
+  type      SharedResourceType
+  galleryId String?
+  imageIds  String[]
+  expiresAt DateTime
+  revokedAt DateTime?
+  viewCount Int                @default(0)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gallery Gallery? @relation(fields: [galleryId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([galleryId])
+}
+
+enum SharedResourceType {
+  GALLERY
+  IMAGE
+  MULTI_IMAGE
+}

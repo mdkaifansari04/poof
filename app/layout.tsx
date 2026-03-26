@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { DM_Sans, Syne } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { Toaster } from 'sonner'
+import { QueryProvider } from '@/components/providers/query-provider'
 import './globals.css'
 
 const dmSans = DM_Sans({
@@ -53,19 +54,21 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${dmSans.variable} ${syne.variable} font-sans antialiased bg-poof-base text-white`}>
-        {children}
-        <Toaster 
-          position="bottom-right"
-          toastOptions={{
-            style: {
-              background: 'rgba(255, 255, 255, 0.04)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              color: '#fff',
-            },
-          }}
-        />
-        <Analytics />
+        <QueryProvider>
+          {children}
+          <Toaster 
+            position="bottom-right"
+            toastOptions={{
+              style: {
+                background: 'rgba(255, 255, 255, 0.04)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#fff',
+              },
+            }}
+          />
+          <Analytics />
+        </QueryProvider>
       </body>
     </html>
   )
