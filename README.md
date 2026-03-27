@@ -17,6 +17,7 @@ Poof is a photo-sharing platform with expiring share links.
 bun install
 ```
 
+
 2. Copy environment file and fill values:
 ```bash
 cp .env.example .env
