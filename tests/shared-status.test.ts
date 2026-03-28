@@ -40,3 +40,5 @@ describe('getSharedResourceStatus', () => {
     expect(status).toBe('ACTIVE')
   })
 })
+
+
