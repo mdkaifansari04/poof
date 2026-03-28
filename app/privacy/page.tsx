@@ -123,7 +123,7 @@ export default function PrivacyPage() {
                     <tr className="border-b border-white/5"><td className="py-2 pr-4">Neon (PostgreSQL)</td><td className="py-2 pr-4">Database</td><td className="py-2">Account info, gallery metadata, share links</td></tr>
                     <tr className="border-b border-white/5"><td className="py-2 pr-4">Cloudflare R2</td><td className="py-2 pr-4">Photo storage</td><td className="py-2">Uploaded photos</td></tr>
                     <tr className="border-b border-white/5"><td className="py-2 pr-4">Google OAuth</td><td className="py-2 pr-4">Sign-in</td><td className="py-2">Email, name, profile photo (OAuth only)</td></tr>
-                    <tr><td className="py-2 pr-4">Vercel</td><td className="py-2 pr-4">Hosting/serverless</td><td className="py-2">Request logs, IP addresses</td></tr>
+                    <tr><td className="py-2 pr-4">Cloudflare Worker ,ages</td><td className="py-2 pr-4">Hosting/serverless</td><td className="py-2">Request logs, IP addresses</td></tr>
                   </tbody>
                 </table>
               </div>

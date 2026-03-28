@@ -77,6 +77,5 @@ Schedules are configured in `vercel.json`.
 
 1. Add all env vars to Vercel project.
 2. Ensure `CRON_SECRET` is set and kept private.
-3. Ensure `vercel.json` cron schedules are enabled.
-4. Run database migrations in production.
-5. Smoke test auth, upload, sharing, and cron endpoints.
+3. Run database migrations in production.
+4. Smoke test auth, upload, sharing, and cron endpoints.

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Syne } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import { Toaster } from "sonner";
 import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
@@ -107,7 +106,6 @@ export default function RootLayout({
               },
             }}
           />
-          <Analytics />
         </QueryProvider>
       </body>
     </html>

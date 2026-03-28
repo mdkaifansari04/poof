@@ -110,7 +110,6 @@ System is operationally safe: data cleanup, lifecycle enforcement, and productio
   - Hard-delete soft-deleted images after R2 cleanup window.
   - Mark stale `PENDING` uploads as `FAILED`.
   - Remove old `FAILED` uploads.
-- Add `vercel.json` cron schedule config from spec.
 - Add comprehensive validation + error coverage across all endpoints.
 - Add core test coverage:
   - API route behavior tests for happy path and edge cases.
