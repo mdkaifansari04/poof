@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, use } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { GlassCard } from '@/components/poof/glass-card'
 import { Countdown } from '@/components/poof/countdown'
 import { StatusBadge } from '@/components/poof/status-badge'
@@ -146,6 +146,8 @@ function uploadWithPresignedUrl(
 
 export default function GalleryDetailPage({ params }: { params: GalleryRouteParams }) {
   const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const { id } = use(params)
   const modalFileInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -195,6 +197,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
     message: '',
   })
   const copiedShareTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const uploadAlertTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const gallery = galleryQuery.data
   const allImages = gallery?.images ?? []
@@ -214,9 +217,26 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
   }, [gallery?.name])
 
   useEffect(() => {
+    const shouldOpenShare = searchParams.get('openShare')
+    if (shouldOpenShare !== '1' && shouldOpenShare !== 'true') {
+      return
+    }
+
+    setIsShareModalOpen(true)
+
+    const nextParams = new URLSearchParams(searchParams.toString())
+    nextParams.delete('openShare')
+    const nextQuery = nextParams.toString()
+    router.replace(nextQuery ? `${pathname}?${nextQuery}` : pathname, { scroll: false })
+  }, [pathname, router, searchParams])
+
+  useEffect(() => {
     return () => {
       if (copiedShareTimeoutRef.current) {
         clearTimeout(copiedShareTimeoutRef.current)
+      }
+      if (uploadAlertTimeoutRef.current) {
+        clearTimeout(uploadAlertTimeoutRef.current)
       }
     }
   }, [])
@@ -486,6 +506,11 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
       return
     }
 
+    if (uploadAlertTimeoutRef.current) {
+      clearTimeout(uploadAlertTimeoutRef.current)
+      uploadAlertTimeoutRef.current = null
+    }
+
     setUploadAlert({
       status: 'idle',
       progress: 0,
@@ -495,6 +520,34 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
       message: '',
     })
   }
+
+  useEffect(() => {
+    if (uploadAlert.status !== 'success' && uploadAlert.status !== 'error') {
+      return
+    }
+
+    if (uploadAlertTimeoutRef.current) {
+      clearTimeout(uploadAlertTimeoutRef.current)
+    }
+
+    uploadAlertTimeoutRef.current = setTimeout(() => {
+      setUploadAlert((current) => {
+        if (current.status === 'pending' || current.status === 'idle') {
+          return current
+        }
+
+        return {
+          status: 'idle',
+          progress: 0,
+          uploaded: 0,
+          total: 0,
+          failed: 0,
+          message: '',
+        }
+      })
+      uploadAlertTimeoutRef.current = null
+    }, 3500)
+  }, [uploadAlert.status])
 
   const handleUploadFiles = async (files: File[]) => {
     if (files.length === 0) {
@@ -882,64 +935,77 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                     <span className="text-[11px] text-poof-mist">{share.type}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-poof-mist hover:text-white"
-                    onClick={() => openEditShareModal(share.id)}
-                    disabled={updateSharedResource.isPending || isDeletingShare}
-                  >
-                    <Pencil className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-poof-mist hover:text-white"
-                    onClick={() => void handleCopyShareLink(share.shareUrl, `share-${share.id}`)}
-                  >
-                    {copiedShareKey === `share-${share.id}` ? (
-                      <Check className="w-4 h-4 mr-1" />
-                    ) : (
-                      <Copy className="w-4 h-4 mr-1" />
-                    )}
-                    Copy
-                  </Button>
-                  {share.status === 'ACTIVE' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-poof-peach hover:text-poof-peach"
-                      onClick={() => void handleRevokeShare(share.id)}
-                      disabled={revokingShareId === share.id || isDeletingShare}
-                    >
-                      {revokingShareId === share.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                          Revoking...
-                        </>
-                      ) : (
-                        'Revoke'
+                <div className="flex items-center self-start md:self-auto">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-poof-mist hover:text-white"
+                        disabled={
+                          isDeletingShare && deleteShareTargetId === share.id
+                            ? true
+                            : revokingShareId === share.id
+                        }
+                      >
+                        {isDeletingShare && deleteShareTargetId === share.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : revokingShareId === share.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <MoreHorizontal className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
+                      <DropdownMenuItem
+                        className="cursor-pointer text-poof-mist hover:text-white"
+                        onClick={() => openEditShareModal(share.id)}
+                        disabled={updateSharedResource.isPending || isDeletingShare}
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer text-poof-mist hover:text-white"
+                        onClick={() => void handleCopyShareLink(share.shareUrl, `share-${share.id}`)}
+                      >
+                        {copiedShareKey === `share-${share.id}` ? (
+                          <Check className="w-4 h-4 mr-2" />
+                        ) : (
+                          <Copy className="w-4 h-4 mr-2" />
+                        )}
+                        {copiedShareKey === `share-${share.id}` ? 'Copied' : 'Copy'}
+                      </DropdownMenuItem>
+                      {share.status === 'ACTIVE' && (
+                        <DropdownMenuItem
+                          className="cursor-pointer text-poof-peach hover:text-poof-peach"
+                          onClick={() => void handleRevokeShare(share.id)}
+                          disabled={revokingShareId === share.id || isDeletingShare}
+                        >
+                          {revokingShareId === share.id ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Link2 className="w-4 h-4 mr-2" />
+                          )}
+                          {revokingShareId === share.id ? 'Revoking...' : 'Revoke'}
+                        </DropdownMenuItem>
                       )}
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-400 hover:text-red-300"
-                    onClick={() => setDeleteShareTargetId(share.id)}
-                    disabled={isDeletingShare}
-                  >
-                    {isDeletingShare && deleteShareTargetId === share.id ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                        Deleting...
-                      </>
-                    ) : (
-                      'Delete'
-                    )}
-                  </Button>
+                      <DropdownMenuSeparator className="bg-white/10" />
+                      <DropdownMenuItem
+                        className="cursor-pointer text-red-400 hover:text-red-300"
+                        onClick={() => setDeleteShareTargetId(share.id)}
+                        disabled={isDeletingShare}
+                      >
+                        {isDeletingShare && deleteShareTargetId === share.id ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Trash2 className="w-4 h-4 mr-2" />
+                        )}
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             ))}
@@ -970,11 +1036,17 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
                 }}
               >
                 {canPreview ? (
-                  <img
-                    src={image.r2Url}
-                    alt={image.fileName}
-                    className="w-full transition-transform duration-500 group-hover:scale-105"
-                  />
+                  <div className="relative">
+                    <img
+                      src={image.r2Url}
+                      alt={image.fileName}
+                      className="w-full scale-105 blur-xl transition-transform duration-500 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-black/30 pointer-events-none" />
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded-full bg-black/60 px-3 py-1 text-[11px] text-white/90">
+                      Hidden preview
+                    </div>
+                  </div>
                 ) : (
                   <div className="w-full min-h-48 bg-white/5 flex items-center justify-center p-4">
                     <span className="text-sm text-poof-mist text-center">
@@ -1514,7 +1586,7 @@ export default function GalleryDetailPage({ params }: { params: GalleryRoutePara
       </AlertDialog>
 
       {uploadAlert.status !== 'idle' && (
-        <div className="fixed bottom-10 right-10 z-[70] w-[360px] max-w-[calc(100vw-2rem)]">
+        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[70] w-[360px] max-w-[calc(100vw-2rem)] sm:top-auto sm:left-auto sm:translate-x-0 sm:bottom-10 sm:right-10">
           <Alert
             className={cn(
               'border-white/20 bg-poof-base/95 text-white shadow-xl backdrop-blur',

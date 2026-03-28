@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { GlassCard } from '@/components/poof/glass-card'
 import { EmptyState } from '@/components/poof/empty-state'
 import { StatusBadge } from '@/components/poof/status-badge'
@@ -64,6 +65,7 @@ type GalleryView = {
 }
 
 export default function GalleriesPage() {
+  const router = useRouter()
   const [viewMode, setViewMode] = useState<ViewMode>('grid')
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [filterBy, setFilterBy] = useState<FilterOption>('all')
@@ -398,6 +400,7 @@ export default function GalleriesPage() {
                 isSelected={selectedGalleries.has(gallery.id)}
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
+                onOpen={() => router.push(`/galleries/${gallery.id}`)}
                 onDelete={() => openDeleteDialog([gallery.id])}
                 links={shareLinksByGalleryId.get(gallery.id) ?? []}
               />
@@ -413,6 +416,7 @@ export default function GalleriesPage() {
                 isSelected={selectedGalleries.has(gallery.id)}
                 onToggleSelect={() => toggleSelection(gallery.id)}
                 isSelecting={isSelecting}
+                onOpen={() => router.push(`/galleries/${gallery.id}`)}
                 onDelete={() => openDeleteDialog([gallery.id])}
                 links={shareLinksByGalleryId.get(gallery.id) ?? []}
               />
@@ -467,6 +471,7 @@ interface GalleryCardProps {
   isSelected: boolean
   onToggleSelect: () => void
   isSelecting: boolean
+  onOpen: () => void
   onDelete: () => void
   links: {
     galleryId: string | null
@@ -481,6 +486,7 @@ function GalleryGridCard({
   isSelected,
   onToggleSelect,
   isSelecting,
+  onOpen,
   onDelete,
   links,
 }: GalleryCardProps) {
@@ -495,6 +501,15 @@ function GalleryGridCard({
     <GlassCard
       className={cn('group overflow-hidden animate-fade-up', isSelected && 'ring-2 ring-poof-violet')}
       style={{ animationDelay: `${index * 0.05}s` }}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onOpen()
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <div className="relative aspect-video overflow-hidden">
         <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
@@ -508,6 +523,7 @@ function GalleryGridCard({
             'absolute top-3 left-3 transition-opacity',
             isSelecting || isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
           )}
+          onClick={(event) => event.stopPropagation()}
         >
           <Checkbox
             checked={isSelected}
@@ -524,16 +540,21 @@ function GalleryGridCard({
           ) : null}
         </div>
 
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+        <div
+          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
+          onClick={(event) => event.stopPropagation()}
+        >
           <Button size="sm" variant="secondary" asChild className="btn-press">
             <Link href={`/galleries/${gallery.id}`}>
               <FolderOpen className="w-4 h-4 mr-1" />
               Open
             </Link>
           </Button>
-          <Button size="sm" variant="secondary" className="btn-press" disabled>
-            <Share2 className="w-4 h-4 mr-1" />
-            Share
+          <Button size="sm" variant="secondary" asChild className="btn-press">
+            <Link href={`/galleries/${gallery.id}?openShare=1`}>
+              <Share2 className="w-4 h-4 mr-1" />
+              Share
+            </Link>
           </Button>
         </div>
       </div>
@@ -561,6 +582,7 @@ function GalleryGridCard({
                 variant="ghost"
                 size="icon"
                 className="h-8 w-8 text-poof-mist hover:text-white flex-shrink-0"
+                onClick={(event) => event.stopPropagation()}
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
@@ -568,6 +590,9 @@ function GalleryGridCard({
             <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
               <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
                 <Link href={`/galleries/${gallery.id}`}>Open</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+                <Link href={`/galleries/${gallery.id}?openShare=1`}>Share</Link>
               </DropdownMenuItem>
               <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer" onClick={onDelete}>
                 Delete
@@ -586,6 +611,7 @@ function GalleryListRow({
   isSelected,
   onToggleSelect,
   isSelecting,
+  onOpen,
   onDelete,
   links,
 }: GalleryCardProps) {
@@ -595,10 +621,20 @@ function GalleryListRow({
     <GlassCard
       className={cn('group flex items-center gap-4 p-4 animate-fade-up', isSelected && 'ring-2 ring-poof-violet')}
       style={{ animationDelay: `${index * 0.03}s` }}
+      onClick={onOpen}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault()
+          onOpen()
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
       <Checkbox
         checked={isSelected}
         onCheckedChange={onToggleSelect}
+        onClick={(event) => event.stopPropagation()}
         className={cn(
           'w-5 h-5 border-white/30 data-[state=checked]:bg-poof-violet data-[state=checked]:border-poof-violet',
           !isSelecting && 'opacity-0 group-hover:opacity-100',
@@ -631,9 +667,11 @@ function GalleryListRow({
         )}
       </div>
 
-      <div className="flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-poof-mist hover:text-white" disabled>
-          <Share2 className="w-4 h-4" />
+      <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-poof-mist hover:text-white" asChild>
+          <Link href={`/galleries/${gallery.id}?openShare=1`} aria-label={`Share ${gallery.name}`}>
+            <Share2 className="w-4 h-4" />
+          </Link>
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -644,6 +682,9 @@ function GalleryListRow({
           <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
             <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
               <Link href={`/galleries/${gallery.id}`}>Open</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+              <Link href={`/galleries/${gallery.id}?openShare=1`}>Share</Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer" onClick={onDelete}>
               Delete

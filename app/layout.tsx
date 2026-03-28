@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Syne } from "next/font/google";
-import { Toaster } from "sonner";
+import { AppToaster } from "@/components/providers/app-toaster";
+import { PwaRegister } from "@/components/providers/pwa-register";
 import { QueryProvider } from "@/components/providers/query-provider";
 import "./globals.css";
 
@@ -24,6 +25,7 @@ const syne = Syne({
 
 export const metadata: Metadata = {
   metadataBase: new URL(appUrl),
+  manifest: "/manifest.webmanifest",
   title: {
     default: appTitle,
     template: `%s | ${appName}`,
@@ -74,6 +76,19 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" }],
+    shortcut: ["/icons/icon-192.png"],
+  },
+  appleWebApp: {
+    capable: true,
+    title: appName,
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export const viewport: Viewport = {
@@ -94,18 +109,9 @@ export default function RootLayout({
         className={`${dmSans.variable} ${syne.variable} font-sans antialiased bg-poof-base text-white`}
       >
         <QueryProvider>
+          <PwaRegister />
           {children}
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: "rgba(255, 255, 255, 0.04)",
-                backdropFilter: "blur(12px)",
-                border: "1px solid rgba(255, 255, 255, 0.1)",
-                color: "#fff",
-              },
-            }}
-          />
+          <AppToaster />
         </QueryProvider>
       </body>
     </html>
