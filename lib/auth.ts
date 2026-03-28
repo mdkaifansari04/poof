@@ -7,27 +7,49 @@ type BetterAuthInstance = ReturnType<typeof betterAuth>
 
 let authInstance: BetterAuthInstance | undefined
 
+function getRuntimeEnv(name: string): string | undefined {
+  const processValue = process.env[name]
+  if (typeof processValue === 'string' && processValue.length > 0) {
+    return processValue
+  }
+
+  const globalValue = (globalThis as Record<string, unknown>)[name]
+  if (typeof globalValue === 'string' && globalValue.length > 0) {
+    return globalValue
+  }
+
+  return undefined
+}
+
 export function getAuth(): BetterAuthInstance {
   if (!authInstance) {
-    authInstance = betterAuth({
+    const googleClientId = getRuntimeEnv('GOOGLE_CLIENT_ID')
+    const googleClientSecret = getRuntimeEnv('GOOGLE_CLIENT_SECRET')
+
+    const options: Parameters<typeof betterAuth>[0] = {
       database: prismaAdapter(getPrisma(), {
         provider: 'postgresql',
       }),
       emailAndPassword: {
         enabled: true,
       },
-      socialProviders: {
-        google: {
-          clientId: process.env.GOOGLE_CLIENT_ID!,
-          clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        },
-      },
       session: {
         expiresIn: 60 * 60 * 24 * 30, // 30 days
         updateAge: 60 * 60 * 24, // 1 day
       },
       plugins: [nextCookies()],
-    })
+    }
+
+    if (googleClientId && googleClientSecret) {
+      options.socialProviders = {
+        google: {
+          clientId: googleClientId,
+          clientSecret: googleClientSecret,
+        },
+      }
+    }
+
+    authInstance = betterAuth(options)
   }
 
   return authInstance
