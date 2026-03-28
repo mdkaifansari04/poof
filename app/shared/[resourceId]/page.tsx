@@ -44,14 +44,50 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
   const { resourceId } = use(params)
   const resourceQuery = usePublicSharedResource(resourceId)
   const [lightboxImageId, setLightboxImageId] = useState<string | null>(null)
+  const resource = resourceQuery.data ?? null
 
   const expiresAt = useMemo(() => {
-    if (!resourceQuery.data?.expiresAt) {
+    if (!resource?.expiresAt) {
       return null
     }
 
-    return new Date(resourceQuery.data.expiresAt)
-  }, [resourceQuery.data?.expiresAt])
+    return new Date(resource.expiresAt)
+  }, [resource?.expiresAt])
+
+  const previewImages = useMemo(() => {
+    if (!resource) {
+      return []
+    }
+
+    if (resource.type === 'IMAGE' && resource.image) {
+      return [resource.image]
+    }
+
+    if (resource.type === 'MULTI_IMAGE' && resource.images) {
+      return resource.images
+    }
+
+    if (resource.type === 'GALLERY' && resource.gallery) {
+      return resource.gallery.images
+    }
+
+    return []
+  }, [resource])
+
+  const currentImageIndex = lightboxImageId
+    ? previewImages.findIndex((image) => image.id === lightboxImageId)
+    : -1
+  const currentImage = currentImageIndex >= 0 ? previewImages[currentImageIndex] : null
+
+  useEffect(() => {
+    if (!lightboxImageId) {
+      return
+    }
+
+    if (!previewImages.some((image) => image.id === lightboxImageId)) {
+      setLightboxImageId(null)
+    }
+  }, [lightboxImageId, previewImages])
 
   if (resourceQuery.isPending) {
     return (
@@ -87,36 +123,9 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
     return <ErrorState title="Could not load shared content" message={error.message} />
   }
 
-  const resource = resourceQuery.data
-  const previewImages = useMemo(() => {
-    if (resource.type === 'IMAGE' && resource.image) {
-      return [resource.image]
-    }
-
-    if (resource.type === 'MULTI_IMAGE' && resource.images) {
-      return resource.images
-    }
-
-    if (resource.type === 'GALLERY' && resource.gallery) {
-      return resource.gallery.images
-    }
-
-    return []
-  }, [resource])
-  const currentImageIndex = lightboxImageId
-    ? previewImages.findIndex((image) => image.id === lightboxImageId)
-    : -1
-  const currentImage = currentImageIndex >= 0 ? previewImages[currentImageIndex] : null
-
-  useEffect(() => {
-    if (!lightboxImageId) {
-      return
-    }
-
-    if (!previewImages.some((image) => image.id === lightboxImageId)) {
-      setLightboxImageId(null)
-    }
-  }, [lightboxImageId, previewImages])
+  if (!resource) {
+    return <ErrorState title="Could not load shared content" message="Shared content is unavailable." />
+  }
 
   const goToPrevImage = () => {
     if (currentImageIndex <= 0) return

@@ -497,19 +497,11 @@ function GalleryGridCard({
       style={{ animationDelay: `${index * 0.05}s` }}
     >
       <div className="relative aspect-video overflow-hidden">
-        {gallery.coverPhoto ? (
-          <img
-            src={gallery.coverPhoto}
-            alt={gallery.name}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-            <span className="font-heading font-bold text-3xl text-white/30">
-              {gallery.name.slice(0, 2).toUpperCase()}
-            </span>
-          </div>
-        )}
+        <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
+          <span className="font-heading font-bold text-3xl text-white/30">
+            {gallery.name.slice(0, 2).toUpperCase()}
+          </span>
+        </div>
 
         <div
           className={cn(
@@ -614,15 +606,11 @@ function GalleryListRow({
       />
 
       <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-        {gallery.coverPhoto ? (
-          <img src={gallery.coverPhoto} alt={gallery.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-            <span className="font-heading font-bold text-xs text-white/40">
-              {gallery.name.slice(0, 2).toUpperCase()}
-            </span>
-          </div>
-        )}
+        <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
+          <span className="font-heading font-bold text-xs text-white/40">
+            {gallery.name.slice(0, 2).toUpperCase()}
+          </span>
+        </div>
       </div>
 
       <div className="flex-1 min-w-0">

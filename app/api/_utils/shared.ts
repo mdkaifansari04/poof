@@ -7,11 +7,6 @@ function normalizeBaseUrl(url: string): string {
 }
 
 export function getAppBaseUrl(request: Request): string {
-  const envBase = process.env.NEXT_PUBLIC_APP_URL || process.env.BETTER_AUTH_URL
-  if (envBase) {
-    return normalizeBaseUrl(envBase)
-  }
-
   return normalizeBaseUrl(new URL(request.url).origin)
 }
 

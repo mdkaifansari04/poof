@@ -21,6 +21,24 @@ function getRuntimeEnv(name: string): string | undefined {
   return undefined
 }
 
+function getTrustedOrigins(): string[] {
+  const origins = new Set<string>(['http://localhost:3000', 'http://127.0.0.1:3000'])
+  const appUrl = getRuntimeEnv('NEXT_PUBLIC_APP_URL')
+  const authUrl = getRuntimeEnv('BETTER_AUTH_URL')
+
+  for (const candidate of [appUrl, authUrl]) {
+    if (!candidate) continue
+
+    try {
+      origins.add(new URL(candidate).origin)
+    } catch {
+      // Ignore invalid URL values from env.
+    }
+  }
+
+  return Array.from(origins)
+}
+
 export function getAuth(): BetterAuthInstance {
   if (!authInstance) {
     const googleClientId = getRuntimeEnv('GOOGLE_CLIENT_ID')
@@ -33,6 +51,7 @@ export function getAuth(): BetterAuthInstance {
       emailAndPassword: {
         enabled: true,
       },
+      trustedOrigins: getTrustedOrigins(),
       session: {
         expiresIn: 60 * 60 * 24 * 30, // 30 days
         updateAge: 60 * 60 * 24, // 1 day
