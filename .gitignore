@@ -13,6 +13,8 @@ next.user-config.*
 # Common ignores
 node_modules
 .next/
+.wrangler/
+dist/
 .DS_Store
 .env 
 .env.local

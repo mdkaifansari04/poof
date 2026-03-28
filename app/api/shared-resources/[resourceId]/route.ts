@@ -1,4 +1,3 @@
-import { SharedResourceType } from '@prisma/client'
 import { z } from 'zod'
 import { requireRequestSession } from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
@@ -81,7 +80,7 @@ export async function GET(_request: Request, context: RouteContext) {
       },
     })
 
-    if (resource.type === SharedResourceType.GALLERY) {
+    if (resource.type === 'GALLERY') {
       if (!resource.galleryId) {
         throw apiErrors.notFound('Shared gallery not found')
       }
@@ -133,7 +132,7 @@ export async function GET(_request: Request, context: RouteContext) {
       })
     }
 
-    if (resource.type === SharedResourceType.IMAGE) {
+    if (resource.type === 'IMAGE') {
       const imageId = resource.imageIds[0]
 
       if (!imageId) {

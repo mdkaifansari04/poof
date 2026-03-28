@@ -1,4 +1,3 @@
-import { SharedResourceType } from '@prisma/client'
 import { z } from 'zod'
 import { requireRequestSession } from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
@@ -14,7 +13,7 @@ import {
 import { prisma } from '@/lib/prisma'
 
 const createSharedResourceSchema = z.object({
-  type: z.nativeEnum(SharedResourceType),
+  type: z.enum(['GALLERY', 'IMAGE', 'MULTI_IMAGE']),
   galleryId: z.string().trim().min(1).optional(),
   imageIds: z.array(z.string().trim().min(1)).optional(),
   expiresAt: z.string().datetime(),
@@ -129,7 +128,7 @@ export async function POST(request: Request) {
     let resolvedGalleryId: string
     let imageIds: string[] = []
 
-    if (input.type === SharedResourceType.GALLERY) {
+    if (input.type === 'GALLERY') {
       if (!input.galleryId) {
         throw apiErrors.validation('galleryId is required for GALLERY shares')
       }
@@ -152,12 +151,12 @@ export async function POST(request: Request) {
         throw apiErrors.validation('imageIds must not contain duplicates')
       }
 
-      if (input.type === SharedResourceType.IMAGE && providedImageIds.length !== 1) {
+      if (input.type === 'IMAGE' && providedImageIds.length !== 1) {
         throw apiErrors.validation('IMAGE share must include exactly 1 imageId')
       }
 
       if (
-        input.type === SharedResourceType.MULTI_IMAGE &&
+        input.type === 'MULTI_IMAGE' &&
         (providedImageIds.length < 2 || providedImageIds.length > MAX_IMAGES_PER_MULTI_SHARE)
       ) {
         throw apiErrors.validation(
@@ -215,7 +214,7 @@ export async function POST(request: Request) {
         userId: authResult.userId,
         type: input.type,
         galleryId: resolvedGalleryId,
-        imageIds: input.type === SharedResourceType.GALLERY ? [] : imageIds,
+        imageIds: input.type === 'GALLERY' ? [] : imageIds,
         expiresAt,
       },
       select: {
