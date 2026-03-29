@@ -141,11 +141,19 @@ export default function DashboardPage() {
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="relative aspect-video overflow-hidden">
-                    <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-                      <span className="font-heading font-bold text-2xl text-white/40">
-                        {gallery.name.slice(0, 2).toUpperCase()}
-                      </span>
-                    </div>
+                    {gallery.bannerImageUrl ? (
+                      <img
+                        src={gallery.bannerImageUrl}
+                        alt={`${gallery.name} banner`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
+                        <span className="font-heading font-bold text-2xl text-white/40">
+                          {gallery.name.slice(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="p-4">
                     <h3 className="font-heading font-bold text-white truncate">{gallery.name}</h3>

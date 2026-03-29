@@ -6,6 +6,9 @@ import { GlassCard } from "@/components/poof/glass-card";
 import { LandingNav } from "@/components/landing/nav";
 import { LandingFooter } from "@/components/landing/footer";
 
+const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://poof.k04.tech";
+const ogImagePath = "/images/og-image.png";
+
 export const metadata: Metadata = {
   title: "Terms of Service",
   description:
@@ -16,8 +19,22 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Poof Terms of Service",
     description: "The legal terms that govern using Poof photo sharing.",
-    url: "/terms",
+    url: `${appUrl}/terms`,
     type: "article",
+    images: [
+      {
+        url: ogImagePath,
+        width: 1200,
+        height: 630,
+        alt: "Poof terms of service",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Poof Terms of Service",
+    description: "The legal terms that govern using Poof photo sharing.",
+    images: [ogImagePath],
   },
 };
 

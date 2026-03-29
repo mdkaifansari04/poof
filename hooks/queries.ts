@@ -14,7 +14,7 @@ export const queryKeys = {
 
 const realtimeQueryOptions = {
   staleTime: 0,
-  gcTime: 5 * 60 * 1000,
+  gcTime: 60 * 1000, // 1 min
   refetchOnMount: 'always' as const,
   refetchOnReconnect: true,
   refetchOnWindowFocus: true,

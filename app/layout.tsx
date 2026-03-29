@@ -8,6 +8,7 @@ import "./globals.css";
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://poof.k04.tech";
 const appName = "Poof";
 const appTitle = "Poof — Expiring Photo Sharing Links";
+const ogImagePath = "/images/og-image.png";
 const appDescription =
   "Poof is a photo-sharing platform for expiring links. Share full galleries, single images, or selected photos with revocable links that automatically expire.";
 
@@ -52,7 +53,7 @@ export const metadata: Metadata = {
     description: appDescription,
     images: [
       {
-        url: "/opengraph-image",
+        url: ogImagePath,
         width: 1200,
         height: 630,
         alt: "Poof expiring photo sharing platform",
@@ -63,7 +64,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: appTitle,
     description: appDescription,
-    images: ["/twitter-image"],
+    images: [ogImagePath],
   },
   robots: {
     index: true,

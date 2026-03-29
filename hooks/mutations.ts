@@ -18,13 +18,17 @@ import type {
 import { queryKeys } from './queries'
 
 async function invalidateGalleryData(queryClient: ReturnType<typeof useQueryClient>, galleryId?: string) {
-  const tasks: Promise<unknown>[] = [
-    queryClient.invalidateQueries({ queryKey: queryKeys.galleries(), refetchType: 'active' }),
-  ]
+  const tasks: Promise<unknown>[] = []
+
+  tasks.push(
+    queryClient.invalidateQueries({ queryKey: queryKeys.galleries(), refetchType: 'all' }),
+    queryClient.refetchQueries({ queryKey: queryKeys.galleries(), type: 'all' }),
+  )
 
   if (galleryId) {
     tasks.push(
-      queryClient.invalidateQueries({ queryKey: queryKeys.gallery(galleryId), refetchType: 'active' }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.gallery(galleryId), refetchType: 'all' }),
+      queryClient.refetchQueries({ queryKey: queryKeys.gallery(galleryId), type: 'all' }),
     )
   }
 
@@ -32,21 +36,32 @@ async function invalidateGalleryData(queryClient: ReturnType<typeof useQueryClie
 }
 
 async function invalidateShareData(queryClient: ReturnType<typeof useQueryClient>, resourceId?: string) {
-  const tasks: Promise<unknown>[] = [
-    queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources(), refetchType: 'active' }),
-  ]
+  const tasks: Promise<unknown>[] = []
+
+  tasks.push(
+    queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources(), refetchType: 'all' }),
+    queryClient.refetchQueries({ queryKey: queryKeys.sharedResources(), type: 'all' }),
+  )
 
   if (resourceId) {
     tasks.push(
       queryClient.invalidateQueries({
         queryKey: queryKeys.sharedResource(resourceId),
-        refetchType: 'active',
+        refetchType: 'all',
+      }),
+      queryClient.refetchQueries({
+        queryKey: queryKeys.sharedResource(resourceId),
+        type: 'all',
       }),
     )
     tasks.push(
       queryClient.invalidateQueries({
         queryKey: queryKeys.publicSharedResource(resourceId),
-        refetchType: 'active',
+        refetchType: 'all',
+      }),
+      queryClient.refetchQueries({
+        queryKey: queryKeys.publicSharedResource(resourceId),
+        type: 'all',
       }),
     )
   }

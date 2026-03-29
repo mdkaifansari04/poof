@@ -9,6 +9,7 @@ import { LandingSeoDetails, faqItems } from "@/components/landing/seo-details";
 import Features from "@/components/landing/feature-2";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://poof.k04.tech";
+const ogImagePath = "/images/og-image.png";
 const pageTitle =
   "Poof | Expiring Photo Sharing Links for Galleries and Images";
 const pageDescription =
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/opengraph-image",
+        url: ogImagePath,
         width: 1200,
         height: 630,
         alt: "Poof expiring photo sharing",
@@ -47,7 +48,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: pageTitle,
     description: pageDescription,
-    images: ["/twitter-image"],
+    images: [ogImagePath],
   },
 };
 
