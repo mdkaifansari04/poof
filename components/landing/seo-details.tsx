@@ -186,7 +186,7 @@ export function LandingSeoDetails() {
           </div>
 
           <div className="w-full">
-            <div className="w-[80%] mx-auto border p-6 px-8 rounded-xl border-white/[0.06]">
+            <div className="w-full md:w-[80%] mx-auto border p-6 px-8 rounded-xl border-white/[0.06]">
               {faqItems.map((item) => (
                 <FaqItem key={item.question} {...item} />
               ))}
