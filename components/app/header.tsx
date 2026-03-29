@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { Logo } from '@/components/poof/logo'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -25,6 +26,7 @@ const pageTitles: Record<string, string> = {
 
 export function AppHeader() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const pathname = usePathname()
   const [isSigningOut, setIsSigningOut] = useState(false)
   const { data: session } = authClient.useSession()
@@ -44,6 +46,7 @@ export function AppHeader() {
     setIsSigningOut(true)
     try {
       await authClient.signOut()
+      queryClient.clear()
       router.push('/signin')
       router.refresh()
     } finally {

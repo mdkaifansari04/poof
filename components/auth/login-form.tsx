@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { Logo } from '@/components/poof/logo'
 import { GlassCard } from '@/components/poof/glass-card'
 import { AnimatedBackground } from '@/components/poof/animated-background'
@@ -15,6 +16,7 @@ import { authClient } from '@/lib/auth-client'
 
 export function LoginForm() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -48,7 +50,9 @@ export function LoginForm() {
 
       setSuccess(true)
       setTimeout(() => {
+        queryClient.clear()
         router.push('/dashboard')
+        router.refresh()
       }, 500)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to sign in')
@@ -61,6 +65,7 @@ export function LoginForm() {
     setError(null)
     setLoading(true)
     try {
+      queryClient.clear()
       await authClient.signIn.social({
         provider: 'google',
         callbackURL: '/dashboard',

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { Logo, LogoIcon } from '@/components/poof/logo'
 import {
   LayoutDashboard,
@@ -34,6 +35,7 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [collapsed, setCollapsed] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
   const { data: session } = authClient.useSession()
@@ -53,6 +55,7 @@ export function AppSidebar() {
     setIsSigningOut(true)
     try {
       await authClient.signOut()
+      queryClient.clear()
       router.push('/signin')
       router.refresh()
     } finally {

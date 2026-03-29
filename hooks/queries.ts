@@ -12,10 +12,19 @@ export const queryKeys = {
   publicSharedResource: (resourceId: string) => ['public', 'shared-resources', resourceId] as const,
 }
 
+const realtimeQueryOptions = {
+  staleTime: 0,
+  gcTime: 5 * 60 * 1000,
+  refetchOnMount: 'always' as const,
+  refetchOnReconnect: true,
+  refetchOnWindowFocus: true,
+}
+
 export function useGalleries() {
   return useQuery({
     queryKey: queryKeys.galleries(),
     queryFn: () => api.get('/galleries') as Promise<GalleryListItem[]>,
+    ...realtimeQueryOptions,
   })
 }
 
@@ -24,6 +33,7 @@ export function useGallery(id: string) {
     queryKey: queryKeys.gallery(id),
     queryFn: () => api.get(`/galleries/${id}`) as Promise<GalleryDetail>,
     enabled: Boolean(id),
+    ...realtimeQueryOptions,
   })
 }
 
@@ -32,6 +42,7 @@ export function useSharedResources() {
   return useQuery({
     queryKey: queryKeys.sharedResources(),
     queryFn: () => api.get('/shared-resources') as Promise<SharedResourceListItem[]>,
+    ...realtimeQueryOptions,
   })
 }
 
@@ -42,5 +53,6 @@ export function usePublicSharedResource(resourceId: string) {
     queryFn: () => api.get(`/shared-resources/${resourceId}`) as Promise<PublicSharedResource>,
     enabled: Boolean(resourceId),
     retry: false,
+    ...realtimeQueryOptions,
   })
 }

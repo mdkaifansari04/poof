@@ -57,6 +57,8 @@ export async function GET(request: Request) {
         description: gallery.description,
         coverImageId: gallery.coverImageId,
         coverImageUrl: coverImage?.r2Url ?? null,
+        bannerImageUrl: gallery.bannerImageUrl,
+        bannerImageKey: gallery.bannerImageKey,
         imageCount: gallery.images.length,
         createdAt: gallery.createdAt,
         updatedAt: gallery.updatedAt,
@@ -108,6 +110,8 @@ export async function POST(request: Request) {
         name: true,
         description: true,
         coverImageId: true,
+        bannerImageUrl: true,
+        bannerImageKey: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -116,6 +120,8 @@ export async function POST(request: Request) {
     return ok({
       ...gallery,
       coverImageUrl: null,
+      bannerImageUrl: gallery.bannerImageUrl,
+      bannerImageKey: gallery.bannerImageKey,
       imageCount: 0,
     })
   } catch (error) {

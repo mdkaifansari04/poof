@@ -68,6 +68,8 @@ model Gallery {
   name         String
   description  String?
   coverImageId String?
+  bannerImageUrl String?
+  bannerImageKey String?
   deletedAt    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

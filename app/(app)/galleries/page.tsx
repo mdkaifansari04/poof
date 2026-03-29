@@ -90,7 +90,7 @@ export default function GalleriesPage() {
       id: gallery.id,
       name: gallery.name,
       description: gallery.description,
-      coverPhoto: gallery.coverImageUrl,
+      coverPhoto: gallery.bannerImageUrl,
       photoCount: gallery.imageCount,
       createdAt: new Date(gallery.createdAt),
     }))
@@ -512,11 +512,19 @@ function GalleryGridCard({
       tabIndex={0}
     >
       <div className="relative aspect-video overflow-hidden">
-        <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-          <span className="font-heading font-bold text-3xl text-white/30">
-            {gallery.name.slice(0, 2).toUpperCase()}
-          </span>
-        </div>
+        {gallery.coverPhoto ? (
+          <img
+            src={gallery.coverPhoto}
+            alt={`${gallery.name} banner`}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
+            <span className="font-heading font-bold text-3xl text-white/30">
+              {gallery.name.slice(0, 2).toUpperCase()}
+            </span>
+          </div>
+        )}
 
         <div
           className={cn(
@@ -642,11 +650,19 @@ function GalleryListRow({
       />
 
       <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-        <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-          <span className="font-heading font-bold text-xs text-white/40">
-            {gallery.name.slice(0, 2).toUpperCase()}
-          </span>
-        </div>
+        {gallery.coverPhoto ? (
+          <img
+            src={gallery.coverPhoto}
+            alt={`${gallery.name} banner`}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
+            <span className="font-heading font-bold text-xs text-white/40">
+              {gallery.name.slice(0, 2).toUpperCase()}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">

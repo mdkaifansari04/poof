@@ -3,6 +3,8 @@ import { api } from '@/lib/axios'
 import type {
   CreateGalleryInput,
   GalleryListItem,
+  PresignBannerUploadInput,
+  PresignBannerUploadResponse,
   PresignUploadInput,
   PresignUploadResponse,
   UpdateGalleryInput,
@@ -15,14 +17,51 @@ import type {
 } from '@/lib/types/shared-resource'
 import { queryKeys } from './queries'
 
+async function invalidateGalleryData(queryClient: ReturnType<typeof useQueryClient>, galleryId?: string) {
+  const tasks: Promise<unknown>[] = [
+    queryClient.invalidateQueries({ queryKey: queryKeys.galleries(), refetchType: 'active' }),
+  ]
+
+  if (galleryId) {
+    tasks.push(
+      queryClient.invalidateQueries({ queryKey: queryKeys.gallery(galleryId), refetchType: 'active' }),
+    )
+  }
+
+  await Promise.all(tasks)
+}
+
+async function invalidateShareData(queryClient: ReturnType<typeof useQueryClient>, resourceId?: string) {
+  const tasks: Promise<unknown>[] = [
+    queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources(), refetchType: 'active' }),
+  ]
+
+  if (resourceId) {
+    tasks.push(
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.sharedResource(resourceId),
+        refetchType: 'active',
+      }),
+    )
+    tasks.push(
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.publicSharedResource(resourceId),
+        refetchType: 'active',
+      }),
+    )
+  }
+
+  await Promise.all(tasks)
+}
+
 export function useCreateGallery() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: (body: CreateGalleryInput) =>
       api.post('/galleries', body) as Promise<GalleryListItem>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.galleries() })
+    onSuccess: async () => {
+      await invalidateGalleryData(queryClient)
     },
   })
 }
@@ -33,9 +72,8 @@ export function useUpdateGallery(id: string) {
   return useMutation({
     mutationFn: (body: UpdateGalleryInput) =>
       api.patch(`/galleries/${id}`, body) as Promise<GalleryListItem>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.gallery(id) })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.galleries() })
+    onSuccess: async () => {
+      await invalidateGalleryData(queryClient, id)
     },
   })
 }
@@ -45,8 +83,8 @@ export function useDeleteGallery() {
 
   return useMutation({
     mutationFn: (id: string) => api.delete(`/galleries/${id}`) as Promise<{ id: string; deletedAt: string }>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.galleries() })
+    onSuccess: async () => {
+      await invalidateGalleryData(queryClient)
     },
   })
 }
@@ -58,15 +96,21 @@ export function useRequestPresignedUrl() {
   })
 }
 
+export function useRequestBannerPresignedUrl(galleryId: string) {
+  return useMutation({
+    mutationFn: (body: PresignBannerUploadInput) =>
+      api.post(`/galleries/${galleryId}/banner/presign`, body) as Promise<PresignBannerUploadResponse>,
+  })
+}
+
 export function useConfirmUpload() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: ({ imageId }: { imageId: string; galleryId: string }) =>
       api.post(`/images/${imageId}/confirm`) as Promise<{ id: string; galleryId: string; uploadStatus: string }>,
-    onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.gallery(variables.galleryId) })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.galleries() })
+    onSuccess: async (_, variables) => {
+      await invalidateGalleryData(queryClient, variables.galleryId)
     },
   })
 }
@@ -77,9 +121,8 @@ export function useFailUpload() {
   return useMutation({
     mutationFn: ({ imageId }: { imageId: string; galleryId: string }) =>
       api.post(`/images/${imageId}/fail`) as Promise<{ id: string; galleryId: string; uploadStatus: string }>,
-    onSuccess: (_, variables) => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.gallery(variables.galleryId) })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.galleries() })
+    onSuccess: async (_, variables) => {
+      await invalidateGalleryData(queryClient, variables.galleryId)
     },
   })
 }
@@ -89,9 +132,8 @@ export function useDeleteImage(galleryId: string) {
 
   return useMutation({
     mutationFn: (imageId: string) => api.delete(`/images/${imageId}`) as Promise<{ id: string; deletedAt: string }>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.gallery(galleryId) })
-      void queryClient.invalidateQueries({ queryKey: queryKeys.galleries() })
+    onSuccess: async () => {
+      await invalidateGalleryData(queryClient, galleryId)
     },
   })
 }
@@ -103,8 +145,8 @@ export function useCreateSharedResource() {
   return useMutation({
     mutationFn: (body: CreateSharedResourceInput) =>
       api.post('/shared-resources', body) as Promise<CreateSharedResourceResponse>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
+    onSuccess: async (created) => {
+      await invalidateShareData(queryClient, created.id)
     },
   })
 }
@@ -119,8 +161,8 @@ export function useRevokeSharedResource() {
         id: string
         revokedAt: string
       }>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
+    onSuccess: async (_, resourceId) => {
+      await invalidateShareData(queryClient, resourceId)
     },
   })
 }
@@ -135,8 +177,8 @@ export function useDeleteSharedResource() {
         id: string
         deleted: true
       }>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
+    onSuccess: async (_, resourceId) => {
+      await invalidateShareData(queryClient, resourceId)
     },
   })
 }
@@ -153,8 +195,8 @@ export function useUpdateSharedResource() {
       body: UpdateSharedResourceInput
     }) =>
       api.patch(`/shared-resources/${resourceId}`, body) as Promise<UpdateSharedResourceResponse>,
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: queryKeys.sharedResources() })
+    onSuccess: async (_, variables) => {
+      await invalidateShareData(queryClient, variables.resourceId)
     },
   })
 }

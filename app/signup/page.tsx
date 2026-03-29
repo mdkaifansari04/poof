@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { Logo } from '@/components/poof/logo'
 import { GlassCard } from '@/components/poof/glass-card'
 import { AnimatedBackground } from '@/components/poof/animated-background'
@@ -45,6 +46,7 @@ const strengthLabels: Record<PasswordStrength, string> = {
 
 export default function SignupPage() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
@@ -91,7 +93,9 @@ export default function SignupPage() {
       
       // Redirect after success animation
       setTimeout(() => {
+        queryClient.clear()
         router.push('/dashboard')
+        router.refresh()
       }, 500)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to create account')
@@ -104,6 +108,7 @@ export default function SignupPage() {
     setError(null)
     setLoading(true)
     try {
+      queryClient.clear()
       await authClient.signIn.social({
         provider: 'google',
         callbackURL: '/dashboard',

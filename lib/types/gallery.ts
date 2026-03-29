@@ -6,6 +6,8 @@ export type GalleryListItem = {
   description: string | null
   coverImageId: string | null
   coverImageUrl: string | null
+  bannerImageUrl: string | null
+  bannerImageKey: string | null
   imageCount: number
   createdAt: string
   updatedAt: string
@@ -29,6 +31,8 @@ export type GalleryDetail = {
   description: string | null
   coverImageId: string | null
   coverImageUrl: string | null
+  bannerImageUrl: string | null
+  bannerImageKey: string | null
   images: GalleryImage[]
   createdAt: string
   updatedAt: string
@@ -43,6 +47,8 @@ export type UpdateGalleryInput = {
   name?: string
   description?: string | null
   coverImageId?: string | null
+  bannerImageUrl?: string | null
+  bannerImageKey?: string | null
 }
 
 export type PresignUploadInput = {
@@ -56,4 +62,16 @@ export type PresignUploadResponse = {
   presignedUrl: string
   imageId: string
   publicUrl: string
+}
+
+export type PresignBannerUploadInput = {
+  fileName: string
+  mimeType: string
+  fileSize: number
+}
+
+export type PresignBannerUploadResponse = {
+  presignedUrl: string
+  publicUrl: string
+  key: string
 }

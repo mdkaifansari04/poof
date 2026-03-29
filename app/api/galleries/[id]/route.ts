@@ -4,12 +4,15 @@ import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
 import { requireRequestSession } from '@/app/api/_utils/auth'
 import { prisma } from '@/lib/prisma'
+import { uploadService } from '@/lib/upload'
 
 const updateGallerySchema = z
   .object({
     name: z.string().trim().min(1).max(60).optional(),
     description: z.string().trim().max(500).nullable().optional(),
     coverImageId: z.string().trim().min(1).nullable().optional(),
+    bannerImageUrl: z.string().trim().url().nullable().optional(),
+    bannerImageKey: z.string().trim().min(1).nullable().optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: 'At least one field is required',
@@ -31,6 +34,7 @@ async function getOwnedGalleryOrThrow(galleryId: string, userId: string) {
       id: true,
       userId: true,
       deletedAt: true,
+      bannerImageKey: true,
     },
   })
 
@@ -63,6 +67,8 @@ export async function GET(request: Request, context: RouteContext) {
         name: true,
         description: true,
         coverImageId: true,
+        bannerImageUrl: true,
+        bannerImageKey: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -100,6 +106,8 @@ export async function GET(request: Request, context: RouteContext) {
     return ok({
       ...gallery,
       coverImageUrl,
+      bannerImageUrl: gallery.bannerImageUrl,
+      bannerImageKey: gallery.bannerImageKey,
       images,
     })
   } catch (error) {
@@ -116,7 +124,7 @@ export async function PATCH(request: Request, context: RouteContext) {
     }
 
     const galleryId = await getRouteId(context)
-    await getOwnedGalleryOrThrow(galleryId, authResult.userId)
+    const gallery = await getOwnedGalleryOrThrow(galleryId, authResult.userId)
 
     const body = await parseJsonBody<unknown>(request)
     const parsed = updateGallerySchema.safeParse(body)
@@ -141,22 +149,38 @@ export async function PATCH(request: Request, context: RouteContext) {
       }
     }
 
+    const previousBannerImageKey = gallery.bannerImageKey
+
     const updated = await prisma.gallery.update({
       where: { id: galleryId },
       data: {
         name: parsed.data.name,
         description: parsed.data.description,
         coverImageId: parsed.data.coverImageId,
+        bannerImageUrl: parsed.data.bannerImageUrl,
+        bannerImageKey: parsed.data.bannerImageKey,
       },
       select: {
         id: true,
         name: true,
         description: true,
         coverImageId: true,
+        bannerImageUrl: true,
+        bannerImageKey: true,
         createdAt: true,
         updatedAt: true,
       },
     })
+
+    const nextBannerImageKey = updated.bannerImageKey
+    const shouldDeleteOldBanner =
+      Boolean(previousBannerImageKey) &&
+      previousBannerImageKey !== nextBannerImageKey &&
+      previousBannerImageKey?.startsWith(`galleries/${galleryId}/banner/`)
+
+    if (shouldDeleteOldBanner && previousBannerImageKey) {
+      await uploadService.deleteObject(previousBannerImageKey).catch(() => undefined)
+    }
 
     const images = await prisma.image.findMany({
       where: {
@@ -179,6 +203,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     return ok({
       ...updated,
       coverImageUrl,
+      bannerImageUrl: updated.bannerImageUrl,
+      bannerImageKey: updated.bannerImageKey,
       imageCount: images.length,
     })
   } catch (error) {
