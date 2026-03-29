@@ -1143,8 +1143,8 @@ export default function GalleryDetailPage({
             <div className="min-w-0"></div>
             <Button
               size="sm"
-              variant="outline"
-              className="border-white/20 bg-black/30 text-white hover:bg-black/45"
+              variant="secondary"
+              className="border-white/20 bg-black/70 text-white hover:bg-black/90"
               onClick={() => setIsBannerModalOpen(true)}
             >
               <Pencil className="w-4 h-4 mr-2" />
