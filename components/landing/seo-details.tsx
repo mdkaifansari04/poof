@@ -195,7 +195,7 @@ export function LandingSeoDetails() {
               Can't find what you're looking for? Contact our{" "}
               <Link
                 href="mailto:poof-support@k04.tech"
-                className="text-primary font-medium hover:underline"
+                className="text-poof-violet font-medium hover:underline"
               >
                 customer support team
               </Link>
