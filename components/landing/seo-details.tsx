@@ -93,7 +93,7 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
 
 export function LandingSeoDetails() {
   return (
-    <section id="faq" className="py-24 sm:py-32">
+    <section className="py-24 sm:py-32">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-24">
         {/* ── Header ── */}
         <div className="max-w-2xl">
@@ -178,7 +178,7 @@ export function LandingSeoDetails() {
         </div>
 
         {/* ── FAQ ── */}
-        <div className="gap-12 lg:gap-20">
+        <div id="faq" className="gap-12 lg:gap-20">
           <div className="pb-10">
             <h3 className="font-heading font-bold text-2xl sm:text-3xl text-center text-white leading-tight tracking-tight">
               Frequently asked questions
