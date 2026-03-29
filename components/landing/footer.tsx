@@ -21,9 +21,6 @@ const footerLinks = {
   ],
 }
 
-const socialLinks = [
-  { icon: <Mail className="w-5 h-5" />, href: 'mailto:hello-poof@k04.tech', label: 'Email' },
-]
 
 export function LandingFooter() {
   return (
@@ -37,19 +34,6 @@ export function LandingFooter() {
               Share photos with expiring links. When time is up, access ends.
               Your original content stays in your account until you delete it.
             </p>
-            {/* Social links */}
-            <div className="flex items-center gap-4">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  className="text-poof-mist hover:text-white transition-colors"
-                  aria-label={social.label}
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </div>
           </div>
 
           {/* Product links */}

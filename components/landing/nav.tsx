@@ -40,10 +40,10 @@ export function LandingNav() {
 
           {/* Auth buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" asChild className="text-poof-mist hover:text-white hover:bg-white/5">
+            <Button size={"sm"} variant="ghost" asChild className="text-poof-mist hover:text-white hover:bg-white/5">
               <Link href="/signin">Sign in</Link>
             </Button>
-            <Button asChild className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press">
+            <Button size={"sm"} asChild className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press">
               <Link href="/signup">Get started free</Link>
             </Button>
           </div>
@@ -80,10 +80,10 @@ export function LandingNav() {
               </a>
             ))}
             <div className="pt-4 border-t border-white/10 space-y-3">
-              <Button variant="ghost" asChild className="w-full justify-center text-poof-mist hover:text-white hover:bg-white/5">
+              <Button size={"sm"} variant="ghost" asChild className="w-full justify-center text-poof-mist hover:text-white hover:bg-white/5">
                 <Link href="/signin">Sign in</Link>
               </Button>
-              <Button asChild className="w-full bg-poof-accent hover:bg-poof-accent/90 text-white">
+              <Button size={"sm"} asChild className="w-full bg-poof-accent hover:bg-poof-accent/90 text-white">
                 <Link href="/signup">Get started free</Link>
               </Button>
             </div>
