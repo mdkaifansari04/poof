@@ -347,12 +347,6 @@ export default function GalleriesPage() {
           ))}
         </div>
 
-        <Button asChild className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press">
-          <Link href="/galleries/new">
-            <Plus className="w-4 h-4 mr-2" />
-            New Gallery
-          </Link>
-        </Button>
       </div>
 
       {isSelecting && (
@@ -392,6 +386,7 @@ export default function GalleriesPage() {
       {filteredGalleries.length > 0 ? (
         viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <AddGalleryCard />
             {filteredGalleries.map((gallery, index) => (
               <GalleryGridCard
                 key={gallery.id}
@@ -425,6 +420,10 @@ export default function GalleriesPage() {
         )
       ) : searchQuery ? (
         <EmptyState type="search" />
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AddGalleryCard />
+        </div>
       ) : (
         <EmptyState type="galleries" />
       )}
@@ -462,6 +461,28 @@ export default function GalleriesPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
+  )
+}
+
+function AddGalleryCard() {
+  return (
+    <Link href="/galleries/new" className="block">
+      <GlassCard
+        className="group overflow-hidden animate-fade-up border border-dashed border-white/20 hover:border-poof-violet/60"
+        role="button"
+        tabIndex={0}
+      >
+        <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-poof-violet/12 via-transparent to-poof-accent/12 flex items-center justify-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/5 text-poof-mist transition-colors group-hover:text-white group-hover:border-poof-violet/70 group-hover:bg-poof-violet/15">
+            <Plus className="h-7 w-7" />
+          </div>
+        </div>
+        <div className="p-4">
+          <h3 className="font-heading font-bold text-white">Add gallery</h3>
+          <p className="mt-1 text-sm text-poof-mist">Create a new gallery and start uploading photos.</p>
+        </div>
+      </GlassCard>
+    </Link>
   )
 }
 

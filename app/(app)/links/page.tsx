@@ -11,6 +11,13 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -35,6 +42,7 @@ import {
   Pencil,
   Link2,
   Loader2,
+  MoreHorizontal,
   Search,
   Trash2,
 } from 'lucide-react'
@@ -265,26 +273,6 @@ export default function ShareLinksPage() {
 
   return (
     <div className="space-y-6 animate-fade-up">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="font-heading font-extrabold text-3xl text-white">Share Links</h1>
-          <p className="text-poof-mist mt-1">Manage all links, status, expiry, and views in one place.</p>
-        </div>
-        <Button asChild className="bg-poof-accent hover:bg-poof-accent/90 text-white">
-          <Link href="/galleries">
-            <Link2 className="w-4 h-4 mr-2" />
-            Create from gallery
-          </Link>
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total links" value={stats.total} />
-        <StatCard label="Active links" value={stats.active} subtext={stats.expiringSoon > 0 ? `${stats.expiringSoon} expiring in 24h` : undefined} />
-        <StatCard label="Total views" value={stats.views} />
-        <StatCard label="Inactive links" value={stats.expired + stats.revoked} subtext={`${stats.expired} expired · ${stats.revoked} revoked`} />
-      </div>
-
       <GlassCard className="p-4" hover={false}>
         <div className="flex flex-col lg:flex-row lg:items-center gap-3">
           <div className="relative flex-1">
@@ -370,58 +358,67 @@ export default function ShareLinksPage() {
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
-                    onClick={() => openEditDialog(link.id)}
-                    disabled={updateSharedResource.isPending}
-                  >
-                    <Pencil className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
-                    onClick={() => void handleCopy(link.shareUrl, link.id)}
-                  >
-                    {copiedLinkId === link.id ? (
-                      <Check className="w-4 h-4 mr-1" />
-                    ) : (
-                      <Copy className="w-4 h-4 mr-1" />
-                    )}
-                    Copy
-                  </Button>
-                  {link.status === 'ACTIVE' && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="border-poof-peach/30 text-poof-peach hover:bg-poof-peach/10"
-                      onClick={() => void handleRevoke(link.id)}
-                      disabled={revokingLinkId === link.id || isDeleting}
-                    >
-                      {revokingLinkId === link.id ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                          Revoking...
-                        </>
-                      ) : (
-                        'Revoke'
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                        disabled={(isDeleting && deleteTargetId === link.id) || revokingLinkId === link.id}
+                      >
+                        {(isDeleting && deleteTargetId === link.id) || revokingLinkId === link.id ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <MoreHorizontal className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
+                      <DropdownMenuItem
+                        className="cursor-pointer text-poof-mist hover:text-white"
+                        onClick={() => openEditDialog(link.id)}
+                        disabled={updateSharedResource.isPending}
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="cursor-pointer text-poof-mist hover:text-white"
+                        onClick={() => void handleCopy(link.shareUrl, link.id)}
+                      >
+                        {copiedLinkId === link.id ? (
+                          <Check className="w-4 h-4 mr-2" />
+                        ) : (
+                          <Copy className="w-4 h-4 mr-2" />
+                        )}
+                        {copiedLinkId === link.id ? 'Copied' : 'Copy'}
+                      </DropdownMenuItem>
+                      {link.status === 'ACTIVE' && (
+                        <DropdownMenuItem
+                          className="cursor-pointer text-poof-peach hover:text-poof-peach"
+                          onClick={() => void handleRevoke(link.id)}
+                          disabled={revokingLinkId === link.id || isDeleting}
+                        >
+                          {revokingLinkId === link.id ? (
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          ) : (
+                            <Link2 className="w-4 h-4 mr-2" />
+                          )}
+                          {revokingLinkId === link.id ? 'Revoking...' : 'Revoke'}
+                        </DropdownMenuItem>
                       )}
-                    </Button>
-                  )}
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                    onClick={() => setDeleteTargetId(link.id)}
-                    disabled={isDeleting}
-                  >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    Delete
-                  </Button>
+                      <DropdownMenuSeparator className="bg-white/10" />
+                      <DropdownMenuItem
+                        className="cursor-pointer text-red-400 hover:text-red-300"
+                        onClick={() => setDeleteTargetId(link.id)}
+                        disabled={isDeleting}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
             </GlassCard>
