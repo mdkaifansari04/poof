@@ -1,6 +1,7 @@
-# Poof v2
-
+# Poof
 Poof is a photo-sharing platform with expiring share links.
+
+<img width="1200" height="630" alt="03" src="https://github.com/user-attachments/assets/cf11b14d-9caf-4e98-ae7a-8a993736f6bc" />
 
 ## Tech Stack
 
