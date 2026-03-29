@@ -2,6 +2,7 @@
 
 import { useMemo, use, useEffect, useState } from 'react'
 import Link from 'next/link'
+import AntiCapture from 'react-anticapture'
 import { GlassCard } from '@/components/poof/glass-card'
 import { Countdown } from '@/components/poof/countdown'
 import { StatusBadge } from '@/components/poof/status-badge'
@@ -44,7 +45,72 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
   const { resourceId } = use(params)
   const resourceQuery = usePublicSharedResource(resourceId)
   const [lightboxImageId, setLightboxImageId] = useState<string | null>(null)
+  const [isSecurityBlocked, setIsSecurityBlocked] = useState(false)
   const resource = resourceQuery.data ?? null
+
+  useEffect(() => {
+    const devtoolsThreshold = 200
+
+    const evaluateDevtools = () => {
+      const widthGap = window.outerWidth - window.innerWidth
+      const heightGap = window.outerHeight - window.innerHeight
+      setIsSecurityBlocked(widthGap > devtoolsThreshold || heightGap > devtoolsThreshold)
+    }
+
+    const handleContextMenu = (event: Event) => {
+      event.preventDefault()
+    }
+
+    const handleCopyCutPaste = (event: Event) => {
+      event.preventDefault()
+    }
+
+    const handleSelectStart = (event: Event) => {
+      event.preventDefault()
+    }
+
+    const handleDragStart = (event: Event) => {
+      event.preventDefault()
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase()
+      const ctrlOrMeta = event.ctrlKey || event.metaKey
+      const blockedCombo =
+        event.key === 'F12' ||
+        (ctrlOrMeta && event.shiftKey && ['i', 'j', 'c', 'k'].includes(key)) ||
+        (ctrlOrMeta && ['u', 's', 'p'].includes(key))
+
+      if (blockedCombo || key === 'printscreen') {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+    }
+
+    evaluateDevtools()
+    const devtoolsInterval = window.setInterval(evaluateDevtools, 1200)
+
+    document.addEventListener('contextmenu', handleContextMenu, true)
+    document.addEventListener('copy', handleCopyCutPaste, true)
+    document.addEventListener('cut', handleCopyCutPaste, true)
+    document.addEventListener('paste', handleCopyCutPaste, true)
+    document.addEventListener('selectstart', handleSelectStart, true)
+    document.addEventListener('dragstart', handleDragStart, true)
+    document.addEventListener('keydown', handleKeyDown, true)
+    window.addEventListener('resize', evaluateDevtools)
+
+    return () => {
+      window.clearInterval(devtoolsInterval)
+      document.removeEventListener('contextmenu', handleContextMenu, true)
+      document.removeEventListener('copy', handleCopyCutPaste, true)
+      document.removeEventListener('cut', handleCopyCutPaste, true)
+      document.removeEventListener('paste', handleCopyCutPaste, true)
+      document.removeEventListener('selectstart', handleSelectStart, true)
+      document.removeEventListener('dragstart', handleDragStart, true)
+      document.removeEventListener('keydown', handleKeyDown, true)
+      window.removeEventListener('resize', evaluateDevtools)
+    }
+  }, [])
 
   const expiresAt = useMemo(() => {
     if (!resource?.expiresAt) {
@@ -88,6 +154,15 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
       setLightboxImageId(null)
     }
   }, [lightboxImageId, previewImages])
+
+  if (isSecurityBlocked) {
+    return (
+      <ErrorState
+        title="Protected Viewer Locked"
+        message="Developer tools are blocked on this private share. Close inspection tools and reload."
+      />
+    )
+  }
 
   if (resourceQuery.isPending) {
     return (
@@ -138,8 +213,12 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-poof-base text-white px-4 py-10 sm:py-16">
-      <div className="mx-auto max-w-6xl space-y-6">
+    <AntiCapture screenshotPrevent clipboardPrevent userSelect={false}>
+      <div
+        className="min-h-screen bg-poof-base text-white px-4 py-10 sm:py-16 select-none [webkit-touch-callout:none] [webkit-user-select:none]"
+        onContextMenu={(event) => event.preventDefault()}
+      >
+        <div className="mx-auto max-w-6xl space-y-6">
         <GlassCard className="p-4 sm:p-5" hover={false}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -228,64 +307,65 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
             )}
           </>
         )}
+        </div>
+
+        <Dialog open={Boolean(lightboxImageId)} onOpenChange={() => setLightboxImageId(null)}>
+          <DialogContent
+            className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-white/10"
+            showCloseButton={false}
+          >
+            <div className="relative w-full h-[90vh] flex items-center justify-center">
+              <button
+                onClick={() => setLightboxImageId(null)}
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {currentImageIndex > 0 && (
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    goToPrevImage()
+                  }}
+                  className="absolute left-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+              )}
+
+              {currentImageIndex < previewImages.length - 1 && (
+                <button
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    goToNextImage()
+                  }}
+                  className="absolute right-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              )}
+
+              {currentImage && (
+                <img
+                  src={currentImage.r2Url}
+                  alt={currentImage.fileName}
+                  className="max-w-full max-h-full object-contain"
+                />
+              )}
+
+              {currentImage && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm">
+                  <span className="text-white text-sm">{currentImage.fileName}</span>
+                  <span className="text-poof-mist text-sm">
+                    {currentImageIndex + 1} / {previewImages.length}
+                  </span>
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
-
-      <Dialog open={Boolean(lightboxImageId)} onOpenChange={() => setLightboxImageId(null)}>
-        <DialogContent
-          className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-white/10"
-          showCloseButton={false}
-        >
-          <div className="relative w-full h-[90vh] flex items-center justify-center">
-            <button
-              onClick={() => setLightboxImageId(null)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {currentImageIndex > 0 && (
-              <button
-                onClick={(event) => {
-                  event.stopPropagation()
-                  goToPrevImage()
-                }}
-                className="absolute left-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-            )}
-
-            {currentImageIndex < previewImages.length - 1 && (
-              <button
-                onClick={(event) => {
-                  event.stopPropagation()
-                  goToNextImage()
-                }}
-                className="absolute right-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            )}
-
-            {currentImage && (
-              <img
-                src={currentImage.r2Url}
-                alt={currentImage.fileName}
-                className="max-w-full max-h-full object-contain"
-              />
-            )}
-
-            {currentImage && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm">
-                <span className="text-white text-sm">{currentImage.fileName}</span>
-                <span className="text-poof-mist text-sm">
-                  {currentImageIndex + 1} / {previewImages.length}
-                </span>
-              </div>
-            )}
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </AntiCapture>
   )
 }

@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-fade-up">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           icon={<ImageIcon className="w-5 h-5" />}
           label="Total Galleries"
@@ -169,11 +169,15 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <h2 className="font-heading font-bold text-lg text-white">Recent Share Links</h2>
           </div>
-          <GlassCard className="p-4" hover={false}>
+          {/* <GlassCard className="p-4" hover={false}> */}
             {links.length > 0 ? (
-              <div className="space-y-3">
-                {links.slice(0, 10).map((link) => (
-                  <div key={link.id} className="rounded-lg border border-white/10 bg-white/5 p-3">
+              <div className="">
+                {links.slice(0, 5).map((link, k) => (
+                  <div key={link.id} className={cn(
+                    "rounded-none border border-white/10 bg-white/5 p-3",
+                    k === 0 && 'rounded-t-lg',
+                    k === links.length - 1 && 'rounded-b-lg'
+                  )}>
                     <div className="flex items-start justify-between gap-2">
                       <a
                         href={link.shareUrl}
@@ -215,7 +219,7 @@ export default function DashboardPage() {
                 <p className="text-poof-mist text-sm">No share links yet</p>
               </div>
             )}
-          </GlassCard>
+          {/* </GlassCard> */}
         </div>
       </div>
     </div>

@@ -100,16 +100,34 @@ export function SkeletonDashboard() {
         ))}
       </div>
 
-      {/* Recent galleries */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <SkeletonText className="w-32 h-6" />
-          <SkeletonText className="w-20" />
+      {/* Recent galleries + links */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex justify-between items-center">
+            <SkeletonText className="w-40 h-6" />
+            <SkeletonText className="w-20" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <SkeletonGalleryCard key={i} />
+            ))}
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <SkeletonGalleryCard key={i} />
-          ))}
+
+        <div className="space-y-4">
+          <SkeletonText className="w-36 h-6" />
+          <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-lg border border-white/10 bg-white/[0.04] p-3 space-y-2">
+                <SkeletonText className="w-full" />
+                <div className="flex items-center justify-between gap-2">
+                  <SkeletonText className="w-16" />
+                  <SkeletonText className="w-10" />
+                  <SkeletonText className="w-14" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
