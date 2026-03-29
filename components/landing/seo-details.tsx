@@ -98,7 +98,8 @@ export function LandingSeoDetails() {
         {/* ── Header ── */}
         <div className="max-w-2xl">
           <h2 className="font-heading font-extrabold text-3xl sm:text-4xl md:text-[44px] text-white leading-[1.1] tracking-tight mb-5">
-            Built for expiring photo sharing at scale.
+            Built for <span className="text-poof-violet">expiring</span> photo
+            sharing at scale.
           </h2>
           <p className="text-white/50 text-base leading-relaxed">
             Poof combines direct-to-storage uploads, server-side ownership
@@ -144,7 +145,7 @@ export function LandingSeoDetails() {
           </div>
         </div>
 
-        <div>
+        <div id="limits">
           <p className="text-[11px] tracking-[0.2em] uppercase text-white/25 font-medium mb-8">
             Platform limits · v1
           </p>
