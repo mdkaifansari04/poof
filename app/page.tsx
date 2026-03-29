@@ -6,6 +6,7 @@ import { LandingPricing } from "@/components/landing/pricing";
 import { LandingFooter } from "@/components/landing/footer";
 import { LandingNav } from "@/components/landing/nav";
 import { LandingSeoDetails, faqItems } from "@/components/landing/seo-details";
+import Features from "@/components/landing/feature-2";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://poof.k04.tech";
 const pageTitle =
@@ -113,7 +114,7 @@ export default function LandingPage() {
       <LandingNav />
       <main>
         <LandingHero />
-        <LandingFeatures />
+        <Features />
         <LandingHowItWorks />
         {/* <LandingPricing /> */}
         <LandingSeoDetails />

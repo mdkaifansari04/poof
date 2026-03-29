@@ -11,12 +11,6 @@ export function LandingHero() {
       <AnimatedBackground />
       
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-sm text-poof-mist mb-8 animate-fade-up">
-          <span className="w-2 h-2 rounded-full bg-poof-mint animate-pulse" />
-          Share photos that disappear
-        </div>
-
         {/* Headline */}
         <h1 className="font-heading font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-6 animate-fade-up stagger-1">
           Your photos.{' '}
