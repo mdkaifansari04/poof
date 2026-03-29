@@ -10,7 +10,7 @@ export function LandingHero() {
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
       <AnimatedBackground />
       
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20">
+      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20 pt-32">
         {/* Headline */}
         <h1 className="font-heading font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-6 animate-fade-up stagger-1">
           Your photos.{' '}
