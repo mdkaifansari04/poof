@@ -11,9 +11,10 @@ export function LandingHero() {
       <AnimatedBackground />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20 pt-32">
+        <div className="w-fit mx-auto flex gap-2.5"></div>
         <h1 className="font-heading font-extrabold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight mb-6 animate-fade-up stagger-1">
           Your photos.{" "}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-poof-violet to-poof-accent">
+          <span className="text-transparent bg-clip-text bg-linear-to-r from-poof-violet to-poof-accent">
             Your timeline.
           </span>
         </h1>
@@ -45,7 +46,6 @@ export function LandingHero() {
             <a href="#how-it-works">See how it works</a>
           </Button>
         </div>
-
         {/* Feature pills */}
         <div className="flex flex-wrap items-center justify-center gap-4 animate-fade-up stagger-4">
           <FeaturePill
@@ -62,16 +62,42 @@ export function LandingHero() {
           />
         </div>
 
+        <div className="w-fit mx-auto flex gap-2.5 mt-20">
+          <a
+            href="https://peerlist.io/mdkaifansari04/project/poof"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <img
+              src="https://peerlist.io/api/v1/projects/embed/PRJHLKLRKAKR6A8O7C7RK9BNN9GOEJ?showUpvote=true&theme=dark"
+              alt="Poof"
+              style={{ width: "auto", height: "72px" }}
+            />
+          </a>
+          <a
+            href="https://www.producthunt.com/products/poof-8?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-poof-9"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-fit"
+          >
+            <img
+              alt="Poof - Photos with an expiry date. | Product Hunt"
+              style={{ width: "auto", height: "70px" }}
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1110030&amp;theme=dark&amp;t=1774863389651"
+            />
+          </a>
+        </div>
+
         {/* Demo preview */}
         <div className="mt-20 animate-fade-up stagger-5">
           <div className="relative max-w-3xl mx-auto">
             {/* Glow effect */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-poof-accent/20 via-poof-violet/20 to-poof-accent/20 rounded-2xl blur-2xl opacity-50" />
+            <div className="absolute -inset-4 bg-linear-to-r from-poof-accent/20 via-poof-violet/20 to-poof-accent/20 rounded-2xl blur-2xl opacity-50" />
 
             {/* Browser frame */}
-            <div className="relative rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm overflow-hidden">
+            <div className="relative rounded-xl border border-white/10 bg-white/2 backdrop-blur-sm overflow-hidden">
               {/* Browser header */}
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/[0.02]">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-white/2">
                 <div className="flex gap-1.5">
                   <div className="w-3 h-3 rounded-full bg-white/20" />
                   <div className="w-3 h-3 rounded-full bg-white/20" />
@@ -85,7 +111,7 @@ export function LandingHero() {
               </div>
 
               {/* Content preview */}
-              <div className="p-6 bg-gradient-to-b from-transparent to-poof-base/50">
+              <div className="p-6 bg-linear-to-b from-transparent to-poof-base/50">
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
