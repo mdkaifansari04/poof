@@ -36,6 +36,7 @@ import {
   ShieldCheck,
   Trash2,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Deterministic color from key name for avatar circle
 const avatarColors = [
@@ -199,7 +200,7 @@ export function AgentApiKeysCard() {
 
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
-            <Button size="sm" className="gap-1.5">
+            <Button variant={"ghost"} size="sm" className="gap-1.5 hover:!text-white">
               <Plus className="h-3.5 w-3.5" />
               Create key
             </Button>
@@ -282,7 +283,7 @@ export function AgentApiKeysCard() {
 
       {/* Revealed key banner */}
       {revealedApiKey && (
-        <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+        <div className="mb-4 rounded-sm border border-emerald-500/20 bg-emerald-500/5 p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium text-emerald-300">
@@ -319,19 +320,19 @@ export function AgentApiKeysCard() {
       )}
 
       {/* Keys list — card-style rows */}
-      <div className="overflow-hidden rounded-2xl border border-white/6 bg-[#141414]">
+      <div className="overflow-hidden rounded-lg border border-white/6 bg-black">
         {isLoading ? (
           <div className="flex flex-col gap-1 p-3">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-16 animate-pulse rounded-xl bg-white/3"
+                className="h-16 animate-pulse rounded-lg bg-white/3"
               />
             ))}
           </div>
         ) : keys.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-white/4">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/4">
               <Key className="h-4 w-4 text-poof-mist/40" strokeWidth={1.5} />
             </div>
             <p className="text-sm text-poof-mist">No API keys yet</p>
@@ -340,9 +341,9 @@ export function AgentApiKeysCard() {
             </p>
           </div>
         ) : (
-          <>
+          <div className="flex flex-col p-0.5">
             {/* Header */}
-            <div className="grid grid-cols-[1fr_120px_120px_36px] items-center gap-2 px-5 py-2.5 text-xs font-medium text-poof-mist/40 sm:grid-cols-[1fr_140px_140px_36px]">
+            <div className="grid grid-cols-[1fr_120px_120px_36px] items-center gap-2 px-5 py-2.5 text-xs font-medium text-poof-mist/70 sm:grid-cols-[1fr_140px_140px_36px] bg-black">
               <span>Key</span>
               <span>Permissions</span>
               <span>Status</span>
@@ -350,14 +351,20 @@ export function AgentApiKeysCard() {
             </div>
 
             {/* Rows */}
-            <div className="flex flex-col gap-px px-2 pb-2">
-              {keys.map((key) => {
+            <div className="flex flex-col px-1 pb-2">
+              {keys.map((key, index) => {
                 const isRevoked = Boolean(key.revokedAt);
 
                 return (
                   <div
                     key={key.id}
-                    className="group grid grid-cols-[1fr_120px_120px_36px] items-center gap-2 rounded-xl px-3 py-3 transition-colors duration-150 hover:bg-white/4 sm:grid-cols-[1fr_140px_140px_36px]"
+                    className={cn(
+                      "group bg-[#141414] grid grid-cols-[1fr_120px_120px_36px] items-center gap-1 px-3 py-3 transition-colors duration-150 hover:bg-white/4 sm:grid-cols-[1fr_140px_140px_36px]",
+                      {
+                        "rounded-t-lg": index === 0,
+                        "rounded-b-lg": index === keys.length - 1,
+                      },
+                    )}
                   >
                     {/* Key info with avatar */}
                     <div className="flex items-center gap-3 min-w-0">
@@ -406,21 +413,21 @@ export function AgentApiKeysCard() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="w-44 rounded-xl border-white/8 bg-[#1a1a1a] p-1.5"
+                          className="w-44 rounded-sm border-white/8 bg-[#1a1a1a] p-1.5"
                         >
                           <DropdownMenuItem
-                            className="gap-2 rounded-lg px-2.5 py-2 text-[13px]"
+                            className="gap-2 rounded-sm px-2 py-1 text-xs hover:!bg-gray-200/20 hover:!text-white"
                             onClick={() => void handleCopyPrefix(key.prefix)}
                           >
                             <Copy
-                              className="h-3.5 w-3.5 text-poof-mist/50"
+                              className="h-3 w-3 text-poof-mist/50"
                               strokeWidth={1.5}
                             />
                             Copy prefix
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 rounded-lg px-2.5 py-2 text-[13px]">
+                          <DropdownMenuItem className="gap-2 rounded-sm px-2 py-1 text-xs hover:!bg-gray-200/20 hover:!text-white">
                             <ShieldCheck
-                              className="h-3.5 w-3.5 text-poof-mist/50"
+                              className="h-3 w-3 text-poof-mist/50"
                               strokeWidth={1.5}
                             />
                             {formatPermissions(key)}
@@ -431,14 +438,11 @@ export function AgentApiKeysCard() {
                               <DropdownMenuSeparator className="my-1 bg-white/6" />
                               <DropdownMenuItem
                                 variant="destructive"
-                                className="gap-2 rounded-lg px-2.5 py-2 text-[13px]"
+                                className="gap-2 rounded-sm px-2 py-1 text-xs hover:bg-white/5"
                                 disabled={revokingId === key.id}
                                 onClick={() => void handleRevokeKey(key.id)}
                               >
-                                <Trash2
-                                  className="h-3.5 w-3.5"
-                                  strokeWidth={1.5}
-                                />
+                                <Trash2 className="h-3 w-3" strokeWidth={1.5} />
                                 {revokingId === key.id
                                   ? "Revoking..."
                                   : "Revoke key"}
@@ -452,7 +456,7 @@ export function AgentApiKeysCard() {
                 );
               })}
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
