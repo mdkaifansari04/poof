@@ -106,10 +106,8 @@ export default function DocsQuickStartPage() {
           Replace the API key placeholder, then send this as a single prompt to
           your agent runtime.
         </p>
-        <pre className="mt-4 max-h-140 overflow-auto rounded-lg border border-white/6 bg-white/2 p-4 font-mono text-xs leading-relaxed text-poof-mist whitespace-pre-wrap">
-          {starterPrompt}
-        </pre>
-      </section>
+      <PromptBlock prompt={starterPrompt} />
+    </section>
 
       <section>
         <h2 className="text-lg font-medium text-white">
@@ -126,6 +124,41 @@ export default function DocsQuickStartPage() {
           .
         </p>
       </section>
+    </div>
+  );
+}
+
+function PromptBlock({ prompt }: { prompt: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    await navigator.clipboard.writeText(prompt);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="group relative mt-4 rounded-lg border border-white/6 bg-white/2">
+      {/* Copy button */}
+      <button
+        onClick={copy}
+        className="absolute top-3 right-3 z-10 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-poof-mist backdrop-blur-sm transition hover:border-white/20 hover:text-white"
+      >
+        {copied ? "Copied" : "Copy"}
+      </button>
+
+      {/* Scrollable content with fade edges */}
+      <div className="relative max-h-140 overflow-auto">
+        {/* Top fade */}
+        <div className="pointer-events-none sticky top-0 z-1 h-8 bg-linear-to-b from-[#0d0d0d] to-transparent" />
+
+        <pre className="px-4 pb-4 font-mono text-xs leading-relaxed text-poof-mist whitespace-pre-wrap">
+          {prompt}
+        </pre>
+
+        {/* Bottom fade */}
+        <div className="pointer-events-none sticky bottom-0 z-1 h-8 bg-linear-to-t from-[#0d0d0d] to-transparent" />
+      </div>
     </div>
   );
 }
