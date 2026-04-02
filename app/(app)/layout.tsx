@@ -1,8 +1,8 @@
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import { AppSidebar } from '@/components/app/sidebar'
-import { AppHeader } from '@/components/app/header'
-import { AppMobileNav } from '@/components/app/mobile-nav'
+import { AppSidebar } from '@/components/shared/sidebar'
+import { AppHeader } from '@/components/shared/header'
+import { AppMobileNav } from '@/components/shared/mobile-nav'
 import { auth } from '@/lib/auth'
 
 export default async function AppLayout({
