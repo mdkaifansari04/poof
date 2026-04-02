@@ -1,36 +1,45 @@
 const scopeRows = [
-  ['Read', 'Allows read-only endpoints for account resources.'],
-  ['Write', 'Allows mutation endpoints (create/update/delete/revoke/confirm/fail).'],
-  ['Agent-owned only', 'Restricts access to resources created by the same API key.'],
-]
+  ["Read", "Allows read-only endpoints for account resources."],
+  [
+    "Write",
+    "Allows mutation endpoints (create, update, delete, revoke, confirm, fail).",
+  ],
+  [
+    "Agent-owned only",
+    "Restricts access to resources created by the same API key.",
+  ],
+];
 
 export default function DocsScopesPage() {
   return (
-    <>
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-poof-mist">Scopes</p>
-        <h2 className="mt-2 font-heading text-4xl font-extrabold">Permissions and ownership</h2>
-        <p className="mt-3 text-sm text-poof-mist">
-          API keys can be constrained by capability and ownership. This lets users safely run automation without
-          granting unrestricted account access.
+    <div className="space-y-10">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">
+          Scopes & Ownership
+        </h1>
+        <p className="mt-2 text-[15px] leading-relaxed text-poof-mist">
+          API keys can be constrained by capability and ownership, letting users
+          run automation without granting unrestricted account access.
         </p>
-      </section>
+      </header>
 
-      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-        <h3 className="font-heading text-2xl font-bold">Permission toggles</h3>
-        <div className="mt-4 overflow-hidden rounded-xl border border-white/10">
-          <table className="w-full text-left">
-            <thead className="bg-white/5 text-xs uppercase tracking-[0.12em] text-poof-mist">
-              <tr>
-                <th className="px-4 py-3">Toggle</th>
-                <th className="px-4 py-3">Behavior</th>
+      <section>
+        <h2 className="text-lg font-medium text-white">Permission toggles</h2>
+        <div className="mt-4 overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="border-b border-white/6 text-xs text-poof-mist/60">
+                <th className="pb-2 pr-6 font-medium">Toggle</th>
+                <th className="pb-2 font-medium">Behavior</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10 text-sm">
+            <tbody className="divide-y divide-white/4">
               {scopeRows.map(([scope, behavior]) => (
                 <tr key={scope}>
-                  <td className="px-4 py-3 font-medium text-white">{scope}</td>
-                  <td className="px-4 py-3 text-poof-mist">{behavior}</td>
+                  <td className="py-2.5 pr-6 font-medium text-white">
+                    {scope}
+                  </td>
+                  <td className="py-2.5 text-poof-mist">{behavior}</td>
                 </tr>
               ))}
             </tbody>
@@ -38,14 +47,29 @@ export default function DocsScopesPage() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-        <h3 className="font-heading text-2xl font-bold">Agent-owned-only enforcement</h3>
-        <ul className="mt-4 space-y-3 text-sm text-poof-mist">
-          <li>Resources created via API key are tagged with that key identifier.</li>
-          <li>Restricted keys cannot view or mutate resources created by another key or by direct user sessions.</li>
-          <li>If a gallery contains mixed ownership, restricted keys cannot perform destructive cross-owner actions.</li>
+      <hr className="border-white/6" />
+
+      <section>
+        <h2 className="text-lg font-medium text-white">
+          Agent-owned-only enforcement
+        </h2>
+        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-poof-mist">
+          <li className="flex gap-2">
+            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />
+            Resources created via API key are tagged with that key identifier.
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />
+            Restricted keys cannot view or mutate resources created by another
+            key or by direct user sessions.
+          </li>
+          <li className="flex gap-2">
+            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />
+            Mixed-ownership galleries prevent destructive cross-owner actions
+            from restricted keys.
+          </li>
         </ul>
       </section>
-    </>
-  )
+    </div>
+  );
 }
