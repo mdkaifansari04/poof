@@ -200,7 +200,11 @@ export function AgentApiKeysCard() {
 
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
-            <Button variant={"ghost"} size="sm" className="gap-1.5 hover:!text-white">
+            <Button
+              variant={"link"}
+              size="sm"
+              className="gap-1.5 text-primary hover:text-white cursor-pointer"
+            >
               <Plus className="h-3.5 w-3.5" />
               Create key
             </Button>
@@ -208,7 +212,7 @@ export function AgentApiKeysCard() {
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Create API key</SheetTitle>
-              <SheetDescription>
+              <SheetDescription className="text-xs text-poof-mist">
                 Configure permissions for a new agent key. The raw secret is
                 shown only once after creation.
               </SheetDescription>
@@ -217,6 +221,7 @@ export function AgentApiKeysCard() {
               <div className="grid gap-2">
                 <Label htmlFor="key-name">Name</Label>
                 <Input
+                  className="text-xs"
                   id="key-name"
                   value={newKeyName}
                   onChange={(e) => setNewKeyName(e.target.value)}
@@ -283,38 +288,30 @@ export function AgentApiKeysCard() {
 
       {/* Revealed key banner */}
       {revealedApiKey && (
-        <div className="mb-4 rounded-sm border border-emerald-500/20 bg-emerald-500/5 p-4">
+        <div className="mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 backdrop-blur-sm p-4 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-emerald-300">
-                New API key created
-              </p>
-              <p className="mt-0.5 text-xs text-poof-mist">
+              {/* Title */}
+              <p className="text-sm font-medium text-white">API key created</p>
+
+              {/* Subtitle */}
+              <p className="mt-1 text-xs text-neutral-400">
                 Copy it now — this is the only time it will be shown.
               </p>
-              <code className="mt-2 block break-all rounded-lg bg-black/30 px-3 py-2 font-mono text-xs text-emerald-200">
-                {revealedApiKey}
-              </code>
+
+              {/* Key */}
+              <div className="relative mt-3 group/code">
+                <code className="block break-all rounded-lg bg-black/40 px-3 py-2 pr-9 font-mono text-xs text-neutral-200 border border-white/5">
+                  {revealedApiKey}
+                </code>
+                <button
+                  onClick={() => void handleCopyKey()}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-white/10 hover:text-white"
+                >
+                  <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />
+                </button>
+              </div>
             </div>
-          </div>
-          <div className="mt-3 flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              className="gap-1.5 border-emerald-500/20 text-emerald-300 hover:bg-emerald-500/10 hover:text-emerald-200"
-              onClick={() => void handleCopyKey()}
-            >
-              <Copy className="h-3.5 w-3.5" />
-              Copy
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-poof-mist hover:text-white"
-              onClick={() => setRevealedApiKey(null)}
-            >
-              Dismiss
-            </Button>
           </div>
         </div>
       )}

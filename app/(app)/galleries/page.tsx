@@ -31,6 +31,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
@@ -610,20 +611,21 @@ function GalleryGridCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-poof-mist hover:text-white flex-shrink-0"
+                className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist flex-shrink-0"
                 onClick={(event) => event.stopPropagation()}
               >
                 <MoreHorizontal className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
-              <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
                 <Link href={`/galleries/${gallery.id}`}>Open</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+              <DropdownMenuItem asChild>
                 <Link href={`/galleries/${gallery.id}?openShare=1`}>Share</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer" onClick={onDelete}>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem variant="destructive" onClick={onDelete}>
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -712,18 +714,23 @@ function GalleryListRow({
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-poof-mist hover:text-white">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist"
+            >
               <MoreHorizontal className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
-            <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
               <Link href={`/galleries/${gallery.id}`}>Open</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-poof-mist hover:text-white cursor-pointer" asChild>
+            <DropdownMenuItem asChild>
               <Link href={`/galleries/${gallery.id}?openShare=1`}>Share</Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-400 hover:text-red-300 cursor-pointer" onClick={onDelete}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" onClick={onDelete}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>

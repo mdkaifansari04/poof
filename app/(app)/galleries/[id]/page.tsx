@@ -1100,24 +1100,18 @@ export default function GalleryDetailPage({
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-poof-mist hover:text-white"
+                className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist"
               >
                 <MoreHorizontal className="w-5 h-5" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="bg-poof-base border-white/10"
-            >
-              <DropdownMenuItem
-                className="text-poof-mist hover:text-white cursor-pointer"
-                onClick={() => setIsEditing(true)}
-              >
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setIsEditing(true)}>
                 Rename
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="text-red-400 hover:text-red-300 cursor-pointer"
+                variant="destructive"
                 onClick={() => setIsDeleteGalleryModalOpen(true)}
               >
                 Delete gallery
@@ -1242,7 +1236,7 @@ export default function GalleryDetailPage({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-poof-mist hover:text-white"
+                        className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist"
                         disabled={
                           isDeletingShare && deleteShareTargetId === share.id
                             ? true
@@ -1258,12 +1252,8 @@ export default function GalleryDetailPage({
                         )}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="bg-poof-base border-white/10"
-                    >
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        className="cursor-pointer text-poof-mist hover:text-white"
                         onClick={() => openEditShareModal(share.id)}
                         disabled={
                           updateSharedResource.isPending || isDeletingShare
@@ -1273,7 +1263,6 @@ export default function GalleryDetailPage({
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="cursor-pointer text-poof-mist hover:text-white"
                         onClick={() =>
                           void handleCopyShareLink(
                             share.shareUrl,
@@ -1292,7 +1281,7 @@ export default function GalleryDetailPage({
                       </DropdownMenuItem>
                       {share.status === "ACTIVE" && (
                         <DropdownMenuItem
-                          className="cursor-pointer text-poof-peach hover:text-poof-peach"
+                          variant="destructive"
                           onClick={() => void handleRevokeShare(share.id)}
                           disabled={
                             revokingShareId === share.id || isDeletingShare
@@ -1308,9 +1297,9 @@ export default function GalleryDetailPage({
                             : "Revoke"}
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuSeparator className="bg-white/10" />
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        className="cursor-pointer text-red-400 hover:text-red-300"
+                        variant="destructive"
                         onClick={() => setDeleteShareTargetId(share.id)}
                         disabled={isDeletingShare}
                       >

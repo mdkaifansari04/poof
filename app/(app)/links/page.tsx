@@ -363,8 +363,8 @@ export default function ShareLinksPage() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         size="icon"
-                        variant="outline"
-                        className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                        variant="ghost"
+                        className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist"
                         disabled={(isDeleting && deleteTargetId === link.id) || revokingLinkId === link.id}
                       >
                         {(isDeleting && deleteTargetId === link.id) || revokingLinkId === link.id ? (
@@ -374,9 +374,8 @@ export default function ShareLinksPage() {
                         )}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="bg-poof-base border-white/10">
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem
-                        className="cursor-pointer text-poof-mist hover:text-white"
                         onClick={() => openEditDialog(link.id)}
                         disabled={updateSharedResource.isPending}
                       >
@@ -384,7 +383,6 @@ export default function ShareLinksPage() {
                         Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        className="cursor-pointer text-poof-mist hover:text-white"
                         onClick={() => void handleCopy(link.shareUrl, link.id)}
                       >
                         {copiedLinkId === link.id ? (
@@ -396,7 +394,6 @@ export default function ShareLinksPage() {
                       </DropdownMenuItem>
                       {link.status === 'ACTIVE' && (
                         <DropdownMenuItem
-                          className="cursor-pointer text-poof-peach hover:text-poof-peach"
                           onClick={() => void handleRevoke(link.id)}
                           disabled={revokingLinkId === link.id || isDeleting}
                         >
@@ -408,9 +405,9 @@ export default function ShareLinksPage() {
                           {revokingLinkId === link.id ? 'Revoking...' : 'Revoke'}
                         </DropdownMenuItem>
                       )}
-                      <DropdownMenuSeparator className="bg-white/10" />
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        className="cursor-pointer text-red-400 hover:text-red-300"
+                        variant="destructive"
                         onClick={() => setDeleteTargetId(link.id)}
                         disabled={isDeleting}
                       >
