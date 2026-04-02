@@ -1,20 +1,30 @@
-import Link from 'next/link'
-import { DocsSidebar } from '@/components/docs/docs-sidebar'
+import Link from "next/link";
+import { DocsSidebar } from "@/components/docs/docs-sidebar";
 
-export default function DocsLayout({ children }: { children: React.ReactNode }) {
+export default function DocsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <main className="min-h-screen bg-poof-base text-white">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* Top bar */}
-        <header className="flex items-center justify-between border-b border-white/[0.06] py-4">
-          <Link href="/docs" className="text-sm font-medium tracking-tight text-white">
+        <header className="flex items-center justify-between border-b border-white/6 py-4">
+          <Link
+            href="/docs"
+            className="text-sm font-medium tracking-tight text-white"
+          >
             Poof <span className="text-poof-mist">Docs</span>
           </Link>
           <div className="flex items-center gap-4 text-xs text-poof-mist">
             <Link href="/llms.txt" className="transition hover:text-white">
               llms.txt
             </Link>
-            <Link href="/api/v1/openapi" className="transition hover:text-white">
+            <Link
+              href="/api/v1/openapi"
+              className="transition hover:text-white"
+            >
               OpenAPI
             </Link>
           </div>
@@ -30,5 +40,5 @@ export default function DocsLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
     </main>
-  )
+  );
 }
