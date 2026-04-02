@@ -69,8 +69,10 @@ Schedules are configured in `vercel.json`.
 ## Agent Access
 
 - Signed-in users can create long-lived API keys from Settings
+- API keys support `read`, `write`, and `agentResourcesOnly` toggles
 - Agents can authenticate with `Authorization: Bearer <key>` or `X-API-Key: <key>`
 - Uploads remain direct-to-R2 via presigned `PUT` URLs, followed by Poof confirm/fail calls
+- Versioned integrations are available at `/api/v1/*` with OpenAPI at `/api/v1/openapi`
 - `GET /llms.txt` exposes a machine-friendly product and docs summary for LLM clients
 
 ## Manual Verification Checklist

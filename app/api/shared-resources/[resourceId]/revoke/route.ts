@@ -1,11 +1,15 @@
-import { requireRequestSession } from '@/app/api/_utils/auth'
+import {
+  getAgentOwnershipKeyId,
+  requireApiCapability,
+  requireRequestSession,
+} from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
 import { handleApiError } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
 import { prisma } from '@/lib/prisma'
 
 type RouteContext = {
-  params: Promise<{ resourceId: string }> | { resourceId: string }
+  params: Promise<{ resourceId: string }>
 }
 
 async function getRouteResourceId(context: RouteContext): Promise<string> {
@@ -21,6 +25,12 @@ export async function POST(request: Request, context: RouteContext) {
       return authResult.response
     }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult)
     const resourceId = await getRouteResourceId(context)
 
     const resource = await prisma.sharedResource.findUnique({
@@ -28,6 +38,7 @@ export async function POST(request: Request, context: RouteContext) {
       select: {
         id: true,
         userId: true,
+        createdByAgentApiKeyId: true,
       },
     })
 
@@ -37,6 +48,10 @@ export async function POST(request: Request, context: RouteContext) {
 
     if (resource.userId !== authResult.userId) {
       throw apiErrors.forbidden('You do not have access to this shared resource')
+    }
+
+    if (restrictedOwnerKeyId && resource.createdByAgentApiKeyId !== restrictedOwnerKeyId) {
+      throw apiErrors.forbidden('This API key can only access its own agent-created share links')
     }
 
     const revokedAt = new Date()

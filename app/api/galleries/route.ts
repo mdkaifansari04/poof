@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { requireRequestSession } from '@/app/api/_utils/auth'
+import { getAgentOwnershipKeyId, requireApiCapability, requireRequestSession } from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
 import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
@@ -21,16 +21,29 @@ export async function GET(request: Request) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
+
+    const capabilityError = requireApiCapability(authResult, 'read')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult) ?? undefined
 
     const galleries = await prisma.gallery.findMany({
       where: {
-        userId: authResult.userId,
+        userId,
         deletedAt: null,
+        ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
       },
       include: {
         images: {
           where: {
             deletedAt: null,
+            ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
           },
           select: {
             id: true,
@@ -78,6 +91,15 @@ export async function POST(request: Request) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
+
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
 
     const body = await parseJsonBody<unknown>(request)
     const parsed = createGallerySchema.safeParse(body)
@@ -88,7 +110,7 @@ export async function POST(request: Request) {
 
     const existingCount = await prisma.gallery.count({
       where: {
-        userId: authResult.userId,
+        userId,
         deletedAt: null,
       },
     })
@@ -101,9 +123,10 @@ export async function POST(request: Request) {
 
     const gallery = await prisma.gallery.create({
       data: {
-        userId: authResult.userId,
+        userId,
         name: parsed.data.name,
         description: parsed.data.description || null,
+        createdByAgentApiKeyId: authResult.apiKey?.id ?? null,
       },
       select: {
         id: true,

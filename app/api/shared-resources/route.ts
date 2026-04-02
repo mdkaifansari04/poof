@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { requireRequestSession } from '@/app/api/_utils/auth'
+import {
+  getAgentOwnershipKeyId,
+  requireApiCapability,
+  requireRequestSession,
+} from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
 import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
@@ -19,7 +23,11 @@ const createSharedResourceSchema = z.object({
   expiresAt: z.string().datetime(),
 })
 
-async function getOwnedGalleryOrThrow(galleryId: string, userId: string) {
+async function getOwnedGalleryOrThrow(
+  galleryId: string,
+  userId: string,
+  restrictedOwnerKeyId?: string,
+) {
   const gallery = await prisma.gallery.findUnique({
     where: { id: galleryId },
     select: {
@@ -27,6 +35,7 @@ async function getOwnedGalleryOrThrow(galleryId: string, userId: string) {
       userId: true,
       deletedAt: true,
       name: true,
+      createdByAgentApiKeyId: true,
     },
   })
 
@@ -36,6 +45,10 @@ async function getOwnedGalleryOrThrow(galleryId: string, userId: string) {
 
   if (gallery.userId !== userId) {
     throw apiErrors.forbidden('You do not have access to this gallery')
+  }
+
+  if (restrictedOwnerKeyId && gallery.createdByAgentApiKeyId !== restrictedOwnerKeyId) {
+    throw apiErrors.forbidden('This API key can only access its own agent-created gallery')
   }
 
   return gallery
@@ -48,10 +61,21 @@ export async function GET(request: Request) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
 
+    const capabilityError = requireApiCapability(authResult, 'read')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult) ?? undefined
     const resources = await prisma.sharedResource.findMany({
       where: {
-        userId: authResult.userId,
+        userId,
+        ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
       },
       select: {
         id: true,
@@ -96,7 +120,17 @@ export async function POST(request: Request) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult) ?? undefined
     const body = await parseJsonBody<unknown>(request)
     const parsed = createSharedResourceSchema.safeParse(body)
 
@@ -137,8 +171,31 @@ export async function POST(request: Request) {
         throw apiErrors.validation('imageIds must be empty for GALLERY shares')
       }
 
-      const gallery = await getOwnedGalleryOrThrow(input.galleryId, authResult.userId)
+      const gallery = await getOwnedGalleryOrThrow(
+        input.galleryId,
+        userId,
+        restrictedOwnerKeyId,
+      )
       resolvedGalleryId = gallery.id
+
+      if (restrictedOwnerKeyId) {
+        const foreignImagesCount = await prisma.image.count({
+          where: {
+            galleryId: gallery.id,
+            deletedAt: null,
+            uploadStatus: 'CONFIRMED',
+            NOT: {
+              createdByAgentApiKeyId: restrictedOwnerKeyId,
+            },
+          },
+        })
+
+        if (foreignImagesCount > 0) {
+          throw apiErrors.forbidden(
+            'This API key can only share galleries containing its own agent-created images',
+          )
+        }
+      }
     } else {
       const providedImageIds = input.imageIds ?? []
 
@@ -169,9 +226,10 @@ export async function POST(request: Request) {
           id: {
             in: providedImageIds,
           },
-          userId: authResult.userId,
+          userId,
           deletedAt: null,
           uploadStatus: 'CONFIRMED',
+          ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
         },
         select: {
           id: true,
@@ -194,7 +252,7 @@ export async function POST(request: Request) {
 
     const activeLinksCount = await prisma.sharedResource.count({
       where: {
-        userId: authResult.userId,
+        userId,
         galleryId: resolvedGalleryId,
         revokedAt: null,
         expiresAt: {
@@ -211,11 +269,12 @@ export async function POST(request: Request) {
 
     const created = await prisma.sharedResource.create({
       data: {
-        userId: authResult.userId,
+        userId,
         type: input.type,
         galleryId: resolvedGalleryId,
         imageIds: input.type === 'GALLERY' ? [] : imageIds,
         expiresAt,
+        createdByAgentApiKeyId: authResult.apiKey?.id ?? null,
       },
       select: {
         id: true,

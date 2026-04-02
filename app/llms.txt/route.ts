@@ -16,6 +16,7 @@ Important behavior:
 - Agents should only create share links when the user explicitly asks to share content.
 - If the user asks to share and does not provide an expiry, use a 24 hour default.
 - Uploads use a short-lived presigned R2 PUT URL followed by confirm or fail calls back to Poof.
+- API keys can be scoped to read/write and can optionally be limited to agent-created resources only.
 
 ## Product
 
@@ -25,12 +26,14 @@ Important behavior:
 ## API
 
 - [API Overview](${appUrl}/docs/api): Authentication and upload flow
-- [Galleries API](${appUrl}/docs/api): Gallery CRUD and listing
-- [Share Links](${appUrl}/docs/api): Share link creation, revocation, and expiry behavior
+- [API Reference](${appUrl}/docs/reference): Versioned endpoint map for /api/v1
+- [OpenAPI](${appUrl}/api/v1/openapi): Machine-readable API contract
 
 ## Agents
 
 - [Agent Guide](${appUrl}/docs/agents): How first-party agents should use Poof
+- [Scopes & Ownership](${appUrl}/docs/scopes): Permission and isolation model
+- [Authentication](${appUrl}/docs/authentication): Session and API-key auth details
 - [Settings](${appUrl}/settings): Users create and revoke API keys here after signing in
 `
 

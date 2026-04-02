@@ -1,8 +1,8 @@
 import { z } from 'zod'
+import { getAgentOwnershipKeyId, requireApiCapability, requireRequestSession } from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
 import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
-import { requireRequestSession } from '@/app/api/_utils/auth'
 import { prisma } from '@/lib/prisma'
 import { uploadService } from '@/lib/upload'
 
@@ -19,7 +19,7 @@ const updateGallerySchema = z
   })
 
 type RouteContext = {
-  params: Promise<{ id: string }> | { id: string }
+  params: Promise<{ id: string }>
 }
 
 async function getRouteId(context: RouteContext): Promise<string> {
@@ -27,7 +27,11 @@ async function getRouteId(context: RouteContext): Promise<string> {
   return params.id
 }
 
-async function getOwnedGalleryOrThrow(galleryId: string, userId: string) {
+async function getOwnedGalleryOrThrow(
+  galleryId: string,
+  userId: string,
+  restrictedOwnerKeyId?: string,
+) {
   const gallery = await prisma.gallery.findUnique({
     where: { id: galleryId },
     select: {
@@ -35,6 +39,7 @@ async function getOwnedGalleryOrThrow(galleryId: string, userId: string) {
       userId: true,
       deletedAt: true,
       bannerImageKey: true,
+      createdByAgentApiKeyId: true,
     },
   })
 
@@ -44,6 +49,10 @@ async function getOwnedGalleryOrThrow(galleryId: string, userId: string) {
 
   if (gallery.userId !== userId) {
     throw apiErrors.forbidden('You do not have access to this gallery')
+  }
+
+  if (restrictedOwnerKeyId && gallery.createdByAgentApiKeyId !== restrictedOwnerKeyId) {
+    throw apiErrors.forbidden('This API key can only access its own agent-created gallery')
   }
 
   return gallery
@@ -56,9 +65,19 @@ export async function GET(request: Request, context: RouteContext) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
 
+    const capabilityError = requireApiCapability(authResult, 'read')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult) ?? undefined
     const galleryId = await getRouteId(context)
-    await getOwnedGalleryOrThrow(galleryId, authResult.userId)
+    await getOwnedGalleryOrThrow(galleryId, userId, restrictedOwnerKeyId)
 
     const gallery = await prisma.gallery.findUnique({
       where: { id: galleryId },
@@ -82,6 +101,7 @@ export async function GET(request: Request, context: RouteContext) {
       where: {
         galleryId,
         deletedAt: null,
+        ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
       },
       select: {
         id: true,
@@ -122,9 +142,19 @@ export async function PATCH(request: Request, context: RouteContext) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult) ?? undefined
     const galleryId = await getRouteId(context)
-    const gallery = await getOwnedGalleryOrThrow(galleryId, authResult.userId)
+    const gallery = await getOwnedGalleryOrThrow(galleryId, userId, restrictedOwnerKeyId)
 
     const body = await parseJsonBody<unknown>(request)
     const parsed = updateGallerySchema.safeParse(body)
@@ -137,9 +167,10 @@ export async function PATCH(request: Request, context: RouteContext) {
       const coverImage = await prisma.image.findFirst({
         where: {
           id: parsed.data.coverImageId,
-          userId: authResult.userId,
+          userId,
           galleryId,
           deletedAt: null,
+          ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
         },
         select: { id: true },
       })
@@ -186,6 +217,7 @@ export async function PATCH(request: Request, context: RouteContext) {
       where: {
         galleryId,
         deletedAt: null,
+        ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
       },
       select: {
         id: true,
@@ -219,9 +251,37 @@ export async function DELETE(request: Request, context: RouteContext) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult) ?? undefined
     const galleryId = await getRouteId(context)
-    await getOwnedGalleryOrThrow(galleryId, authResult.userId)
+    await getOwnedGalleryOrThrow(galleryId, userId, restrictedOwnerKeyId)
+
+    if (restrictedOwnerKeyId) {
+      const foreignImagesCount = await prisma.image.count({
+        where: {
+          galleryId,
+          deletedAt: null,
+          NOT: {
+            createdByAgentApiKeyId: restrictedOwnerKeyId,
+          },
+        },
+      })
+
+      if (foreignImagesCount > 0) {
+        throw apiErrors.forbidden(
+          'This API key cannot delete galleries containing images created by other actors',
+        )
+      }
+    }
 
     const deletedAt = new Date()
 
@@ -234,6 +294,7 @@ export async function DELETE(request: Request, context: RouteContext) {
         where: {
           galleryId,
           deletedAt: null,
+          ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
         },
         data: { deletedAt },
       }),

@@ -4,7 +4,11 @@ import { apiErrors } from '@/app/api/_utils/errors'
 import { getFileExtension } from '@/app/api/_utils/gallery'
 import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
-import { requireRequestSession } from '@/app/api/_utils/auth'
+import {
+  getAgentOwnershipKeyId,
+  requireApiCapability,
+  requireRequestSession,
+} from '@/app/api/_utils/auth'
 import {
   MAX_FILE_SIZE_BYTES,
   MAX_IMAGES_PER_GALLERY,
@@ -32,6 +36,12 @@ export async function POST(request: Request) {
       return authResult.response
     }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult)
     const body = await parseJsonBody<unknown>(request)
     const parsed = presignSchema.safeParse(body)
 
@@ -55,6 +65,7 @@ export async function POST(request: Request) {
         id: true,
         userId: true,
         deletedAt: true,
+        createdByAgentApiKeyId: true,
       },
     })
 
@@ -64,6 +75,10 @@ export async function POST(request: Request) {
 
     if (gallery.userId !== authResult.userId) {
       throw apiErrors.forbidden('You do not have access to this gallery')
+    }
+
+    if (restrictedOwnerKeyId && gallery.createdByAgentApiKeyId !== restrictedOwnerKeyId) {
+      throw apiErrors.forbidden('This API key can only upload into its own agent-created gallery')
     }
 
     const imageCount = await prisma.image.count({
@@ -100,6 +115,7 @@ export async function POST(request: Request) {
         r2Key: presigned.r2Key,
         r2Url: presigned.publicUrl,
         uploadStatus: 'PENDING',
+        createdByAgentApiKeyId: authResult.apiKey?.id ?? null,
       },
     })
 

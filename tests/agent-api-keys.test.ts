@@ -4,6 +4,7 @@ import {
   getAgentApiKeyPrefix,
   getRequestApiKey,
   hashAgentApiKey,
+  normalizeAgentApiKeyPermissions,
 } from '@/lib/agent-api-keys'
 
 describe('agent api key helpers', () => {
@@ -39,5 +40,17 @@ describe('agent api key helpers', () => {
     const value = 'poof_live_example'
 
     expect(hashAgentApiKey(value)).toBe(hashAgentApiKey(value))
+  })
+
+  test('normalizes API key permissions with defaults', () => {
+    const defaultPermissions = normalizeAgentApiKeyPermissions()
+    expect(defaultPermissions.canRead).toBe(true)
+    expect(defaultPermissions.canWrite).toBe(true)
+    expect(defaultPermissions.agentResourcesOnly).toBe(false)
+
+    const mixedPermissions = normalizeAgentApiKeyPermissions({ canRead: true, canWrite: false })
+    expect(mixedPermissions.canRead).toBe(true)
+    expect(mixedPermissions.canWrite).toBe(false)
+    expect(mixedPermissions.agentResourcesOnly).toBe(false)
   })
 })

@@ -5,11 +5,26 @@ const API_KEY_PREFIX = 'poof_live_'
 const API_KEY_RANDOM_BYTES = 32
 const API_KEY_PREVIEW_LENGTH = 20
 
+export type AgentApiKeyPermissions = {
+  canRead: boolean
+  canWrite: boolean
+  agentResourcesOnly: boolean
+}
+
+const DEFAULT_AGENT_API_KEY_PERMISSIONS: AgentApiKeyPermissions = {
+  canRead: true,
+  canWrite: true,
+  agentResourcesOnly: false,
+}
+
 type AgentApiKeyLookup = {
   id: string
   userId: string
   name: string
   prefix: string
+  canRead: boolean
+  canWrite: boolean
+  agentResourcesOnly: boolean
   revokedAt: Date | null
 }
 
@@ -23,6 +38,17 @@ export function hashAgentApiKey(value: string) {
 
 export function getAgentApiKeyPrefix(value: string) {
   return value.slice(0, API_KEY_PREVIEW_LENGTH)
+}
+
+export function normalizeAgentApiKeyPermissions(
+  permissions?: Partial<AgentApiKeyPermissions>,
+): AgentApiKeyPermissions {
+  return {
+    canRead: permissions?.canRead ?? DEFAULT_AGENT_API_KEY_PERMISSIONS.canRead,
+    canWrite: permissions?.canWrite ?? DEFAULT_AGENT_API_KEY_PERMISSIONS.canWrite,
+    agentResourcesOnly:
+      permissions?.agentResourcesOnly ?? DEFAULT_AGENT_API_KEY_PERMISSIONS.agentResourcesOnly,
+  }
 }
 
 export function getRequestApiKey(request: Request) {
@@ -44,8 +70,13 @@ export function getRequestApiKey(request: Request) {
   return token.trim() || null
 }
 
-export async function createAgentApiKey(params: { userId: string; name: string }) {
+export async function createAgentApiKey(params: {
+  userId: string
+  name: string
+  permissions?: Partial<AgentApiKeyPermissions>
+}) {
   const apiKey = createAgentApiKeyValue()
+  const permissions = normalizeAgentApiKeyPermissions(params.permissions)
 
   const created = await prisma.agentApiKey.create({
     data: {
@@ -53,11 +84,17 @@ export async function createAgentApiKey(params: { userId: string; name: string }
       name: params.name,
       prefix: getAgentApiKeyPrefix(apiKey),
       keyHash: hashAgentApiKey(apiKey),
+      canRead: permissions.canRead,
+      canWrite: permissions.canWrite,
+      agentResourcesOnly: permissions.agentResourcesOnly,
     },
     select: {
       id: true,
       name: true,
       prefix: true,
+      canRead: true,
+      canWrite: true,
+      agentResourcesOnly: true,
       lastUsedAt: true,
       revokedAt: true,
       createdAt: true,
@@ -83,6 +120,9 @@ export async function verifyAgentApiKey(value: string): Promise<AgentApiKeyLooku
       userId: true,
       name: true,
       prefix: true,
+      canRead: true,
+      canWrite: true,
+      agentResourcesOnly: true,
       revokedAt: true,
     },
   })

@@ -8,26 +8,34 @@ const agentNotes = [
 
 export default function AgentDocsPage() {
   return (
-    <main className="min-h-screen bg-poof-base px-6 py-16 text-white">
-      <div className="mx-auto max-w-3xl space-y-8">
-        <div className="space-y-3">
-          <p className="text-xs uppercase tracking-[0.28em] text-poof-mist">Poof agents</p>
-          <h1 className="font-heading text-4xl font-extrabold">Agent integration guide</h1>
-          <p className="text-sm text-poof-mist">
-            Use Poof when a user wants an agent to manage galleries, upload photos through the presigned upload
-            flow, or create an expiring share link on their behalf.
-          </p>
-        </div>
+    <>
+      <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
+        <p className="text-xs uppercase tracking-[0.2em] text-poof-mist">Agents</p>
+        <h2 className="mt-2 font-heading text-4xl font-extrabold">Agent integration guide</h2>
+        <p className="mt-3 text-sm text-poof-mist">
+          Poof agents are first-party clients operating on behalf of a signed-in user. Keep actions explicit and
+          narrow: upload, organize, and share only when the prompt asks for it.
+        </p>
+      </section>
 
-        <div className="rounded-3xl border border-white/10 bg-white/5 p-6">
-          <h2 className="font-heading text-2xl font-bold">Operating rules</h2>
-          <ul className="mt-4 space-y-3 text-sm text-poof-mist">
-            {agentNotes.map((note) => (
-              <li key={note}>{note}</li>
-            ))}
-          </ul>
-        </div>
-      </div>
-    </main>
+      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
+        <h3 className="font-heading text-2xl font-bold">Operating rules</h3>
+        <ul className="mt-4 space-y-3 text-sm text-poof-mist">
+          {agentNotes.map((note) => (
+            <li key={note}>{note}</li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
+        <h3 className="font-heading text-2xl font-bold">Recommended prompt behavior</h3>
+        <ul className="mt-4 space-y-3 text-sm text-poof-mist">
+          <li>Ask clarifying questions when gallery target or sharing intent is ambiguous.</li>
+          <li>Default share expiry to 24 hours if user asks to share but gives no duration.</li>
+          <li>Use batch-safe upload handling and report per-file outcomes when partial failures occur.</li>
+          <li>Do not infer permission to share unless user explicitly asks for a share link.</li>
+        </ul>
+      </section>
+    </>
   )
 }

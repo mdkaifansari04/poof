@@ -1,133 +1,143 @@
-# Poof Implementation Plan (4 Phases)
+# Poof Execution Plan (4 Phases)
+
+Last updated: 2026-04-02
+
+Status legend:
+- `DONE` = implemented and merged in current code
+- `IN PROGRESS` = live but still needs hardening/completeness
+- `PENDING` = not implemented yet
 
 ## Goal
-Implement the full product backend and data flows from `.agents/spec.md` while keeping the current UI/components unchanged.
+Ship Poof as a production-ready consumer photo-sharing app with first-party automation support, where agents can operate account workflows through secure, documented, versioned APIs.
 
-## Working Principles
-- Follow the spec as source of truth for API shape, schema, rules, and limits.
-- Preserve current visual components; implement logic, data wiring, and server functionality behind them.
-- Keep each phase shippable with clear acceptance criteria.
-- Use strict TypeScript and server-authoritative validation.
+## Current Snapshot
+- Core product surface is stable: auth, gallery CRUD, upload lifecycle, sharing, and cleanup cron.
+- Agent API model is now permissioned (`read`, `write`, `agentResourcesOnly`) with ownership provenance.
+- `/api/v1` namespace and `/api/v1/openapi` are available.
+- Docs are consolidated under a single sidebar docs hub (`/docs`) plus `GET /llms.txt`.
 
-## Phase 1: Platform Foundation (Auth + Data + App Skeleton)
+---
 
-### Outcome
-A secure, running app foundation with authentication, database models, and consistent API conventions.
-
-### Scope
-- Add and configure core dependencies:
-  - `better-auth`, `prisma`, `@prisma/client`, `axios`, `@tanstack/react-query`, `@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`.
-- Create backend foundations:
-  - `prisma/schema.prisma` exactly aligned with spec models/enums.
-  - Prisma client singleton (`lib/prisma.ts`).
-  - Better Auth server/client config (`lib/auth.ts`, `lib/auth-client.ts`).
-  - Auth API handler (`app/api/auth/[...all]/route.ts`).
-- Build base app wiring:
-  - Protected app layout session guard.
-  - Shared API helpers for envelope responses and error codes.
-  - Axios instance with envelope unwrapping (`lib/axios.ts`).
-  - React Query provider setup in root layout.
-  - Query key factory scaffold and empty query/mutation modules.
-- Add environment template (`.env.example`) with all required variables.
-
-### Acceptance Criteria
-- Prisma schema validates and migration can be generated.
-- Auth routes compile and session can be read server-side.
-- Protected app routes redirect unauthenticated users.
-- API responses follow `{ data, error }` envelope consistently.
-
-## Phase 2: Gallery + Image Lifecycle (CRUD + Upload Pipeline)
-
-### Outcome
-Authenticated users can create/manage galleries and upload images via presigned URL flow.
+## Phase 1: Core Platform Foundation
+Status: `DONE`
 
 ### Scope
-- Implement upload abstraction:
-  - `lib/upload/UploadService.ts` (abstract contract).
-  - `lib/upload/R2UploadService.ts` and `lib/upload/index.ts`.
-- Implement gallery and image APIs:
-  - `GET/POST /api/galleries`
-  - `GET/PATCH/DELETE /api/galleries/:id`
-  - `DELETE /api/images/:imageId`
-  - `POST /api/upload/presign`
-  - `POST /api/images/:imageId/confirm`
-  - `POST /api/images/:imageId/fail`
-- Enforce server-side validations from spec:
-  - Ownership checks, deleted records exclusion, size/type limits, gallery/image limits.
-  - Upload status transitions: `PENDING -> CONFIRMED | FAILED`.
-- Add React Query data layer for gallery/image operations:
-  - `hooks/queries.ts` for galleries/gallery detail.
-  - `hooks/mutations.ts` for create/update/delete/presign/confirm/fail.
-- Connect existing gallery UI pages to real APIs without component redesign.
+- Better Auth session model and protected app shell.
+- Prisma-backed domain model and API base utilities.
+- Standardized API error/response patterns and client transport.
 
-### Acceptance Criteria
-- User can create, edit, and soft-delete galleries.
-- User can request presigned URLs and complete confirm/fail upload flow.
-- Gallery pages render live DB-backed images and statuses.
-- Unauthorized and forbidden access paths return correct error codes.
+### Completed
+- Auth/session stack (`lib/auth.ts`, `app/api/auth/[...all]/route.ts`, `app/(app)/layout.tsx`)
+- Prisma + schema baseline (`lib/prisma.ts`, `prisma/schema.prisma`)
+- Shared API utility layer (`app/api/_utils/*`)
+- Query/client plumbing (`components/providers/query-provider.tsx`, `lib/api-client.ts`)
 
-## Phase 3: Share Links + Public Resolution
+### Remaining
+- None.
 
-### Outcome
-Users can generate/manage expiring share links for gallery/image/multi-image and public users can consume them.
+### Exit Criteria
+- Consistent auth gating and API response shape across app routes.
+
+---
+
+## Phase 2: Media Domain (Galleries + Upload Lifecycle)
+Status: `IN PROGRESS`
 
 ### Scope
-- Implement shared resource APIs:
-  - `POST /api/shared-resources`
-  - `GET /api/shared-resources` (owner list)
-  - `GET /api/shared-resources/:resourceId` (public resolver)
-  - `POST /api/shared-resources/:resourceId/revoke`
-  - `DELETE /api/shared-resources/:resourceId`
-- Implement full share validation rules:
-  - Type-specific body constraints.
-  - Future expiry with min/max window.
-  - Same-gallery constraint for multi-image shares.
-  - Max active links per gallery and max images per shared selection.
-- Implement resolver behavior:
-  - `NOT_FOUND`, `REVOKED`, `EXPIRED` handling.
-  - `viewCount` increment.
-  - Type-based payload resolution with ordering guarantees.
-- Wire share management UI flows to mutations/queries.
-- Wire public `/shared/[resourceId]` page to resolver API and error states.
+- Gallery CRUD + image lifecycle + banner uploads via presigned URLs.
+- Reliable client-side and API-side state transitions.
 
-### Acceptance Criteria
-- All three share modes (gallery/single/multi-image) work end-to-end.
-- Revoked and expired links return HTTP 410 with correct error code.
-- Public shared page renders only valid, non-deleted, confirmed images.
-- Owner dashboard shows link list with accurate state.
+### Completed
+- Gallery routes: `app/api/galleries/route.ts`, `app/api/galleries/[id]/route.ts`
+- Upload routes: `app/api/upload/presign/route.ts`, `app/api/galleries/[id]/banner/presign/route.ts`
+- Image state routes: `app/api/images/[imageId]/*`
+- Upload service abstraction: `lib/upload/*`
 
-## Phase 4: Cleanup, Cron, Hardening, and Release Readiness
+### Remaining
+- `PENDING`: idempotency strategy for retry-safe upload workflows.
+- `PENDING`: optional content dedupe path (hash-based or key-based) for repeated uploads.
+- `PENDING`: expanded integration tests for partial batch failures/network interruptions.
 
-### Outcome
-System is operationally safe: data cleanup, lifecycle enforcement, and production-level quality checks are in place.
+### Exit Criteria
+- Upload and mutation flows are retry-safe and test-covered under degraded network conditions.
+
+---
+
+## Phase 3: Sharing, Retention, and Ops Reliability
+Status: `IN PROGRESS`
 
 ### Scope
-- Implement cron routes:
-  - `/api/cron/cleanup-storage`
-  - `/api/cron/cleanup-pending-uploads`
-  - `Authorization: Bearer ${CRON_SECRET}` validation.
-- Implement deletion and retention behavior:
-  - Hard-delete soft-deleted images after R2 cleanup window.
-  - Mark stale `PENDING` uploads as `FAILED`.
-  - Remove old `FAILED` uploads.
-- Add comprehensive validation + error coverage across all endpoints.
-- Add core test coverage:
-  - API route behavior tests for happy path and edge cases.
-  - Share resolver expiry/revoke tests.
-  - Upload lifecycle and cleanup tests.
-- Add implementation documentation:
-  - Setup, migrations, env vars, local run flow, deployment checklist.
+- Share-link lifecycle correctness, scheduled cleanup, and production diagnostics.
 
-### Acceptance Criteria
-- Cron routes are secure and idempotent.
-- Storage cleanup and upload cleanup run as specified.
-- Core user journeys from spec use cases (UC-01 to UC-10) pass manual verification.
-- Build passes with no schema drift and no route-level type errors.
+### Completed
+- Share APIs (`app/api/shared-resources/*`) with revoke/expiry/public resolve paths.
+- Shared status utility (`app/api/_utils/shared.ts`)
+- Cleanup cron routes + auth (`app/api/cron/*`, `app/api/_utils/cron.ts`)
+- Baseline tests (`tests/shared-status.test.ts`, `tests/cron-auth.test.ts`)
 
-## Phase Independence Contract
-- Phase 1 delivers platform primitives only (auth/data/contracts).
-- Phase 2 delivers gallery/image domain without share-link dependency.
-- Phase 3 delivers sharing/public access on top of finalized gallery/image contracts.
-- Phase 4 delivers operations and hardening without changing feature contracts.
+### Remaining
+- `PENDING`: route-level integration tests for share + cleanup flows.
+- `PENDING`: replay/idempotency protection for critical mutating endpoints.
+- `PENDING`: structured observability (request correlation IDs, error-level logs, alert hooks).
+- `PENDING`: finalize background workflow orchestration decision (`app/api/inngest/route.ts` currently stubbed).
 
-This keeps each phase independently reviewable and allows implementation in strict sequence without UI redesign.
+### Exit Criteria
+- Share and cleanup operations are observable, diagnosable, and resilient during failures.
+
+---
+
+## Phase 4: Agent Platform, Versioned API, and Docs Productization
+Status: `IN PROGRESS`
+
+### Scope
+- Agent account access, permission boundaries, versioned external API, and consolidated docs.
+
+### Completed
+- API key permissions + ownership provenance in schema:
+  - `prisma/schema.prisma`
+  - `prisma/migrations/20260402203000_add_agent_scopes_and_resource_provenance/migration.sql`
+- API key helpers and normalization:
+  - `lib/agent-api-keys.ts`
+  - `lib/types/agent-api-key.ts`
+- API key CRUD with permission toggles:
+  - `app/api/agent-api-keys/route.ts`
+  - `app/api/agent-api-keys/[keyId]/route.ts`
+  - `components/settings/agent-api-keys-card.tsx`
+- API key auth + capability enforcement across core routes:
+  - `app/api/_utils/auth.ts`
+  - galleries/images/upload/shared-resources routes
+- Agent-owned-only enforcement for scoped keys in list/read/mutate flows.
+- Versioned API namespace:
+  - `app/api/v1/**` wrappers
+  - `app/api/v1/openapi/route.ts`
+- Docs consolidation with sidebar IA:
+  - `app/docs/layout.tsx`
+  - `components/docs/docs-sidebar.tsx`
+  - `app/docs/_nav.ts`
+  - `/docs`, `/docs/api`, `/docs/reference`, `/docs/authentication`, `/docs/scopes`, `/docs/agents`
+- LLM discovery update:
+  - `app/llms.txt/route.ts`
+
+### Remaining
+- `PENDING`: API rate limiting and abuse controls for API-key traffic.
+- `PENDING`: audit log trail for sensitive agent actions (delete/revoke/update).
+- `PENDING`: optional API-key rotation/expiry policy support.
+- `PENDING`: browser/device-link auth flow for agents (in addition to static API keys).
+- `PENDING`: SDK-style worked examples for agent flows (upload + optional share with 24h default).
+
+### Exit Criteria
+- Agent access is least-privilege, observable, and operationally controlled.
+- External integrations can rely on stable `/api/v1` contracts and complete docs.
+
+---
+
+## Recommended Next Sequence
+1. Add API-key rate limiting + audit events (Phase 4 hardening).
+2. Add integration tests for upload/share/agent ownership boundaries (Phases 2-4).
+3. Implement idempotency primitives for mutation endpoints (Phases 2-3).
+4. Decide Inngest/background orchestration rollout and wire first workflows (Phase 3).
+
+## Delivery Risks
+- Without rate limits/audit logs, abusive or accidental automation is harder to contain.
+- Without idempotency + integration coverage, retries can create inconsistent state.
+- Without observability, incident triage remains slower than needed for production automation.

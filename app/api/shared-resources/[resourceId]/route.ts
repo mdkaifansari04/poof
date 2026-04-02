@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { requireRequestSession } from '@/app/api/_utils/auth'
+import {
+  getAgentOwnershipKeyId,
+  requireApiCapability,
+  requireRequestSession,
+} from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
 import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
@@ -8,7 +12,7 @@ import { MAX_SHARE_EXPIRY_MS, MIN_SHARE_EXPIRY_MS } from '@/lib/limits'
 import { prisma } from '@/lib/prisma'
 
 type RouteContext = {
-  params: Promise<{ resourceId: string }> | { resourceId: string }
+  params: Promise<{ resourceId: string }>
 }
 
 async function getRouteResourceId(context: RouteContext): Promise<string> {
@@ -201,6 +205,12 @@ export async function DELETE(request: Request, context: RouteContext) {
       return authResult.response
     }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult)
     const resourceId = await getRouteResourceId(context)
 
     const resource = await prisma.sharedResource.findUnique({
@@ -208,6 +218,7 @@ export async function DELETE(request: Request, context: RouteContext) {
       select: {
         id: true,
         userId: true,
+        createdByAgentApiKeyId: true,
       },
     })
 
@@ -217,6 +228,10 @@ export async function DELETE(request: Request, context: RouteContext) {
 
     if (resource.userId !== authResult.userId) {
       throw apiErrors.forbidden('You do not have access to this shared resource')
+    }
+
+    if (restrictedOwnerKeyId && resource.createdByAgentApiKeyId !== restrictedOwnerKeyId) {
+      throw apiErrors.forbidden('This API key can only access its own agent-created share links')
     }
 
     await prisma.sharedResource.delete({
@@ -240,6 +255,12 @@ export async function PATCH(request: Request, context: RouteContext) {
       return authResult.response
     }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult)
     const body = await parseJsonBody<unknown>(request)
     const parsed = updateSharedResourceSchema.safeParse(body)
 
@@ -265,6 +286,7 @@ export async function PATCH(request: Request, context: RouteContext) {
         expiresAt: true,
         revokedAt: true,
         viewCount: true,
+        createdByAgentApiKeyId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -276,6 +298,10 @@ export async function PATCH(request: Request, context: RouteContext) {
 
     if (resource.userId !== authResult.userId) {
       throw apiErrors.forbidden('You do not have access to this shared resource')
+    }
+
+    if (restrictedOwnerKeyId && resource.createdByAgentApiKeyId !== restrictedOwnerKeyId) {
+      throw apiErrors.forbidden('This API key can only access its own agent-created share links')
     }
 
     const now = new Date()

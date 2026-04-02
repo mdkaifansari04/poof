@@ -1,6 +1,10 @@
 import { randomUUID } from 'node:crypto'
 import { z } from 'zod'
-import { requireRequestSession } from '@/app/api/_utils/auth'
+import {
+  getAgentOwnershipKeyId,
+  requireApiCapability,
+  requireRequestSession,
+} from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
 import { getFileExtension } from '@/app/api/_utils/gallery'
 import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
@@ -10,7 +14,7 @@ import { prisma } from '@/lib/prisma'
 import { uploadService } from '@/lib/upload'
 
 type RouteContext = {
-  params: Promise<{ id: string }> | { id: string }
+  params: Promise<{ id: string }>
 }
 
 const bannerPresignSchema = z.object({
@@ -31,13 +35,24 @@ export async function POST(request: Request, context: RouteContext) {
     if (authResult.response) {
       return authResult.response
     }
+    const userId = authResult.userId
+    if (!userId) {
+      throw apiErrors.unauthorized()
+    }
 
+    const capabilityError = requireApiCapability(authResult, 'write')
+    if (capabilityError) {
+      return capabilityError
+    }
+
+    const restrictedOwnerKeyId = getAgentOwnershipKeyId(authResult) ?? undefined
     const galleryId = await getRouteId(context)
     const gallery = await prisma.gallery.findFirst({
       where: {
         id: galleryId,
-        userId: authResult.userId,
+        userId,
         deletedAt: null,
+        ...(restrictedOwnerKeyId ? { createdByAgentApiKeyId: restrictedOwnerKeyId } : {}),
       },
       select: {
         id: true,

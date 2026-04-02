@@ -24,17 +24,23 @@ model User {
 }
 
 model AgentApiKey {
-  id         String    @id @default(cuid())
-  userId     String
-  name       String
-  prefix     String
-  keyHash    String    @unique
-  lastUsedAt DateTime?
-  revokedAt  DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  userId             String
+  name               String
+  prefix             String
+  keyHash            String    @unique
+  canRead            Boolean   @default(true)
+  canWrite           Boolean   @default(true)
+  agentResourcesOnly Boolean   @default(false)
+  lastUsedAt         DateTime?
+  revokedAt          DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdGalleries       Gallery[]       @relation("AgentCreatedGalleries")
+  createdImages          Image[]         @relation("AgentCreatedImages")
+  createdSharedResources SharedResource[] @relation("AgentCreatedSharedResources")
 
   @@index([userId])
   @@index([revokedAt])
@@ -81,46 +87,52 @@ model Verification {
 }
 
 model Gallery {
-  id           String    @id @default(cuid())
-  userId       String
-  name         String
-  description  String?
-  coverImageId String?
-  bannerImageUrl String?
-  bannerImageKey String?
-  deletedAt    DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  userId                String
+  name                  String
+  description           String?
+  coverImageId          String?
+  bannerImageUrl        String?
+  bannerImageKey        String?
+  createdByAgentApiKeyId String?
+  deletedAt             DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
-  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  images          Image[]
-  sharedResources SharedResource[]
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdByAgentApiKey  AgentApiKey?     @relation("AgentCreatedGalleries", fields: [createdByAgentApiKeyId], references: [id], onDelete: SetNull)
+  images                Image[]
+  sharedResources       SharedResource[]
 
   @@index([userId])
   @@index([deletedAt])
+  @@index([createdByAgentApiKeyId])
 }
 
 model Image {
-  id           String       @id @default(cuid())
-  galleryId    String
-  userId       String
-  fileName     String
-  fileSize     Int
-  mimeType     String
-  r2Key        String       @unique
-  r2Url        String
-  width        Int?
-  height       Int?
-  uploadStatus UploadStatus @default(PENDING)
-  deletedAt    DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id                     String       @id @default(cuid())
+  galleryId              String
+  userId                 String
+  fileName               String
+  fileSize               Int
+  mimeType               String
+  r2Key                  String       @unique
+  r2Url                  String
+  width                  Int?
+  height                 Int?
+  uploadStatus           UploadStatus @default(PENDING)
+  createdByAgentApiKeyId String?
+  deletedAt              DateTime?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
 
-  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  gallery               Gallery      @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  createdByAgentApiKey  AgentApiKey? @relation("AgentCreatedImages", fields: [createdByAgentApiKeyId], references: [id], onDelete: SetNull)
 
   @@index([galleryId])
   @@index([userId])
   @@index([deletedAt])
+  @@index([createdByAgentApiKeyId])
 }
 
 enum UploadStatus {
@@ -130,23 +142,26 @@ enum UploadStatus {
 }
 
 model SharedResource {
-  id        String             @id @default(cuid())
-  userId    String
-  type      SharedResourceType
-  galleryId String?
-  imageIds  String[]
-  expiresAt DateTime
-  revokedAt DateTime?
-  viewCount Int                @default(0)
-  createdAt DateTime           @default(now())
-  updatedAt DateTime           @updatedAt
+  id                      String             @id @default(cuid())
+  userId                  String
+  type                    SharedResourceType
+  galleryId               String?
+  imageIds                String[]
+  expiresAt               DateTime
+  revokedAt               DateTime?
+  viewCount               Int                @default(0)
+  createdByAgentApiKeyId  String?
+  createdAt               DateTime           @default(now())
+  updatedAt               DateTime           @updatedAt
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  gallery Gallery? @relation(fields: [galleryId], references: [id], onDelete: SetNull)
+  user                 User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gallery              Gallery?    @relation(fields: [galleryId], references: [id], onDelete: SetNull)
+  createdByAgentApiKey AgentApiKey? @relation("AgentCreatedSharedResources", fields: [createdByAgentApiKeyId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([expiresAt])
   @@index([galleryId])
+  @@index([createdByAgentApiKeyId])
 }
 
 enum SharedResourceType {

@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { requireRequestSession } from '@/app/api/_utils/auth'
+import { requireApiCapability, requireRequestSession } from '@/app/api/_utils/auth'
 import { apiErrors } from '@/app/api/_utils/errors'
 import { handleApiError } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
@@ -69,6 +69,11 @@ export async function GET(request: Request) {
 
     if (authResult.response) {
       return authResult.response
+    }
+
+    const capabilityError = requireApiCapability(authResult, 'read')
+    if (capabilityError) {
+      return capabilityError
     }
 
     const url = new URL(request.url)
