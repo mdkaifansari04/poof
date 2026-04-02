@@ -2,10 +2,8 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { GlassCard } from "@/components/poof/glass-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   X,
   Upload,
@@ -299,348 +297,332 @@ export default function NewGalleryPage() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-poof-base/95 backdrop-blur-xl overflow-y-auto">
-      <div className="min-h-full flex flex-col">
-        <div className="sticky top-0 z-10 border-b border-white/5 bg-poof-base/95 backdrop-blur-xl">
-          <div className="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
-            <button
-              onClick={() => router.back()}
-              className="flex items-center gap-2 text-poof-mist hover:text-white transition-colors"
-            >
-              <X className="w-5 h-5" />
-              <span className="text-sm">Cancel</span>
-            </button>
+    <div className="mx-auto max-w-4xl py-2 font-sans animate-fade-up">
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-poof-mist/70 transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Back
+        </button>
 
-            <div className="flex items-center gap-2">
-              {[1, 2, 3].map((index) => (
-                <div
-                  key={index}
-                  className={cn(
-                    "w-8 h-1 rounded-full transition-colors",
-                    index <= step ? "bg-poof-accent" : "bg-white/10",
-                  )}
-                />
-              ))}
-            </div>
-
-            <div className="w-20" />
-          </div>
+        <div className="flex items-center gap-1.5">
+          {[1, 2, 3].map((index) => (
+            <div
+              key={index}
+              className={cn(
+                "h-1 w-8 rounded-full transition-colors",
+                index <= step ? "bg-poof-accent" : "bg-white/10",
+              )}
+            />
+          ))}
         </div>
 
-        <div className="flex-1 flex items-center justify-center p-4">
-          <div className="w-full max-w-2xl">
-            {step === 1 && (
-              <div className="text-center space-y-8 animate-fade-up">
-                <div>
-                  <h2 className="font-heading font-extrabold text-3xl text-white mb-2">
-                    Name your gallery
-                  </h2>
-                  <p className="text-poof-mist">Give it a memorable name</p>
-                </div>
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-poof-mist/60 transition-colors hover:bg-white/5 hover:text-white"
+        >
+          <X className="h-3.5 w-3.5" />
+          Cancel
+        </button>
+      </div>
 
-                <div className="space-y-4">
-                  <Input
-                    value={name}
-                    onChange={(event) =>
-                      setName(event.target.value.slice(0, 60))
-                    }
-                    placeholder="Gallery name..."
-                    className="text-center text-2xl font-heading font-bold bg-transparent border-0 border-b-2 border-white/10 rounded-none focus:border-poof-accent px-4 py-6 text-white placeholder:text-poof-mist/30"
-                    autoFocus
-                  />
-                  <p className="text-xs text-poof-mist">
-                    {name.length}/60 characters
-                  </p>
-                </div>
+      <div className="rounded-xl border border-white/6 bg-[#111] p-4 sm:p-6">
+        {step === 1 && (
+          <div className="space-y-6">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
+                Step 1 of 3
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold text-white">
+                Name your gallery
+              </h1>
+              <p className="mt-1 text-sm text-poof-mist/75">
+                Keep it short and memorable.
+              </p>
+            </div>
 
-                <Button
-                  onClick={() => setStep(2)}
-                  disabled={!name.trim()}
-                  className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press px-8"
-                >
-                  Continue
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            )}
+            <div className="space-y-2">
+              <Input
+                value={name}
+                onChange={(event) => setName(event.target.value.slice(0, 60))}
+                placeholder="Gallery name"
+                className="h-11 rounded-md border-white/8 bg-white/3 text-sm text-white placeholder:text-poof-mist/35"
+                autoFocus
+              />
+              <p className="text-xs text-poof-mist/55">{name.length}/60</p>
+            </div>
 
-            {step === 2 && (
-              <div className="space-y-6 animate-fade-up">
-                <div className="text-center">
-                  <h2 className="font-heading font-extrabold text-3xl text-white mb-2">
-                    Add your photos
-                  </h2>
-                  <p className="text-poof-mist">
-                    Drag and drop or click to upload
-                  </p>
-                </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => setStep(2)}
+                disabled={!name.trim()}
+                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
+              >
+                Continue
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
 
-                <div
-                  onDrop={handleDrop}
-                  onDragOver={(event) => {
-                    event.preventDefault();
-                    setDragOver(true);
-                  }}
-                  onDragLeave={() => setDragOver(false)}
-                  className={cn(
-                    "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300",
-                    dragOver
-                      ? "border-poof-accent bg-poof-accent/10"
-                      : "border-white/20 hover:border-white/30",
-                  )}
-                >
-                  <input
-                    type="file"
-                    accept={SUPPORTED_IMAGE_MIME_TYPES.join(",")}
-                    multiple
-                    onChange={(event) => handleFiles(event.target.files)}
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
+        {step === 2 && (
+          <div className="space-y-5">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
+                Step 2 of 3
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                Add photos
+              </h2>
+              <p className="mt-1 text-sm text-poof-mist/75">
+                Drag, drop, or click to select files.
+              </p>
+            </div>
 
-                  <div
-                    className={cn(
-                      "transition-transform duration-300",
-                      dragOver && "scale-110",
-                    )}
-                  >
-                    <Upload
-                      className={cn(
-                        "w-12 h-12 mx-auto mb-4 transition-colors",
-                        dragOver ? "text-poof-accent" : "text-poof-mist",
-                      )}
-                    />
-                    <p className="text-white font-medium mb-2">
-                      Drop photos here or click to browse
-                    </p>
-                    <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
-                      {acceptedFormats.map((format) => (
-                        <span
-                          key={format}
-                          className="px-2 py-0.5 text-xs bg-white/5 rounded text-poof-mist"
-                        >
-                          {format}
-                        </span>
-                      ))}
-                    </div>
-                    <p className="text-xs text-poof-mist">
-                      Max {formatBytes(MAX_FILE_SIZE_BYTES)} per file
-                    </p>
-                    <p className="text-xs text-poof-mist mt-1">
-                      Max {MAX_IMAGES_PER_GALLERY} images per gallery
-                    </p>
-                  </div>
-                </div>
-
-                {photos.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-poof-mist">
-                        {photos.length} photo{photos.length !== 1 ? "s" : ""} ·{" "}
-                        {formatBytes(totalSize)}
-                      </p>
-                      <button
-                        onClick={() =>
-                          document
-                            .querySelector<HTMLInputElement>(
-                              'input[type="file"]',
-                            )
-                            ?.click()
-                        }
-                        className="text-sm text-poof-violet hover:underline"
-                      >
-                        Add more
-                      </button>
-                    </div>
-
-                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
-                      {photos.map((photo) => (
-                        <div
-                          key={photo.id}
-                          className="relative aspect-square rounded-lg overflow-hidden group"
-                        >
-                          <img
-                            src={photo.preview}
-                            alt={photo.file.name}
-                            className="w-full h-full object-cover"
-                          />
-
-                          {photo.status === "uploading" && (
-                            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-                              <svg className="w-10 h-10" viewBox="0 0 36 36">
-                                <circle
-                                  cx="18"
-                                  cy="18"
-                                  r="16"
-                                  fill="none"
-                                  stroke="rgba(255,255,255,0.2)"
-                                  strokeWidth="2"
-                                />
-                                <circle
-                                  cx="18"
-                                  cy="18"
-                                  r="16"
-                                  fill="none"
-                                  stroke="#7c5cfc"
-                                  strokeWidth="2"
-                                  strokeDasharray={100}
-                                  strokeDashoffset={100 - photo.progress}
-                                  strokeLinecap="round"
-                                  transform="rotate(-90 18 18)"
-                                  className="transition-all duration-200"
-                                />
-                              </svg>
-                            </div>
-                          )}
-
-                          {photo.status === "complete" && (
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Check className="w-6 h-6 text-poof-mint" />
-                            </div>
-                          )}
-
-                          {photo.status === "error" && (
-                            <div className="absolute inset-0 bg-red-500/20 flex items-center justify-center">
-                              <AlertCircle className="w-6 h-6 text-red-400" />
-                            </div>
-                          )}
-
-                          <button
-                            onClick={() => void removePhoto(photo.id)}
-                            className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center hover:bg-black/80"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-
-                          <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                            <p className="text-xs text-white truncate">
-                              {photo.file.name}
-                            </p>
-                            <p className="text-xs text-poof-mist">
-                              {formatBytes(photo.file.size)}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+            <div
+              onDrop={handleDrop}
+              onDragOver={(event) => {
+                event.preventDefault();
+                setDragOver(true);
+              }}
+              onDragLeave={() => setDragOver(false)}
+              className={cn(
+                "relative rounded-lg border border-dashed p-8 text-center transition-colors",
+                dragOver
+                  ? "border-poof-accent/60 bg-poof-accent/10"
+                  : "border-white/10 bg-white/[0.02] hover:border-white/20",
+              )}
+            >
+              <input
+                type="file"
+                accept={SUPPORTED_IMAGE_MIME_TYPES.join(",")}
+                multiple
+                onChange={(event) => handleFiles(event.target.files)}
+                className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+              />
+              <Upload
+                className={cn(
+                  "mx-auto mb-3 h-10 w-10",
+                  dragOver ? "text-poof-accent" : "text-poof-mist/70",
                 )}
-
-                <div className="flex items-center justify-between pt-4">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setStep(1)}
-                    className="text-poof-mist hover:text-white"
+              />
+              <p className="text-sm font-medium text-white">
+                Drop photos here or click to browse
+              </p>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
+                {acceptedFormats.map((format) => (
+                  <span
+                    key={format}
+                    className="rounded-md border border-white/8 bg-white/4 px-2 py-0.5 text-[11px] text-poof-mist/70"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={() => setStep(3)}
-                    disabled={!allUploaded}
-                    className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press px-8"
-                  >
-                    Continue
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
+                    {format}
+                  </span>
+                ))}
               </div>
-            )}
+              <p className="mt-2 text-xs text-poof-mist/60">
+                Max {formatBytes(MAX_FILE_SIZE_BYTES)} per file · Max{" "}
+                {MAX_IMAGES_PER_GALLERY} images
+              </p>
+            </div>
 
-            {step === 3 && (
-              <div className="space-y-8 animate-fade-up">
-                <div className="text-center">
-                  <h2 className="font-heading font-extrabold text-3xl text-white mb-2">
-                    Pick your cover photo
-                  </h2>
-                  <p className="text-poof-mist">
-                    This is what people will see first
+            {photos.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-poof-mist/75">
+                    {photos.length} photo{photos.length === 1 ? "" : "s"} ·{" "}
+                    {formatBytes(totalSize)}
                   </p>
+                  <button
+                    onClick={() =>
+                      document
+                        .querySelector<HTMLInputElement>('input[type="file"]')
+                        ?.click()
+                    }
+                    className="rounded-md px-2 py-1 text-xs text-poof-violet transition-colors hover:bg-poof-violet/10"
+                  >
+                    Add more
+                  </button>
                 </div>
 
-                <div className="flex overflow-x-auto gap-3 pb-4 snap-x">
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
                   {photos.map((photo) => (
-                    <button
+                    <div
                       key={photo.id}
-                      onClick={() => setCoverPhotoId(photo.id)}
-                      className={cn(
-                        "relative flex-shrink-0 w-28 h-28 rounded-lg overflow-hidden transition-all snap-start",
-                        coverPhotoId === photo.id
-                          ? "ring-2 ring-poof-violet scale-105"
-                          : "opacity-60 hover:opacity-100",
-                      )}
+                      className="group relative aspect-square overflow-hidden rounded-md border border-white/8 bg-black/40"
                     >
                       <img
                         src={photo.preview}
-                        alt=""
-                        className="w-full h-full object-cover"
+                        alt={photo.file.name}
+                        className="h-full w-full object-cover"
                       />
-                      {coverPhotoId === photo.id && (
-                        <div className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-poof-violet flex items-center justify-center">
-                          <Star className="w-3 h-3 text-white fill-white" />
+
+                      {photo.status === "uploading" && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/65">
+                          <svg className="h-9 w-9" viewBox="0 0 36 36">
+                            <circle
+                              cx="18"
+                              cy="18"
+                              r="16"
+                              fill="none"
+                              stroke="rgba(255,255,255,0.2)"
+                              strokeWidth="2"
+                            />
+                            <circle
+                              cx="18"
+                              cy="18"
+                              r="16"
+                              fill="none"
+                              stroke="#7c5cfc"
+                              strokeWidth="2"
+                              strokeDasharray={100}
+                              strokeDashoffset={100 - photo.progress}
+                              strokeLinecap="round"
+                              transform="rotate(-90 18 18)"
+                              className="transition-all duration-200"
+                            />
+                          </svg>
                         </div>
                       )}
-                    </button>
-                  ))}
-                </div>
 
-                <div className="flex justify-center">
-                  <GlassCard className="w-64 overflow-hidden" hover={false}>
-                    <div className="aspect-video">
-                      {coverPhotoId ? (
-                        <img
-                          src={
-                            photos.find((photo) => photo.id === coverPhotoId)
-                              ?.preview
-                          }
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20" />
+                      {photo.status === "complete" && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                          <Check className="h-5 w-5 text-poof-mint" />
+                        </div>
                       )}
-                    </div>
-                    <div className="p-4">
-                      <h3 className="font-heading font-bold text-white truncate">
-                        {name}
-                      </h3>
-                      <p className="text-poof-mist text-sm">
-                        {photos.length} photos
-                      </p>
-                    </div>
-                  </GlassCard>
-                </div>
 
-                <div className="flex items-center justify-between pt-4">
-                  <Button
-                    variant="ghost"
-                    onClick={() => setStep(2)}
-                    className="text-poof-mist hover:text-white"
-                  >
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
-                  </Button>
-                  <Button
-                    onClick={() => void handleCreate()}
-                    disabled={creating}
-                    className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press px-8"
-                  >
-                    {creating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        Create gallery
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </>
-                    )}
-                  </Button>
+                      {photo.status === "error" && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-red-500/20">
+                          <AlertCircle className="h-5 w-5 text-red-400" />
+                        </div>
+                      )}
+
+                      <button
+                        onClick={() => void removePhoto(photo.id)}
+                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
+
+            <div className="flex items-center justify-between pt-1">
+              <Button
+                variant="ghost"
+                onClick={() => setStep(1)}
+                className="h-8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
+              >
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                Back
+              </Button>
+              <Button
+                onClick={() => setStep(3)}
+                disabled={!allUploaded}
+                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
+              >
+                Continue
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {step === 3 && (
+          <div className="space-y-5">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
+                Step 3 of 3
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-white">
+                Pick a cover photo
+              </h2>
+              <p className="mt-1 text-sm text-poof-mist/75">
+                This image appears as your gallery card preview.
+              </p>
+            </div>
+
+            <div className="flex snap-x gap-2 overflow-x-auto pb-2">
+              {photos.map((photo) => (
+                <button
+                  key={photo.id}
+                  onClick={() => setCoverPhotoId(photo.id)}
+                  className={cn(
+                    "relative h-24 w-24 shrink-0 snap-start overflow-hidden rounded-md border transition-all",
+                    coverPhotoId === photo.id
+                      ? "border-poof-violet ring-1 ring-poof-violet"
+                      : "border-white/10 opacity-70 hover:opacity-100",
+                  )}
+                >
+                  <img
+                    src={photo.preview}
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                  {coverPhotoId === photo.id && (
+                    <div className="absolute right-1 top-1 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-poof-violet">
+                      <Star className="h-2.5 w-2.5 fill-white text-white" />
+                    </div>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <div className="mx-auto w-full max-w-sm overflow-hidden rounded-lg border border-white/8 bg-black/40">
+              <div className="aspect-video">
+                {coverPhotoId ? (
+                  <img
+                    src={
+                      photos.find((photo) => photo.id === coverPhotoId)
+                        ?.preview
+                    }
+                    alt=""
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-linear-to-br from-white/5 to-white/2" />
+                )}
+              </div>
+              <div className="border-t border-white/8 px-3 py-2.5">
+                <h3 className="truncate text-sm font-medium text-white">{name}</h3>
+                <p className="text-xs text-poof-mist/70">
+                  {photos.length} photos
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <Button
+                variant="ghost"
+                onClick={() => setStep(2)}
+                className="h-8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
+              >
+                <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
+                Back
+              </Button>
+              <Button
+                onClick={() => void handleCreate()}
+                disabled={creating}
+                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
+              >
+                {creating ? (
+                  <>
+                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    Create gallery
+                    <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -990,13 +990,13 @@ export default function GalleryDetailPage({
 
   if (galleryQuery.isPending) {
     return (
-      <div className="space-y-6">
-        <div className="skeleton-shimmer h-10 w-72 rounded-lg" />
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+      <div className="mx-auto max-w-6xl space-y-4 py-2 font-sans">
+        <div className="h-8 w-52 animate-pulse rounded-md bg-white/4" />
+        <div className="columns-2 gap-3 space-y-3 md:columns-3 lg:columns-4">
           {[1, 2, 3, 4, 5, 6].map((index) => (
             <div
               key={index}
-              className="skeleton-shimmer h-48 rounded-lg break-inside-avoid"
+              className="h-44 animate-pulse rounded-lg border border-white/6 bg-white/3 break-inside-avoid"
             />
           ))}
         </div>
@@ -1006,35 +1006,40 @@ export default function GalleryDetailPage({
 
   if (galleryQuery.isError || !gallery) {
     return (
-      <GlassCard className="p-8 text-center" hover={false}>
-        <p className="text-white font-medium">Gallery not found</p>
-        <p className="text-poof-mist text-sm mt-2">
+      <div className="mx-auto max-w-6xl py-2 font-sans">
+        <div className="rounded-xl border border-white/6 bg-[#111] px-6 py-12 text-center">
+          <p className="text-sm font-medium text-white">Gallery not found</p>
+          <p className="mt-1 text-xs text-poof-mist/70">
           {galleryQuery.isError
             ? galleryQuery.error.message
             : "This gallery may have been deleted."}
-        </p>
-        <Button
-          asChild
-          className="mt-4 bg-poof-accent hover:bg-poof-accent/90 text-white"
-        >
-          <Link href="/galleries">Back to galleries</Link>
-        </Button>
-      </GlassCard>
+          </p>
+          <Button
+            asChild
+            className="mt-4 h-8 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
+          >
+            <Link href="/galleries">Back to galleries</Link>
+          </Button>
+        </div>
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="mx-auto max-w-6xl space-y-4 py-2 font-sans animate-fade-up">
       <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
         <div className="flex items-start gap-4">
           <Link
             href="/galleries"
-            className="mt-1 p-2 rounded-lg text-poof-mist hover:text-white hover:bg-white/5 transition-colors"
+            className="mt-0.5 rounded-md p-1.5 text-poof-mist/70 transition-colors hover:bg-white/5 hover:text-white"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Link>
 
           <div className="min-w-0 flex-1">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
+              Gallery
+            </p>
             {isEditing ? (
               <Input
                 value={editName}
@@ -1049,50 +1054,57 @@ export default function GalleryDetailPage({
                     setIsEditing(false);
                   }
                 }}
-                className="font-heading font-extrabold text-3xl lg:text-4xl bg-transparent border-0 border-b border-poof-accent p-0 h-auto text-white focus-visible:ring-0"
+                className="mt-1 h-auto border-0 border-b border-poof-accent bg-transparent p-0 text-2xl font-semibold text-white focus-visible:ring-0 lg:text-3xl"
                 autoFocus
               />
             ) : (
               <h1
                 onClick={() => setIsEditing(true)}
-                className="font-heading font-extrabold text-3xl lg:text-4xl text-white cursor-pointer hover:text-poof-violet transition-colors"
+                className="mt-1 cursor-pointer text-2xl font-semibold text-white transition-colors hover:text-poof-violet lg:text-3xl"
               >
                 {gallery.name}
               </h1>
             )}
             {gallery.description && (
-              <p className="text-poof-mist mt-1">{gallery.description}</p>
+              <p className="mt-1 text-sm text-poof-mist/80">{gallery.description}</p>
             )}
-            <p className="text-poof-mist/60 text-sm mt-2">
-              {allImages.length} photos
-            </p>
+            <div className="mt-2 flex items-center gap-2">
+              <span className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 text-[11px] text-poof-mist/70">
+                {allImages.length} photos
+              </span>
+              {galleryShares.length > 0 && (
+                <span className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 text-[11px] text-poof-mist/70">
+                  {galleryShares.length} links
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         <div className="flex items-center gap-2 lg:gap-3">
           <Button
             variant="outline"
-            className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+            className="h-8 border-white/8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
             onClick={() => setIsUploadModalOpen(true)}
             disabled={isUploading}
           >
             {isUploading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
                 Uploading...
               </>
             ) : (
               <>
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="mr-1.5 h-3.5 w-3.5" />
                 Add photos
               </>
             )}
           </Button>
           <Button
-            className="bg-poof-accent hover:bg-poof-accent/90 text-white btn-press"
+            className="h-8 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
             onClick={() => openShareModal()}
           >
-            <Share2 className="w-4 h-4 mr-2" />
+            <Share2 className="mr-1.5 h-3.5 w-3.5" />
             Share gallery
           </Button>
           <DropdownMenu>
@@ -1121,7 +1133,7 @@ export default function GalleryDetailPage({
         </div>
       </div>
 
-      <GlassCard className="overflow-hidden p-0" hover={false}>
+      <div className="overflow-hidden rounded-xl border border-white/6 bg-[#111]">
         <div className="relative h-44 sm:h-56">
           {gallery.bannerImageUrl ? (
             <img
@@ -1138,32 +1150,32 @@ export default function GalleryDetailPage({
             <Button
               size="sm"
               variant="secondary"
-              className="border-white/20 bg-black/70 text-white hover:bg-black/90"
+              className="h-7 border-white/15 bg-black/70 px-3 text-xs text-white hover:bg-black/90"
               onClick={() => setIsBannerModalOpen(true)}
             >
-              <Pencil className="w-4 h-4 mr-2" />
+              <Pencil className="mr-1.5 h-3 w-3" />
               Update banner
             </Button>
           </div>
         </div>
-      </GlassCard>
+      </div>
 
       {selectedImageIds.size > 0 && (
-        <GlassCard className="p-4" hover={false}>
+        <div className="rounded-lg border border-poof-violet/20 bg-poof-violet/8 px-4 py-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-sm text-white">
+            <p className="text-xs font-medium text-white">
               {selectedImageIds.size} selected
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                className="h-8 border-white/8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
                 onClick={clearImageSelection}
               >
                 Clear
               </Button>
               <Button
-                className="bg-poof-accent hover:bg-poof-accent/90 text-white px-5"
+                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
                 onClick={() =>
                   openShareModal(selectedImageList.map((image) => image.id))
                 }
@@ -1172,18 +1184,18 @@ export default function GalleryDetailPage({
               </Button>
             </div>
           </div>
-        </GlassCard>
+        </div>
       )}
 
-      <GlassCard className="p-4" hover={false}>
+      <div className="rounded-xl border border-white/6 bg-[#111] p-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-          <h3 className="text-white font-medium">Share links</h3>
+          <h3 className="text-sm font-medium text-white">Share links</h3>
           <Button
             size="sm"
-            className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+            className="h-7 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
             onClick={() => openShareModal()}
           >
-            <Plus className="w-4 h-4 mr-1" />
+            <Plus className="mr-1 h-3.5 w-3.5" />
             New link
           </Button>
         </div>
@@ -1193,10 +1205,10 @@ export default function GalleryDetailPage({
             {galleryShares.map((share) => (
               <div
                 key={share.id}
-                className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+                className="rounded-lg border border-white/8 bg-black/30 px-3 py-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
               >
                 <div className="min-w-0">
-                  <p className="text-xs text-poof-mist font-mono truncate">
+                  <p className="truncate font-mono text-xs text-poof-violet/90">
                     {share.shareUrl}
                   </p>
                   <div className="mt-1 flex items-center gap-2">
@@ -1212,8 +1224,8 @@ export default function GalleryDetailPage({
                     >
                       {share.status}
                     </StatusBadge>
-                    <span className="text-[11px] text-poof-mist inline-flex items-center gap-1">
-                      <Clock3 className="w-3 h-3" />
+                    <span className="inline-flex items-center gap-1 text-[11px] text-poof-mist/75">
+                      <Clock3 className="h-3 w-3" />
                       {share.status === "ACTIVE" ? (
                         <Countdown expiresAt={new Date(share.expiresAt)} />
                       ) : share.status === "REVOKED" ? (
@@ -1222,10 +1234,10 @@ export default function GalleryDetailPage({
                         "Poofed"
                       )}
                     </span>
-                    <span className="text-[11px] text-poof-mist">
+                    <span className="text-[11px] text-poof-mist/75">
                       {share.viewCount} views
                     </span>
-                    <span className="text-[11px] text-poof-mist">
+                    <span className="text-[11px] text-poof-mist/75">
                       {share.type}
                     </span>
                   </div>
@@ -1317,12 +1329,12 @@ export default function GalleryDetailPage({
             ))}
           </div>
         ) : (
-          <p className="text-sm text-poof-mist">No share links yet.</p>
+          <p className="text-xs text-poof-mist/70">No share links yet.</p>
         )}
-      </GlassCard>
+      </div>
 
       {allImages.length > 0 ? (
-        <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+        <div className="columns-2 gap-3 space-y-3 md:columns-3 lg:columns-4">
           {allImages.map((image, index) => {
             const canPreview = image.uploadStatus === "CONFIRMED";
 
@@ -1330,8 +1342,8 @@ export default function GalleryDetailPage({
               <div
                 key={image.id}
                 className={cn(
-                  "break-inside-avoid group relative rounded-lg overflow-hidden animate-fade-up",
-                  selectedImageIds.has(image.id) && "ring-2 ring-poof-violet",
+                  "break-inside-avoid group relative overflow-hidden rounded-lg border border-white/8 bg-black/35 animate-fade-up",
+                  selectedImageIds.has(image.id) && "ring-1 ring-poof-violet",
                   canPreview ? "cursor-pointer" : "cursor-not-allowed",
                 )}
                 style={{ animationDelay: `${index * 0.05}s` }}
@@ -1346,16 +1358,16 @@ export default function GalleryDetailPage({
                     <img
                       src={image.r2Url}
                       alt={image.fileName}
-                      className="w-full scale-105 blur-xl transition-transform duration-500 group-hover:scale-110"
+                      className="w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                     />
-                    <div className="absolute inset-0 bg-black/30 pointer-events-none" />
-                    <div className="absolute bottom-2 left-1/2 max-w-[80%] -translate-x-1/2 truncate rounded-full bg-black/60 px-3 py-1 text-[11px] text-white/90">
+                    <div className="pointer-events-none absolute inset-0 bg-black/25" />
+                    <div className="absolute bottom-2 left-2 max-w-[88%] truncate rounded-md border border-white/10 bg-black/65 px-2 py-0.5 text-[10px] text-white/90">
                       {image.fileName}
                     </div>
                   </div>
                 ) : (
-                  <div className="w-full min-h-48 bg-white/5 flex items-center justify-center p-4">
-                    <span className="text-sm text-poof-mist text-center">
+                  <div className="flex min-h-48 w-full items-center justify-center bg-white/3 p-4">
+                    <span className="text-center text-xs text-poof-mist/75">
                       {image.uploadStatus === "PENDING"
                         ? "Upload pending"
                         : "Upload failed"}
@@ -1363,7 +1375,7 @@ export default function GalleryDetailPage({
                   </div>
                 )}
 
-                <div className="absolute top-2 left-2 px-2 py-1 rounded-md bg-black/50 text-[10px] text-white">
+                <div className="absolute left-2 top-2 rounded-md border border-white/10 bg-black/65 px-2 py-0.5 text-[10px] text-white">
                   {image.uploadStatus}
                 </div>
                 {canPreview && (
@@ -1372,42 +1384,42 @@ export default function GalleryDetailPage({
                       checked={selectedImageIds.has(image.id)}
                       onCheckedChange={() => toggleImageSelection(image.id)}
                       onClick={(event) => event.stopPropagation()}
-                      className="w-4 h-4 border-white/50 bg-black/50 data-[state=checked]:bg-poof-violet data-[state=checked]:border-poof-violet"
+                      className="h-4 w-4 border-white/50 bg-black/50 data-[state=checked]:border-poof-violet data-[state=checked]:bg-poof-violet"
                     />
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
-                    className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                    className="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
                     disabled={!canPreview}
                   >
-                    <Maximize2 className="w-5 h-5" />
+                    <Maximize2 className="h-4 w-4" />
                   </button>
                   <button
-                    className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                    className="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
                     onClick={(event) => {
                       event.stopPropagation();
                       openShareModal([image.id]);
                     }}
                     disabled={!canPreview}
                   >
-                    <Share2 className="w-5 h-5" />
+                    <Share2 className="h-4 w-4" />
                   </button>
                   <button
-                    className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                    className="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
                     disabled={!canPreview}
                   >
-                    <Download className="w-5 h-5" />
+                    <Download className="h-4 w-4" />
                   </button>
                   <button
                     onClick={(event) => {
                       event.stopPropagation();
                       setDeleteImageTargetId(image.id);
                     }}
-                    className="p-2 rounded-full bg-white/10 text-red-400 hover:bg-white/20 transition-colors"
+                    className="rounded-full bg-white/10 p-2 text-red-400 transition-colors hover:bg-white/20"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -1415,19 +1427,19 @@ export default function GalleryDetailPage({
           })}
         </div>
       ) : (
-        <GlassCard className="p-8 text-center" hover={false}>
-          <p className="text-white font-medium">No photos yet</p>
-          <p className="text-poof-mist text-sm mt-2">
+        <div className="rounded-xl border border-white/6 bg-[#111] px-6 py-10 text-center">
+          <p className="text-sm font-medium text-white">No photos yet</p>
+          <p className="mt-1 text-xs text-poof-mist/70">
             Upload images to start building your gallery.
           </p>
           <Button
-            className="mt-4 bg-poof-accent hover:bg-poof-accent/90 text-white"
+            className="mt-4 h-8 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
             onClick={() => setIsUploadModalOpen(true)}
           >
-            <Plus className="w-4 h-4 mr-2" />
+            <Plus className="mr-1.5 h-3.5 w-3.5" />
             Add photos
           </Button>
-        </GlassCard>
+        </div>
       )}
 
       <Dialog
@@ -1437,10 +1449,10 @@ export default function GalleryDetailPage({
           setIsUploadModalOpen(open);
         }}
       >
-        <DialogContent className="sm:max-w-xl bg-poof-base border-white/10 text-white">
+        <DialogContent className="sm:max-w-xl border-white/8 bg-[#111] text-white">
           <div className="space-y-5">
             <div>
-              <h2 className="font-heading font-bold text-2xl">Upload Photos</h2>
+              <h2 className="text-xl font-semibold">Upload Photos</h2>
               <p className="text-poof-mist text-sm mt-1">
                 Drag and drop files or choose from your device.
               </p>
@@ -1544,10 +1556,10 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <DialogContent className="sm:max-w-2xl bg-poof-base border-white/10 text-white">
+        <DialogContent className="sm:max-w-2xl border-white/8 bg-[#111] text-white">
           <div className="space-y-5">
             <div>
-              <h2 className="font-heading font-bold text-2xl">
+              <h2 className="text-xl font-semibold">
                 Update gallery banner
               </h2>
               <p className="text-poof-mist text-sm mt-1">
@@ -1564,19 +1576,19 @@ export default function GalleryDetailPage({
               <TabsList className="grid h-10 w-full grid-cols-3 border border-white/10 bg-white/5">
                 <TabsTrigger
                   value="upload"
-                  className="text-poof-mist data-[state=active]:bg-poof-violet/30 data-[state=active]:text-white"
+                  className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
                 >
                   Upload
                 </TabsTrigger>
                 <TabsTrigger
                   value="unsplash"
-                  className="text-poof-mist data-[state=active]:bg-poof-violet/30 data-[state=active]:text-white"
+                  className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
                 >
                   Unsplash
                 </TabsTrigger>
                 <TabsTrigger
                   value="default"
-                  className="text-poof-mist data-[state=active]:bg-poof-violet/30 data-[state=active]:text-white"
+                  className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
                 >
                   Default
                 </TabsTrigger>
@@ -1659,7 +1671,7 @@ export default function GalleryDetailPage({
                   />
                   <Button
                     variant="outline"
-                    className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                    className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
                     onClick={() => void fetchBannerOptions(bannerSearchQuery)}
                     disabled={isBannerUpdating || isBannerOptionsLoading}
                   >
@@ -1732,7 +1744,7 @@ export default function GalleryDetailPage({
                 <div className="flex justify-end">
                   <Button
                     variant="outline"
-                    className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                    className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
                     onClick={() => void handleUseDefaultBanner()}
                     disabled={isBannerUpdating}
                   >
@@ -1753,10 +1765,10 @@ export default function GalleryDetailPage({
       </Dialog>
 
       <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
-        <DialogContent className="sm:max-w-lg bg-poof-base border-white/10 text-white">
+        <DialogContent className="sm:max-w-lg border-white/8 bg-[#111] text-white">
           <div className="space-y-5">
             <div>
-              <h2 className="font-heading font-bold text-2xl">
+              <h2 className="text-xl font-semibold">
                 Create share link
               </h2>
               <p className="text-poof-mist text-sm mt-1">
@@ -1764,7 +1776,7 @@ export default function GalleryDetailPage({
               </p>
             </div>
 
-            <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm">
+            <div className="rounded-lg border border-white/8 bg-white/4 p-3 text-sm">
               <p className="text-poof-mist">{shareIntentLabel}</p>
             </div>
 
@@ -1785,13 +1797,13 @@ export default function GalleryDetailPage({
                 <TabsList className="grid h-10 w-full grid-cols-2 border border-white/10 bg-white/5">
                   <TabsTrigger
                     value="hours"
-                    className="text-poof-mist data-[state=active]:bg-poof-violet/30 data-[state=active]:text-white"
+                    className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
                   >
                     An hour
                   </TabsTrigger>
                   <TabsTrigger
                     value="datetime"
-                    className="text-poof-mist data-[state=active]:bg-poof-violet/30 data-[state=active]:text-white"
+                    className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
                   >
                     Date & time
                   </TabsTrigger>
@@ -1850,7 +1862,7 @@ export default function GalleryDetailPage({
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
-                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
                 onClick={() => setIsShareModalOpen(false)}
                 disabled={createSharedResource.isPending}
               >
@@ -1893,10 +1905,10 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg bg-poof-base border-white/10 text-white">
+        <DialogContent className="sm:max-w-lg border-white/8 bg-[#111] text-white">
           <div className="space-y-5">
             <div>
-              <h2 className="font-heading font-bold text-2xl">
+              <h2 className="text-xl font-semibold">
                 Edit share link
               </h2>
               <p className="text-poof-mist text-sm mt-1">
@@ -1944,7 +1956,7 @@ export default function GalleryDetailPage({
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
-                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+                className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
                 onClick={() => setEditShareTargetId(null)}
                 disabled={updateSharedResource.isPending}
               >
@@ -2054,7 +2066,7 @@ export default function GalleryDetailPage({
         open={isDeleteGalleryModalOpen}
         onOpenChange={setIsDeleteGalleryModalOpen}
       >
-        <AlertDialogContent className="bg-poof-base border-white/10 text-white">
+        <AlertDialogContent className="border-white/8 bg-[#111] text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete gallery?</AlertDialogTitle>
             <AlertDialogDescription className="text-poof-mist">
@@ -2063,7 +2075,7 @@ export default function GalleryDetailPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5">
+            <AlertDialogCancel className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
@@ -2084,7 +2096,7 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <AlertDialogContent className="bg-poof-base border-white/10 text-white">
+        <AlertDialogContent className="border-white/8 bg-[#111] text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete image?</AlertDialogTitle>
             <AlertDialogDescription className="text-poof-mist">
@@ -2094,7 +2106,7 @@ export default function GalleryDetailPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5">
+            <AlertDialogCancel className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
@@ -2119,7 +2131,7 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <AlertDialogContent className="bg-poof-base border-white/10 text-white">
+        <AlertDialogContent className="border-white/8 bg-[#111] text-white">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete share link?</AlertDialogTitle>
             <AlertDialogDescription className="text-poof-mist">
@@ -2130,7 +2142,7 @@ export default function GalleryDetailPage({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
-              className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
+              className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
               disabled={isDeletingShare}
             >
               Cancel
