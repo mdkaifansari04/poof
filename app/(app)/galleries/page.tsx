@@ -1,15 +1,11 @@
-'use client'
+"use client";
 
-import { useMemo, useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { GlassCard } from '@/components/poof/glass-card'
-import { EmptyState } from '@/components/poof/empty-state'
-import { StatusBadge } from '@/components/poof/status-badge'
-import { SkeletonGalleryCard } from '@/components/poof/skeletons'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Checkbox } from '@/components/ui/checkbox'
+import { useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,74 +15,95 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
+} from "@/components/ui/alert-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
+} from "@/components/ui/dropdown-menu";
 import {
   Search,
   Plus,
-  Grid3X3,
-  List,
   FolderOpen,
   Share2,
   MoreHorizontal,
   X,
   Trash2,
-  Clock,
+  ImageIcon,
   Link2,
-} from 'lucide-react'
-import { useDeleteGallery } from '@/hooks/mutations'
-import { useGalleries, useSharedResources } from '@/hooks/queries'
-import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
+  Clock,
+} from "lucide-react";
+import { useDeleteGallery } from "@/hooks/mutations";
+import { useGalleries, useSharedResources } from "@/hooks/queries";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-type ViewMode = 'grid' | 'list'
-type SortOption = 'newest' | 'oldest' | 'expiring' | 'viewed' | 'az'
-type FilterOption = 'all' | 'active' | 'expiring' | 'expired' | 'no-expiry'
+type SortOption = "newest" | "oldest" | "az";
+type FilterOption = "all" | "active" | "expiring" | "expired" | "no-expiry";
 
 type GalleryView = {
-  id: string
-  name: string
-  description: string | null
-  coverPhoto: string | null
-  photoCount: number
-  createdAt: Date
+  id: string;
+  name: string;
+  description: string | null;
+  coverPhoto: string | null;
+  photoCount: number;
+  createdAt: Date;
+};
+
+/* Deterministic accent color per gallery */
+const accents = [
+  "from-violet-500 to-indigo-600",
+  "from-cyan-400 to-blue-500",
+  "from-amber-400 to-orange-500",
+  "from-emerald-400 to-teal-500",
+  "from-rose-400 to-pink-500",
+  "from-fuchsia-400 to-purple-500",
+  "from-sky-400 to-blue-500",
+  "from-lime-400 to-emerald-500",
+];
+function pickAccent(name: string) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h);
+  return accents[Math.abs(h) % accents.length];
+}
+
+function relativeDate(date: Date) {
+  const diff = Date.now() - date.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  return `${months}mo ago`;
 }
 
 export default function GalleriesPage() {
-  const router = useRouter()
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
-  const [sortBy, setSortBy] = useState<SortOption>('newest')
-  const [filterBy, setFilterBy] = useState<FilterOption>('all')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedGalleries, setSelectedGalleries] = useState<Set<string>>(new Set())
+  const router = useRouter();
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
+  const [filterBy, setFilterBy] = useState<FilterOption>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGalleries, setSelectedGalleries] = useState<Set<string>>(
+    new Set(),
+  );
   const [deleteDialog, setDeleteDialog] = useState<{
-    open: boolean
-    ids: string[]
+    open: boolean;
+    ids: string[];
   }>({
     open: false,
     ids: [],
-  })
+  });
 
-  const galleriesQuery = useGalleries()
-  const sharedResourcesQuery = useSharedResources()
-  const deleteGallery = useDeleteGallery()
+  const galleriesQuery = useGalleries();
+  const sharedResourcesQuery = useSharedResources();
+  const deleteGallery = useDeleteGallery();
 
   const galleries = useMemo<GalleryView[]>(() => {
-    const rows = galleriesQuery.data ?? []
-
+    const rows = galleriesQuery.data ?? [];
     return rows.map((gallery) => ({
       id: gallery.id,
       name: gallery.name,
@@ -94,366 +111,323 @@ export default function GalleriesPage() {
       coverPhoto: gallery.bannerImageUrl,
       photoCount: gallery.imageCount,
       createdAt: new Date(gallery.createdAt),
-    }))
-  }, [galleriesQuery.data])
+    }));
+  }, [galleriesQuery.data]);
 
   const filteredGalleries = useMemo(() => {
     const shareLinks = (sharedResourcesQuery.data ?? []).map((resource) => {
-      const status: 'active' | 'expired' | 'revoked' =
-        resource.status === 'ACTIVE'
-          ? 'active'
-          : resource.status === 'REVOKED'
-            ? 'revoked'
-            : 'expired'
-
+      const status: "active" | "expired" | "revoked" =
+        resource.status === "ACTIVE"
+          ? "active"
+          : resource.status === "REVOKED"
+            ? "revoked"
+            : "expired";
       return {
         galleryId: resource.galleryId,
         status,
-        expiresAt: resource.status === 'ACTIVE' ? new Date(resource.expiresAt) : null,
-      }
-    })
+        expiresAt:
+          resource.status === "ACTIVE" ? new Date(resource.expiresAt) : null,
+      };
+    });
 
-    let next = [...galleries]
-
+    let next = [...galleries];
     if (searchQuery) {
-      const needle = searchQuery.toLowerCase()
+      const needle = searchQuery.toLowerCase();
       next = next.filter(
-        (gallery) =>
-          gallery.name.toLowerCase().includes(needle) ||
-          gallery.description?.toLowerCase().includes(needle),
-      )
+        (g) =>
+          g.name.toLowerCase().includes(needle) ||
+          g.description?.toLowerCase().includes(needle),
+      );
     }
-
-    if (filterBy !== 'all') {
+    if (filterBy !== "all") {
       next = next.filter((gallery) => {
-        const links = shareLinks.filter((link) => link.galleryId === gallery.id)
-
+        const gLinks = shareLinks.filter((l) => l.galleryId === gallery.id);
         switch (filterBy) {
-          case 'active':
-            return links.some((link) => link.status === 'active')
-          case 'expiring':
-            return links.some((link) => {
-              if (!link.expiresAt || link.status !== 'active') return false
-              const diff = link.expiresAt.getTime() - Date.now()
-              return diff > 0 && diff < 24 * 60 * 60 * 1000
-            })
-          case 'expired':
-            return links.length > 0 && links.every((link) => link.status === 'expired')
-          case 'no-expiry':
-            return links.some((link) => !link.expiresAt && link.status === 'active')
+          case "active":
+            return gLinks.some((l) => l.status === "active");
+          case "expiring":
+            return gLinks.some((l) => {
+              if (!l.expiresAt || l.status !== "active") return false;
+              const diff = l.expiresAt.getTime() - Date.now();
+              return diff > 0 && diff < 24 * 60 * 60 * 1000;
+            });
+          case "expired":
+            return (
+              gLinks.length > 0 && gLinks.every((l) => l.status === "expired")
+            );
+          case "no-expiry":
+            return gLinks.some((l) => !l.expiresAt && l.status === "active");
           default:
-            return true
+            return true;
         }
-      })
+      });
     }
-
     switch (sortBy) {
-      case 'oldest':
-        next.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
-        break
-      case 'az':
-        next.sort((a, b) => a.name.localeCompare(b.name))
-        break
-      case 'newest':
+      case "oldest":
+        next.sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+        break;
+      case "az":
+        next.sort((a, b) => a.name.localeCompare(b.name));
+        break;
       default:
-        next.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        next.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
     }
-
-    return next
-  }, [filterBy, galleries, searchQuery, sharedResourcesQuery.data, sortBy])
+    return next;
+  }, [filterBy, galleries, searchQuery, sharedResourcesQuery.data, sortBy]);
 
   const shareLinksByGalleryId = useMemo(() => {
     const shareLinks = (sharedResourcesQuery.data ?? []).map((resource) => {
-      const status: 'active' | 'expired' | 'revoked' =
-        resource.status === 'ACTIVE'
-          ? 'active'
-          : resource.status === 'REVOKED'
-            ? 'revoked'
-            : 'expired'
-
+      const status: "active" | "expired" | "revoked" =
+        resource.status === "ACTIVE"
+          ? "active"
+          : resource.status === "REVOKED"
+            ? "revoked"
+            : "expired";
       return {
         galleryId: resource.galleryId,
         status,
-        expiresAt: resource.status === 'ACTIVE' ? new Date(resource.expiresAt) : null,
-      }
-    })
-
-    const grouped = new Map<string, typeof shareLinks>()
+        expiresAt:
+          resource.status === "ACTIVE" ? new Date(resource.expiresAt) : null,
+      };
+    });
+    const grouped = new Map<string, typeof shareLinks>();
     for (const link of shareLinks) {
-      if (!link.galleryId) continue
-      const existing = grouped.get(link.galleryId) ?? []
-      grouped.set(link.galleryId, [...existing, link])
+      if (!link.galleryId) continue;
+      const existing = grouped.get(link.galleryId) ?? [];
+      grouped.set(link.galleryId, [...existing, link]);
     }
-
-    return grouped
-  }, [sharedResourcesQuery.data])
+    return grouped;
+  }, [sharedResourcesQuery.data]);
 
   const toggleSelection = (id: string) => {
-    const next = new Set(selectedGalleries)
-
-    if (next.has(id)) {
-      next.delete(id)
-    } else {
-      next.add(id)
-    }
-
-    setSelectedGalleries(next)
-  }
-
-  const clearSelection = () => {
-    setSelectedGalleries(new Set())
-  }
+    const next = new Set(selectedGalleries);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedGalleries(next);
+  };
+  const clearSelection = () => setSelectedGalleries(new Set());
 
   const deleteOneGallery = async (id: string) => {
     try {
-      await deleteGallery.mutateAsync(id)
-      setSelectedGalleries((previous) => {
-        const next = new Set(previous)
-        next.delete(id)
-        return next
-      })
-      toast.success('Gallery deleted')
+      await deleteGallery.mutateAsync(id);
+      setSelectedGalleries((prev) => {
+        const n = new Set(prev);
+        n.delete(id);
+        return n;
+      });
+      toast.success("Gallery deleted");
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to delete gallery'
-      toast.error(message)
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete gallery",
+      );
     }
-  }
-
+  };
   const openDeleteDialog = (ids: string[]) => {
-    if (ids.length === 0) {
-      return
-    }
-
-    setDeleteDialog({ open: true, ids })
-  }
-
+    if (ids.length) setDeleteDialog({ open: true, ids });
+  };
   const confirmDeleteDialog = async () => {
-    const ids = [...deleteDialog.ids]
-    setDeleteDialog({ open: false, ids: [] })
+    const ids = [...deleteDialog.ids];
+    setDeleteDialog({ open: false, ids: [] });
+    for (const id of ids) await deleteOneGallery(id);
+    if (ids.length > 1) clearSelection();
+  };
 
-    for (const id of ids) {
-      await deleteOneGallery(id)
-    }
+  const isSelecting = selectedGalleries.size > 0;
 
-    if (ids.length > 1) {
-      clearSelection()
-    }
-  }
-
-  const isSelecting = selectedGalleries.size > 0
-
+  /* ── Loading ── */
   if (galleriesQuery.isPending) {
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row gap-4 justify-between">
-          <div className="skeleton-shimmer h-10 w-64 rounded-lg" />
-          <div className="skeleton-shimmer h-10 w-32 rounded-lg" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((index) => (
-            <SkeletonGalleryCard key={index} />
+      <div className="mx-auto max-w-6xl py-2 font-sans">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="h-52 animate-pulse rounded-xl bg-white/3 border border-white/6"
+            />
           ))}
         </div>
       </div>
-    )
+    );
   }
 
+  /* ── Error ── */
   if (galleriesQuery.isError) {
     return (
-      <GlassCard className="p-8 text-center" hover={false}>
-        <p className="text-white font-medium">Could not load galleries</p>
-        <p className="text-poof-mist text-sm mt-2">{galleriesQuery.error.message}</p>
-        <Button
-          onClick={() => galleriesQuery.refetch()}
-          className="mt-4 bg-poof-accent hover:bg-poof-accent/90 text-white"
-        >
-          Retry
-        </Button>
-      </GlassCard>
-    )
+      <div className="mx-auto max-w-6xl py-2 font-sans">
+        <div className="rounded-xl border border-white/6 bg-black px-6 py-12 text-center">
+          <p className="text-sm font-medium text-white">
+            Could not load galleries
+          </p>
+          <p className="mt-1 text-xs text-poof-mist/60">
+            {galleriesQuery.error.message}
+          </p>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="mt-4 text-poof-violet"
+            onClick={() => galleriesQuery.refetch()}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6 animate-fade-up">
-      <div className="flex flex-col lg:flex-row gap-4 justify-between">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="relative w-full sm:w-64">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-poof-mist" />
-            <Input
-              type="search"
-              placeholder="Search galleries..."
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              className="pl-9 bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50"
-            />
-          </div>
-
-          <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-            <SelectTrigger className="w-[150px] bg-white/5 border-white/10 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-poof-base border-white/10">
-              <SelectItem value="newest">Newest first</SelectItem>
-              <SelectItem value="oldest">Oldest first</SelectItem>
-              <SelectItem value="expiring">Expiring soon</SelectItem>
-              <SelectItem value="viewed">Most viewed</SelectItem>
-              <SelectItem value="az">A-Z</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <div className="hidden sm:flex items-center rounded-lg border border-white/10 bg-white/5 p-1">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={cn(
-                'p-2 rounded-md transition-colors',
-                viewMode === 'grid' ? 'bg-white/10 text-white' : 'text-poof-mist hover:text-white',
-              )}
-            >
-              <Grid3X3 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={cn(
-                'p-2 rounded-md transition-colors',
-                viewMode === 'list' ? 'bg-white/10 text-white' : 'text-poof-mist hover:text-white',
-              )}
-            >
-              <List className="w-4 h-4" />
-            </button>
-          </div>
+    <div className="mx-auto max-w-6xl py-2 font-sans animate-fade-up">
+      {/* ── Toolbar ── */}
+      <div className="mb-4 flex items-center gap-2 flex-wrap">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-poof-mist/40" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search galleries..."
+            className="h-8 rounded-md border-white/6 bg-white/3 pl-8 text-xs text-white placeholder:text-poof-mist/30"
+          />
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {(['all', 'active', 'expiring', 'expired', 'no-expiry'] as FilterOption[]).map((filter) => (
+        {/* Sort pills */}
+        <div className="flex items-center gap-0.5 rounded-md border border-white/6 bg-white/2 p-0.5">
+          {(
+            [
+              ["newest", "Recent"],
+              ["oldest", "Oldest"],
+              ["az", "A-Z"],
+            ] as const
+          ).map(([val, label]) => (
             <button
-              key={filter}
-              onClick={() => setFilterBy(filter)}
+              key={val}
+              onClick={() => setSortBy(val)}
               className={cn(
-                'px-3 py-1.5 text-xs font-medium rounded-full border transition-colors',
-                filterBy === filter
-                  ? 'bg-poof-violet/20 border-poof-violet/30 text-poof-violet'
-                  : 'border-white/10 text-poof-mist hover:text-white hover:border-white/20',
+                "rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors",
+                sortBy === val
+                  ? "bg-white/8 text-white"
+                  : "text-poof-mist/50 hover:text-poof-mist",
               )}
             >
-              {filter === 'all'
-                ? 'All'
-                : filter === 'active'
-                  ? 'Active'
-                  : filter === 'expiring'
-                    ? 'Expiring Soon'
-                    : filter === 'expired'
-                      ? 'Expired'
-                      : 'No Expiry'}
+              {label}
             </button>
           ))}
         </div>
 
+        {/* Filter pills */}
+        <div className="flex items-center gap-0.5 rounded-md border border-white/6 bg-white/2 p-0.5">
+          {(
+            [
+              ["all", "All"],
+              ["active", "Active"],
+              ["expiring", "Expiring"],
+              ["expired", "Expired"],
+            ] as const
+          ).map(([val, label]) => (
+            <button
+              key={val}
+              onClick={() => setFilterBy(val as FilterOption)}
+              className={cn(
+                "rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors",
+                filterBy === val
+                  ? "bg-white/8 text-white"
+                  : "text-poof-mist/50 hover:text-poof-mist",
+              )}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* ── Selection bar ── */}
       {isSelecting && (
-        <div className="flex items-center justify-between p-4 rounded-xl border border-poof-violet/30 bg-poof-violet/10 animate-fade-up">
-          <div className="flex items-center gap-3">
-            <span className="text-white font-medium">{selectedGalleries.size} selected</span>
+        <div className="mb-4 flex items-center justify-between rounded-lg border border-poof-violet/20 bg-poof-violet/5 px-4 py-2.5">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs font-medium text-white">
+              {selectedGalleries.size} selected
+            </span>
             <button
               onClick={clearSelection}
-              className="text-poof-mist hover:text-white transition-colors"
+              className="text-poof-mist/50 transition-colors hover:text-white"
             >
-              <X className="w-4 h-4" />
+              <X className="h-3.5 w-3.5" />
             </button>
           </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" className="text-poof-mist hover:text-white" disabled>
-              <Share2 className="w-4 h-4 mr-1" />
-              Share
-            </Button>
-            <Button variant="ghost" size="sm" className="text-poof-mist hover:text-white" disabled>
-              <Clock className="w-4 h-4 mr-1" />
-              Extend
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-red-400 hover:text-red-300"
-              disabled={deleteGallery.isPending}
-              onClick={() => openDeleteDialog([...selectedGalleries])}
-            >
-              <Trash2 className="w-4 h-4 mr-1" />
-              Delete
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 gap-1.5 text-xs text-red-400 hover:text-red-300"
+            disabled={deleteGallery.isPending}
+            onClick={() => openDeleteDialog([...selectedGalleries])}
+          >
+            <Trash2 className="h-3 w-3" />
+            Delete
+          </Button>
         </div>
       )}
 
-      {filteredGalleries.length > 0 ? (
-        viewMode === 'grid' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <AddGalleryCard />
-            {filteredGalleries.map((gallery, index) => (
-              <GalleryGridCard
-                key={gallery.id}
-                gallery={gallery}
-                index={index}
-                isSelected={selectedGalleries.has(gallery.id)}
-                onToggleSelect={() => toggleSelection(gallery.id)}
-                isSelecting={isSelecting}
-                onOpen={() => router.push(`/galleries/${gallery.id}`)}
-                onDelete={() => openDeleteDialog([gallery.id])}
-                links={shareLinksByGalleryId.get(gallery.id) ?? []}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            {filteredGalleries.map((gallery, index) => (
-              <GalleryListRow
-                key={gallery.id}
-                gallery={gallery}
-                index={index}
-                isSelected={selectedGalleries.has(gallery.id)}
-                onToggleSelect={() => toggleSelection(gallery.id)}
-                isSelecting={isSelecting}
-                onOpen={() => router.push(`/galleries/${gallery.id}`)}
-                onDelete={() => openDeleteDialog([gallery.id])}
-                links={shareLinksByGalleryId.get(gallery.id) ?? []}
-              />
-            ))}
-          </div>
-        )
-      ) : searchQuery ? (
-        <EmptyState type="search" />
-      ) : viewMode === 'grid' ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <AddGalleryCard />
+      {/* ── Cards grid ── */}
+      {filteredGalleries.length > 0 || !searchQuery ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {/* Add gallery card */}
+          <Link href="/galleries/new" className="block">
+            <div className="group relative flex h-full min-h-52 flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-white/10 bg-white/2 transition-all duration-200 hover:border-poof-violet/40 hover:bg-white/4">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/4 text-poof-mist/50 transition-colors group-hover:border-poof-violet/30 group-hover:bg-poof-violet/10 group-hover:text-poof-violet">
+                <Plus className="h-5 w-5" />
+              </div>
+              <p className="text-sm font-medium text-poof-mist/60 transition-colors group-hover:text-white">
+                New gallery
+              </p>
+            </div>
+          </Link>
+
+          {filteredGalleries.map((gallery, index) => (
+            <GalleryCard
+              key={gallery.id}
+              gallery={gallery}
+              index={index}
+              isSelected={selectedGalleries.has(gallery.id)}
+              onToggleSelect={() => toggleSelection(gallery.id)}
+              isSelecting={isSelecting}
+              onOpen={() => router.push(`/galleries/${gallery.id}`)}
+              onDelete={() => openDeleteDialog([gallery.id])}
+              links={shareLinksByGalleryId.get(gallery.id) ?? []}
+            />
+          ))}
         </div>
       ) : (
-        <EmptyState type="galleries" />
+        <div className="rounded-xl border border-white/6 bg-black px-6 py-16 text-center">
+          <p className="text-sm text-poof-mist">
+            No galleries match your search.
+          </p>
+        </div>
       )}
 
+      {/* ── Delete dialog ── */}
       <AlertDialog
         open={deleteDialog.open}
-        onOpenChange={(open) =>
-          setDeleteDialog((previous) => ({
-            ...previous,
-            open,
-          }))
-        }
+        onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
       >
-        <AlertDialogContent className="bg-poof-base border-white/10 text-white">
+        <AlertDialogContent className="border-white/10 bg-poof-base text-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Delete {deleteDialog.ids.length > 1 ? `${deleteDialog.ids.length} galleries` : 'gallery'}?
+            <AlertDialogTitle className="text-base font-medium">
+              Delete{" "}
+              {deleteDialog.ids.length > 1
+                ? `${deleteDialog.ids.length} galleries`
+                : "gallery"}
+              ?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-poof-mist">
-              This action removes {deleteDialog.ids.length > 1 ? 'these galleries' : 'this gallery'} from your
-              dashboard immediately.
+            <AlertDialogDescription className="text-sm text-poof-mist">
+              This action removes{" "}
+              {deleteDialog.ids.length > 1 ? "these galleries" : "this gallery"}{" "}
+              permanently.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5">
+            <AlertDialogCancel className="border-white/10 text-poof-mist hover:bg-white/5 hover:text-white">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 hover:bg-red-500/90 text-white"
+              className="bg-red-500 text-white hover:bg-red-500/90"
               onClick={() => void confirmDeleteDialog()}
             >
               Delete
@@ -462,47 +436,28 @@ export default function GalleriesPage() {
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }
 
-function AddGalleryCard() {
-  return (
-    <Link href="/galleries/new" className="block">
-      <GlassCard
-        className="group overflow-hidden animate-fade-up border border-dashed border-white/20 hover:border-poof-violet/60"
-        role="button"
-        tabIndex={0}
-      >
-        <div className="relative aspect-video overflow-hidden bg-gradient-to-br from-poof-violet/12 via-transparent to-poof-accent/12 flex items-center justify-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full border border-white/20 bg-white/5 text-poof-mist transition-colors group-hover:text-white group-hover:border-poof-violet/70 group-hover:bg-poof-violet/15">
-            <Plus className="h-7 w-7" />
-          </div>
-        </div>
-        <div className="p-4">
-          <h3 className="font-heading font-bold text-white">Add gallery</h3>
-          <p className="mt-1 text-sm text-poof-mist">Create a new gallery and start uploading photos.</p>
-        </div>
-      </GlassCard>
-    </Link>
-  )
-}
-
+/* ──────────────────────────────────────────────────────────
+   Gallery Card — inspired by the reference card design
+   ─────────────────────────────────────────────────────── */
 interface GalleryCardProps {
-  gallery: GalleryView
-  index: number
-  isSelected: boolean
-  onToggleSelect: () => void
-  isSelecting: boolean
-  onOpen: () => void
-  onDelete: () => void
+  gallery: GalleryView;
+  index: number;
+  isSelected: boolean;
+  onToggleSelect: () => void;
+  isSelecting: boolean;
+  onOpen: () => void;
+  onDelete: () => void;
   links: {
-    galleryId: string | null
-    status: 'active' | 'expired' | 'revoked'
-    expiresAt: Date | null
-  }[]
+    galleryId: string | null;
+    status: "active" | "expired" | "revoked";
+    expiresAt: Date | null;
+  }[];
 }
 
-function GalleryGridCard({
+function GalleryCard({
   gallery,
   index,
   isSelected,
@@ -512,230 +467,181 @@ function GalleryGridCard({
   onDelete,
   links,
 }: GalleryCardProps) {
-  const activeLinks = links.filter((link) => link.status === 'active')
-  const hasExpiring = activeLinks.some((link) => {
-    if (!link.expiresAt) return false
-    const diff = link.expiresAt.getTime() - Date.now()
-    return diff > 0 && diff < 24 * 60 * 60 * 1000
-  })
+  const activeLinks = links.filter((l) => l.status === "active");
+  const hasExpiring = activeLinks.some((l) => {
+    if (!l.expiresAt) return false;
+    const diff = l.expiresAt.getTime() - Date.now();
+    return diff > 0 && diff < 24 * 60 * 60 * 1000;
+  });
+  const accent = pickAccent(gallery.name);
 
   return (
-    <GlassCard
-      className={cn('group overflow-hidden animate-fade-up', isSelected && 'ring-2 ring-poof-violet')}
-      style={{ animationDelay: `${index * 0.05}s` }}
-      onClick={onOpen}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          onOpen()
-        }
-      }}
+    <div
+      className={cn(
+        "group relative flex flex-col overflow-hidden rounded-xl border border-white/6 bg-[#111] transition-all duration-200 hover:border-white/12 hover:bg-[#151515]",
+        isSelected && "ring-1 ring-poof-violet border-poof-violet/30",
+      )}
+      style={{ animationDelay: `${index * 0.04}s` }}
       role="button"
       tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onOpen();
+        }
+      }}
     >
-      <div className="relative aspect-video overflow-hidden">
+      {/* Accent bar — thin gradient stripe at top */}
+      <div className={cn("h-0.75 w-full bg-linear-to-r", accent)} />
+
+      {/* Cover / avatar area */}
+      <div className="relative mx-4 mt-4 mb-3 aspect-video overflow-hidden rounded-lg bg-black/40">
         {gallery.coverPhoto ? (
           <img
             src={gallery.coverPhoto}
-            alt={`${gallery.name} banner`}
-            className="w-full h-full object-cover"
+            alt={`${gallery.name}`}
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-            <span className="font-heading font-bold text-3xl text-white/30">
+          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-white/4 to-white/2">
+            <span className="select-none text-2xl font-semibold tracking-tight text-white/15">
               {gallery.name.slice(0, 2).toUpperCase()}
             </span>
           </div>
         )}
 
+        {/* Selection checkbox overlay */}
         <div
           className={cn(
-            'absolute top-3 left-3 transition-opacity',
-            isSelecting || isSelected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+            "absolute top-2 left-2 transition-opacity",
+            isSelecting || isSelected
+              ? "opacity-100"
+              : "opacity-0 group-hover:opacity-100",
           )}
-          onClick={(event) => event.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <Checkbox
             checked={isSelected}
             onCheckedChange={onToggleSelect}
-            className="w-5 h-5 border-white/50 bg-black/50 data-[state=checked]:bg-poof-violet data-[state=checked]:border-poof-violet"
+            className="h-4 w-4 border-white/40 bg-black/50 data-[state=checked]:border-poof-violet data-[state=checked]:bg-poof-violet"
           />
         </div>
 
-        <div className="absolute top-3 right-3">
-          {hasExpiring ? (
-            <StatusBadge variant="expiring">Expiring soon</StatusBadge>
-          ) : activeLinks.length > 0 ? (
-            <StatusBadge variant="active">{activeLinks.length} active</StatusBadge>
-          ) : null}
-        </div>
-
+        {/* Hover overlay actions */}
         <div
-          className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
-          onClick={(event) => event.stopPropagation()}
+          className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
+          onClick={(e) => e.stopPropagation()}
         >
-          <Button size="sm" variant="secondary" asChild className="btn-press">
+          <Button
+            size="sm"
+            variant="secondary"
+            asChild
+            className="h-7 gap-1 rounded-md text-xs"
+          >
             <Link href={`/galleries/${gallery.id}`}>
-              <FolderOpen className="w-4 h-4 mr-1" />
+              <FolderOpen className="h-3 w-3" />
               Open
             </Link>
           </Button>
-          <Button size="sm" variant="secondary" asChild className="btn-press">
+          <Button
+            size="sm"
+            variant="secondary"
+            asChild
+            className="h-7 gap-1 rounded-md text-xs"
+          >
             <Link href={`/galleries/${gallery.id}?openShare=1`}>
-              <Share2 className="w-4 h-4 mr-1" />
+              <Share2 className="h-3 w-3" />
               Share
             </Link>
           </Button>
         </div>
       </div>
 
-      <div className="p-4">
+      {/* Body */}
+      <div className="flex flex-1 flex-col px-4 pb-4">
+        {/* Name + menu */}
         <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <h3 className="font-heading font-bold text-white truncate">{gallery.name}</h3>
-            <div className="flex items-center gap-2 text-poof-mist text-sm mt-1">
-              <span>{gallery.photoCount} photos</span>
-              {activeLinks.length > 0 && (
-                <>
-                  <span className="text-white/20">·</span>
-                  <span className="flex items-center gap-1">
-                    <Link2 className="w-3 h-3" />
-                    {activeLinks.length}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
+          <h3 className="truncate text-sm font-semibold text-white">
+            {gallery.name}
+          </h3>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist flex-shrink-0"
-                onClick={(event) => event.stopPropagation()}
+              <button
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-poof-mist/30 opacity-0 transition-all hover:bg-white/6 hover:text-poof-mist group-hover:opacity-100 focus-visible:opacity-100"
+                onClick={(e) => e.stopPropagation()}
               >
-                <MoreHorizontal className="w-4 h-4" />
-              </Button>
+                <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
+              </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={`/galleries/${gallery.id}`}>Open</Link>
+            <DropdownMenuContent
+              align="end"
+              className="w-36 rounded-lg border-white/8 bg-[#1a1a1a] p-1"
+            >
+              <DropdownMenuItem
+                className="gap-2 rounded-md px-2.5 py-1.5 text-xs"
+                asChild
+              >
+                <Link href={`/galleries/${gallery.id}`}>
+                  <FolderOpen
+                    className="h-3 w-3 text-poof-mist/50"
+                    strokeWidth={1.5}
+                  />
+                  Open
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/galleries/${gallery.id}?openShare=1`}>Share</Link>
+              <DropdownMenuItem
+                className="gap-2 rounded-md px-2.5 py-1.5 text-xs"
+                asChild
+              >
+                <Link href={`/galleries/${gallery.id}?openShare=1`}>
+                  <Share2
+                    className="h-3 w-3 text-poof-mist/50"
+                    strokeWidth={1.5}
+                  />
+                  Share
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem variant="destructive" onClick={onDelete}>
+              <DropdownMenuSeparator className="my-1 bg-white/6" />
+              <DropdownMenuItem
+                variant="destructive"
+                className="gap-2 rounded-md px-2.5 py-1.5 text-xs"
+                onClick={onDelete}
+              >
+                <Trash2 className="h-3 w-3" strokeWidth={1.5} />
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
-    </GlassCard>
-  )
-}
 
-function GalleryListRow({
-  gallery,
-  index,
-  isSelected,
-  onToggleSelect,
-  isSelecting,
-  onOpen,
-  onDelete,
-  links,
-}: GalleryCardProps) {
-  const activeLinks = links.filter((link) => link.status === 'active')
+        {/* Status badge area — dashed border like inspiration */}
+        <div className="mt-2.5 flex flex-wrap items-center gap-2">
+          {/* Photo count */}
+          <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-white/10 px-2 py-0.5 text-[10px] text-poof-mist/60">
+            <ImageIcon className="h-2.5 w-2.5" strokeWidth={1.5} />
+            {gallery.photoCount} photos
+          </span>
 
-  return (
-    <GlassCard
-      className={cn('group flex items-center gap-4 p-4 animate-fade-up', isSelected && 'ring-2 ring-poof-violet')}
-      style={{ animationDelay: `${index * 0.03}s` }}
-      onClick={onOpen}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault()
-          onOpen()
-        }
-      }}
-      role="button"
-      tabIndex={0}
-    >
-      <Checkbox
-        checked={isSelected}
-        onCheckedChange={onToggleSelect}
-        onClick={(event) => event.stopPropagation()}
-        className={cn(
-          'w-5 h-5 border-white/30 data-[state=checked]:bg-poof-violet data-[state=checked]:border-poof-violet',
-          !isSelecting && 'opacity-0 group-hover:opacity-100',
-        )}
-      />
-
-      <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-        {gallery.coverPhoto ? (
-          <img
-            src={gallery.coverPhoto}
-            alt={`${gallery.name} banner`}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-            <span className="font-heading font-bold text-xs text-white/40">
-              {gallery.name.slice(0, 2).toUpperCase()}
+          {/* Link status */}
+          {hasExpiring ? (
+            <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-poof-peach/30 px-2 py-0.5 text-[10px] text-poof-peach">
+              <Clock className="h-2.5 w-2.5" strokeWidth={1.5} />
+              Expiring soon
             </span>
-          </div>
-        )}
-      </div>
+          ) : activeLinks.length > 0 ? (
+            <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-emerald-400/20 px-2 py-0.5 text-[10px] text-emerald-400/70">
+              <Link2 className="h-2.5 w-2.5" strokeWidth={1.5} />
+              {activeLinks.length} active
+            </span>
+          ) : null}
+        </div>
 
-      <div className="flex-1 min-w-0">
-        <h3 className="font-heading font-bold text-white truncate">{gallery.name}</h3>
-        {gallery.description && <p className="text-poof-mist text-sm truncate">{gallery.description}</p>}
+        {/* Footer — relative date */}
+        <p className="mt-auto pt-3 text-[11px] text-poof-mist/35">
+          Updated {relativeDate(gallery.createdAt)}
+        </p>
       </div>
-
-      <div className="hidden sm:flex items-center gap-6 text-sm text-poof-mist">
-        <span>{gallery.photoCount} photos</span>
-        <span>{gallery.createdAt.toLocaleDateString()}</span>
-      </div>
-
-      <div className="hidden md:block">
-        {activeLinks.length > 0 ? (
-          <StatusBadge variant="active">{activeLinks.length} links</StatusBadge>
-        ) : (
-          <span className="text-sm text-poof-mist/50">No links</span>
-        )}
-      </div>
-
-      <div className="flex items-center gap-1" onClick={(event) => event.stopPropagation()}>
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-poof-mist hover:text-white" asChild>
-          <Link href={`/galleries/${gallery.id}?openShare=1`} aria-label={`Share ${gallery.name}`}>
-            <Share2 className="w-4 h-4" />
-          </Link>
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist"
-            >
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem asChild>
-              <Link href={`/galleries/${gallery.id}`}>Open</Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={`/galleries/${gallery.id}?openShare=1`}>Share</Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive" onClick={onDelete}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    </GlassCard>
-  )
+    </div>
+  );
 }
