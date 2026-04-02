@@ -84,22 +84,16 @@ export function AppHeader({ user }: AppHeaderProps) {
                 </Avatar>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="w-44 bg-poof-base border-white/10"
-            >
+            <DropdownMenuContent align="end">
               <DropdownMenuItem asChild>
-                <Link
-                  href="/settings"
-                  className="cursor-pointer text-poof-mist hover:text-white"
-                >
+                <Link href="/settings">
                   <Settings className="w-4 h-4 mr-2" />
                   Settings
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="bg-white/10" />
+              <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="cursor-pointer text-red-400 hover:text-red-300"
+                variant="destructive"
                 onClick={() => void handleSignOut()}
                 disabled={isSigningOut}
               >

@@ -135,21 +135,21 @@ export function AppSidebar({ user }: AppSidebarProps) {
               )}
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-poof-base border-white/10">
+          <DropdownMenuContent align="end">
             <div className="px-2 py-1.5">
               <div className="text-sm font-medium text-white">{displayName}</div>
               <div className="text-xs text-poof-mist">{displayEmail}</div>
             </div>
-            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/settings" className="cursor-pointer text-poof-mist hover:text-white">
+              <Link href="/settings">
                 <Settings className="w-4 h-4 mr-2" />
                 Settings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-white/10" />
+            <DropdownMenuSeparator />
             <DropdownMenuItem
-              className="cursor-pointer text-red-400 hover:text-red-300"
+              variant="destructive"
               onClick={() => void handleSignOut()}
               disabled={isSigningOut}
             >
