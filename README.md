@@ -10,6 +10,7 @@ Poof is a photo-sharing platform with expiring share links.
 - Prisma + PostgreSQL (Neon)
 - Cloudflare R2 (presigned uploads)
 - TanStack Query + internal fetch client
+- Agent API keys for first-party automation
 
 ## Local Setup
 
@@ -64,6 +65,13 @@ See `.env.example` for required keys:
   - Removes old failed uploads (`>24h`)
 
 Schedules are configured in `vercel.json`.
+
+## Agent Access
+
+- Signed-in users can create long-lived API keys from Settings
+- Agents can authenticate with `Authorization: Bearer <key>` or `X-API-Key: <key>`
+- Uploads remain direct-to-R2 via presigned `PUT` URLs, followed by Poof confirm/fail calls
+- `GET /llms.txt` exposes a machine-friendly product and docs summary for LLM clients
 
 ## Manual Verification Checklist
 

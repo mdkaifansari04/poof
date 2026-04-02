@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { GlassCard } from '@/components/poof/glass-card'
+import { AgentApiKeysCard } from '@/components/settings/agent-api-keys-card'
 import { Button } from '@/components/ui/button'
 import { auth } from '@/lib/auth'
 import { ExternalLink, ShieldCheck, UserRound } from 'lucide-react'
@@ -79,13 +80,15 @@ export default async function SettingsPage() {
         </div>
       </GlassCard>
 
+      <AgentApiKeysCard />
+
       <GlassCard className="p-5" hover={false}>
         <h2 className="font-heading font-bold text-xl text-white">Coming next</h2>
         <ul className="mt-3 space-y-2 text-sm text-poof-mist">
-          <li>Password change and reset from settings</li>
           <li>Session management and device logout</li>
           <li>Account deletion and data export actions</li>
           <li>Notification preferences</li>
+          <li>Agent linking flow with browser approval</li>
         </ul>
       </GlassCard>
     </div>
