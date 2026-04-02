@@ -1,53 +1,74 @@
+import Link from 'next/link'
+
 export default function DocsPage() {
   return (
-    <>
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-poof-mist">Overview</p>
-        <h2 className="mt-2 font-heading text-4xl font-extrabold">Poof: consumer app with automation</h2>
-        <p className="mt-3 max-w-3xl text-sm text-poof-mist">
-          Poof supports human-first gallery sharing and agent-assisted operations through account API keys. Agents
-          can manage galleries, upload binaries through presigned URLs, and create expiring links under explicit
-          user intent.
+    <div className="space-y-10">
+      {/* Page header */}
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">Overview</h1>
+        <p className="mt-2 text-[15px] leading-relaxed text-poof-mist">
+          Poof is a photo-sharing platform with expiring links. It supports both human users and
+          agent-assisted automation through account API keys.
         </p>
+      </header>
+
+      {/* Two modes */}
+      <section>
+        <h2 className="text-lg font-medium text-white">Two modes of operation</h2>
+        <div className="mt-4 grid gap-px overflow-hidden rounded-lg border border-white/[0.06] bg-white/[0.03] sm:grid-cols-2">
+          <div className="p-5">
+            <p className="text-sm font-medium text-white">Human product</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-poof-mist">
+              Signed-in users create galleries, upload photos to R2, and share resources with
+              revocable expiring links.
+            </p>
+          </div>
+          <div className="border-t border-white/[0.06] p-5 sm:border-t-0 sm:border-l">
+            <p className="text-sm font-medium text-white">Agent platform</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-poof-mist">
+              First-party agents authenticate with long-lived account keys, scoped by read/write
+              capability and agent-owned-only isolation.
+            </p>
+          </div>
+        </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
-        <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
-          <h3 className="font-heading text-2xl font-bold">Human product</h3>
-          <p className="mt-2 text-sm text-poof-mist">
-            Signed-in users create galleries, upload photos to R2, and share resources using revocable expiring links.
-          </p>
-        </article>
-        <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
-          <h3 className="font-heading text-2xl font-bold">Agent platform</h3>
-          <p className="mt-2 text-sm text-poof-mist">
-            First-party agents authenticate with long-lived account keys and can be scoped by read/write capability and
-            agent-owned-only isolation.
-          </p>
-        </article>
-      </section>
-
-      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-        <h3 className="font-heading text-2xl font-bold">Core flows</h3>
-        <ol className="mt-4 space-y-3 text-sm text-poof-mist">
-          <li>1. User or agent creates/selects a gallery.</li>
-          <li>2. Client requests a presigned `PUT` upload URL from Poof.</li>
-          <li>3. Binary is streamed directly to R2.</li>
-          <li>4. Client confirms or fails the upload state in Poof.</li>
-          <li>5. Share links are created with explicit expiry policy (default 24h in agent UX).</li>
+      {/* Core flow */}
+      <section>
+        <h2 className="text-lg font-medium text-white">Core flow</h2>
+        <ol className="mt-4 space-y-3 text-sm leading-relaxed text-poof-mist">
+          <li className="flex gap-3">
+            <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-poof-violet/10 text-xs font-medium text-poof-violet">1</span>
+            <span>User or agent creates or selects a gallery.</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-poof-violet/10 text-xs font-medium text-poof-violet">2</span>
+            <span>Client requests a presigned <code className="rounded bg-white/[0.06] px-1 py-0.5 font-mono text-xs">PUT</code> upload URL from Poof.</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-poof-violet/10 text-xs font-medium text-poof-violet">3</span>
+            <span>Binary is streamed directly to R2.</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-poof-violet/10 text-xs font-medium text-poof-violet">4</span>
+            <span>Client confirms or marks the upload as failed in Poof.</span>
+          </li>
+          <li className="flex gap-3">
+            <span className="mt-px flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-poof-violet/10 text-xs font-medium text-poof-violet">5</span>
+            <span>Share links are created with an explicit expiry (default 24h for agents).</span>
+          </li>
         </ol>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-        <h3 className="font-heading text-2xl font-bold">Quick start for agents</h3>
-        <p className="mt-3 text-sm text-poof-mist">
-          Use the one-prompt onboarding flow in{' '}
-          <a href="/docs/quick-start" className="text-poof-violet hover:underline">
-            Quick Start
-          </a>{' '}
-          to configure Poof skill + API-key auth in a single step.
+      {/* Next step */}
+      <section className="rounded-lg border border-white/[0.06] bg-white/[0.02] px-5 py-4">
+        <p className="text-sm text-poof-mist">
+          Ready to connect an agent?{' '}
+          <Link href="/docs/quick-start" className="font-medium text-poof-violet hover:underline">
+            Quick Start →
+          </Link>
         </p>
       </section>
-    </>
+    </div>
   )
 }

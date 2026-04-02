@@ -89,5 +89,9 @@ Schedules are configured in `vercel.json`.
 
 1. Add all env vars to Vercel project.
 2. Ensure `CRON_SECRET` is set and kept private.
-3. Run database migrations in production.
-4. Smoke test auth, upload, sharing, and cron endpoints.
+3. Run database migrations in production:
+```bash
+bun run db:deploy
+```
+4. Ensure build includes Prisma client generation (`build` and `postinstall` scripts already do this).
+5. Smoke test auth, upload, sharing, API key creation, and cron endpoints.

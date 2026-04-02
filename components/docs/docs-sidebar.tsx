@@ -9,39 +9,34 @@ export function DocsSidebar() {
   const pathname = usePathname()
 
   return (
-    <div className="space-y-5">
-      <div>
-        <p className="text-[11px] uppercase tracking-[0.2em] text-poof-mist">Poof docs</p>
-        <h1 className="mt-2 font-heading text-xl font-bold text-white">Automation & API</h1>
-      </div>
-
+    <div className="space-y-6">
       {docsNav.map((section) => (
-        <section key={section.title} className="space-y-2">
-          <p className="text-[11px] uppercase tracking-[0.14em] text-poof-mist">{section.title}</p>
-          <div className="space-y-1">
+        <div key={section.title}>
+          <p className="mb-1.5 text-xs font-medium text-poof-mist/60">{section.title}</p>
+          <ul className="space-y-0.5">
             {section.items.map((item) => {
               const isActive = !item.external && pathname === item.href
 
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  target={item.external ? '_blank' : undefined}
-                  rel={item.external ? 'noreferrer' : undefined}
-                  className={cn(
-                    'block rounded-xl border px-3 py-2 transition',
-                    isActive
-                      ? 'border-poof-violet/40 bg-poof-violet/15 text-white'
-                      : 'border-white/10 bg-white/5 text-poof-mist hover:border-white/20 hover:text-white',
-                  )}
-                >
-                  <p className="text-sm font-medium">{item.title}</p>
-                  <p className="mt-1 text-xs opacity-80">{item.description}</p>
-                </Link>
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    target={item.external ? '_blank' : undefined}
+                    rel={item.external ? 'noreferrer' : undefined}
+                    className={cn(
+                      'block rounded-md px-2.5 py-1.5 text-[13px] transition-colors',
+                      isActive
+                        ? 'bg-poof-violet/10 font-medium text-poof-violet'
+                        : 'text-poof-mist hover:text-white',
+                    )}
+                  >
+                    {item.title}
+                  </Link>
+                </li>
               )
             })}
-          </div>
-        </section>
+          </ul>
+        </div>
       ))}
     </div>
   )
