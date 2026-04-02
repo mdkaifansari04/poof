@@ -20,6 +20,11 @@ export const docsNav: DocsNavSection[] = [
         description: 'Product and platform overview for Poof automation.',
       },
       {
+        title: 'Starter Prompt',
+        href: '/starter.md',
+        description: 'Copy-paste one-prompt agent setup with API-key auth.',
+      },
+      {
         title: 'Authentication',
         href: '/docs/authentication',
         description: 'Session auth vs API-key auth and security posture.',

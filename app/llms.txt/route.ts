@@ -34,6 +34,7 @@ Important behavior:
 - [Agent Guide](${appUrl}/docs/agents): How first-party agents should use Poof
 - [Scopes & Ownership](${appUrl}/docs/scopes): Permission and isolation model
 - [Authentication](${appUrl}/docs/authentication): Session and API-key auth details
+- [Starter Prompt](${appUrl}/starter.md): One prompt to wire Poof as an agent skill
 - [Settings](${appUrl}/settings): Users create and revoke API keys here after signing in
 `
 

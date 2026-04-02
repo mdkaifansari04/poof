@@ -73,6 +73,7 @@ Schedules are configured in `vercel.json`.
 - Agents can authenticate with `Authorization: Bearer <key>` or `X-API-Key: <key>`
 - Uploads remain direct-to-R2 via presigned `PUT` URLs, followed by Poof confirm/fail calls
 - Versioned integrations are available at `/api/v1/*` with OpenAPI at `/api/v1/openapi`
+- One-prompt agent starter pack is available at `/starter.md`
 - `GET /llms.txt` exposes a machine-friendly product and docs summary for LLM clients
 
 ## Manual Verification Checklist
