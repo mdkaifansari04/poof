@@ -1,19 +1,6 @@
-# Poof Agent Starter (One Prompt)
+import Link from 'next/link'
 
-Use this when a user wants to connect any AI agent to Poof in one step.
-
-## Step 1: Create an API key
-
-1. Open `https://poof.k04.tech/settings` (or your local `/settings`).
-2. Create an **Agent API key**.
-3. Copy the key value (shown once).
-
-## Step 2: Paste this single prompt into your agent
-
-Replace only `{{POOF_API_KEY}}`, then paste everything below as one prompt:
-
-```text
-You are my Poof automation assistant.
+const starterPrompt = `You are my Poof automation assistant.
 
 Set up and use a skill named "poof" for all Poof actions.
 
@@ -79,20 +66,50 @@ Output format after every action:
 - Action performed
 - Resource IDs touched
 - Share URL (only when sharing was explicitly requested)
-- Next optional step
-```
+- Next optional step`
 
-## Step 3: Done
+export default function DocsQuickStartPage() {
+  return (
+    <>
+      <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
+        <p className="text-xs uppercase tracking-[0.2em] text-poof-mist">Quick Start</p>
+        <h2 className="mt-2 font-heading text-4xl font-extrabold">Connect an agent in one prompt</h2>
+        <p className="mt-3 text-sm text-poof-mist">
+          This section mirrors the starter pack and keeps the full onboarding flow inside docs.
+        </p>
+      </section>
 
-After this, users can ask:
-- "List my galleries"
-- "Create gallery called Road Trip 2026"
-- "Upload these photos to Road Trip 2026"
-- "Upload and share for 24h"
+      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
+        <h3 className="font-heading text-2xl font-bold">1. Create API key</h3>
+        <p className="mt-3 text-sm text-poof-mist">
+          Open{' '}
+          <Link href="/settings" className="text-poof-violet hover:underline">
+            Settings
+          </Link>{' '}
+          and create an Agent API key. Copy it immediately because the raw secret is shown once.
+        </p>
+      </section>
 
-## Notes
+      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
+        <h3 className="font-heading text-2xl font-bold">2. Paste this into your agent</h3>
+        <p className="mt-3 text-sm text-poof-mist">
+          Replace only the API key placeholder, then send this as a single prompt to your agent runtime.
+        </p>
+        <pre className="mt-4 max-h-[560px] overflow-auto rounded-xl border border-white/10 bg-black/30 p-4 text-xs leading-5 text-poof-mist whitespace-pre-wrap">
+          {starterPrompt}
+        </pre>
+      </section>
 
-- Poof docs hub: `https://poof.k04.tech/docs`
-- API reference: `https://poof.k04.tech/docs/reference`
-- OpenAPI JSON: `https://poof.k04.tech/api/v1/openapi`
-- LLM discovery metadata: `https://poof.k04.tech/llms.txt`
+      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
+        <h3 className="font-heading text-2xl font-bold">3. Optional plain file</h3>
+        <p className="mt-3 text-sm text-poof-mist">
+          The same starter content is also available as a raw markdown file at{' '}
+          <Link href="/starter.md" className="text-poof-violet hover:underline">
+            /starter.md
+          </Link>
+          .
+        </p>
+      </section>
+    </>
+  )
+}

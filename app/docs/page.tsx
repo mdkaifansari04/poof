@@ -37,6 +37,17 @@ export default function DocsPage() {
           <li>5. Share links are created with explicit expiry policy (default 24h in agent UX).</li>
         </ol>
       </section>
+
+      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
+        <h3 className="font-heading text-2xl font-bold">Quick start for agents</h3>
+        <p className="mt-3 text-sm text-poof-mist">
+          Use the one-prompt onboarding flow in{' '}
+          <a href="/docs/quick-start" className="text-poof-violet hover:underline">
+            Quick Start
+          </a>{' '}
+          to configure Poof skill + API-key auth in a single step.
+        </p>
+      </section>
     </>
   )
 }

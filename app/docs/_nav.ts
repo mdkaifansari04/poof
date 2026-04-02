@@ -20,6 +20,11 @@ export const docsNav: DocsNavSection[] = [
         description: 'Product and platform overview for Poof automation.',
       },
       {
+        title: 'Quick Start',
+        href: '/docs/quick-start',
+        description: 'One-prompt setup for connecting an agent to Poof.',
+      },
+      {
         title: 'Starter Prompt',
         href: '/starter.md',
         description: 'Copy-paste one-prompt agent setup with API-key auth.',
