@@ -23,36 +23,36 @@ const referenceRows = [
 
 export default function DocsReferencePage() {
   return (
-    <>
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-poof-mist">Reference</p>
-        <h2 className="mt-2 font-heading text-4xl font-extrabold">API v1 endpoint map</h2>
-        <p className="mt-3 text-sm text-poof-mist">
-          Primary integration surface for automation clients. Use OpenAPI for machine-readable contracts and this page
-          for a high-level route index.
+    <div className="space-y-10">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">API Reference</h1>
+        <p className="mt-2 text-[15px] leading-relaxed text-poof-mist">
+          Endpoint map for <code className="rounded bg-white/6 px-1 py-0.5 font-mono text-xs">/api/v1</code>. See the{' '}
+          <a href="/api/v1/openapi" className="font-medium text-poof-violet hover:underline">OpenAPI spec</a>{' '}
+          for machine-readable contracts.
         </p>
-      </section>
+      </header>
 
-      <section className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
-        <table className="w-full text-left">
-          <thead className="bg-white/5 text-xs uppercase tracking-[0.12em] text-poof-mist">
-            <tr>
-              <th className="px-4 py-3">Method</th>
-              <th className="px-4 py-3">Path</th>
-              <th className="px-4 py-3">Purpose</th>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b border-white/6 text-xs text-poof-mist/60">
+              <th className="pb-2 pr-4 font-medium">Method</th>
+              <th className="pb-2 pr-4 font-medium">Path</th>
+              <th className="pb-2 font-medium">Purpose</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/10 text-sm">
+          <tbody className="divide-y divide-white/4">
             {referenceRows.map(([method, path, purpose]) => (
-              <tr key={`${method}-${path}`}>
-                <td className="px-4 py-3 font-mono text-poof-violet">{method}</td>
-                <td className="px-4 py-3 font-mono text-white">{path}</td>
-                <td className="px-4 py-3 text-poof-mist">{purpose}</td>
+              <tr key={`${method}-${path}`} className="group">
+                <td className="py-2.5 pr-4 font-mono text-xs text-poof-violet">{method}</td>
+                <td className="py-2.5 pr-4 font-mono text-xs text-white/80">{path}</td>
+                <td className="py-2.5 text-poof-mist">{purpose}</td>
               </tr>
             ))}
           </tbody>
         </table>
-      </section>
-    </>
+      </div>
+    </div>
   )
 }
