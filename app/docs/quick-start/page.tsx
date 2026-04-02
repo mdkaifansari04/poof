@@ -1,4 +1,7 @@
-import Link from 'next/link'
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
 
 const starterPrompt = `You are my Poof automation assistant.
 
@@ -66,13 +69,15 @@ Output format after every action:
 - Action performed
 - Resource IDs touched
 - Share URL (only when sharing was explicitly requested)
-- Next optional step`
+- Next optional step`;
 
 export default function DocsQuickStartPage() {
   return (
     <div className="space-y-10">
       <header>
-        <h1 className="text-2xl font-semibold tracking-tight text-white">Quick Start</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">
+          Quick Start
+        </h1>
         <p className="mt-2 text-[15px] leading-relaxed text-poof-mist">
           Connect an agent to Poof in one prompt. This mirrors the starter pack.
         </p>
@@ -81,34 +86,46 @@ export default function DocsQuickStartPage() {
       <section>
         <h2 className="text-lg font-medium text-white">1. Create an API key</h2>
         <p className="mt-2 text-sm leading-relaxed text-poof-mist">
-          Open{' '}
-          <Link href="/settings" className="font-medium text-poof-violet hover:underline">
+          Open{" "}
+          <Link
+            href="/settings"
+            className="font-medium text-poof-violet hover:underline"
+          >
             Settings
-          </Link>{' '}
-          and create an Agent API key. Copy it immediately &mdash; the raw secret is shown only once.
+          </Link>{" "}
+          and create an Agent API key. Copy it immediately &mdash; the raw
+          secret is shown only once.
         </p>
       </section>
 
       <section>
-        <h2 className="text-lg font-medium text-white">2. Paste this into your agent</h2>
+        <h2 className="text-lg font-medium text-white">
+          2. Paste this into your agent
+        </h2>
         <p className="mt-2 text-sm leading-relaxed text-poof-mist">
-          Replace the API key placeholder, then send this as a single prompt to your agent runtime.
+          Replace the API key placeholder, then send this as a single prompt to
+          your agent runtime.
         </p>
-        <pre className="mt-4 max-h-[560px] overflow-auto rounded-lg border border-white/[0.06] bg-white/[0.02] p-4 font-mono text-xs leading-relaxed text-poof-mist whitespace-pre-wrap">
+        <pre className="mt-4 max-h-140 overflow-auto rounded-lg border border-white/6 bg-white/2 p-4 font-mono text-xs leading-relaxed text-poof-mist whitespace-pre-wrap">
           {starterPrompt}
         </pre>
       </section>
 
       <section>
-        <h2 className="text-lg font-medium text-white">3. Optional plain file</h2>
+        <h2 className="text-lg font-medium text-white">
+          3. Optional plain file
+        </h2>
         <p className="mt-2 text-sm leading-relaxed text-poof-mist">
-          The same starter content is available as a raw markdown file at{' '}
-          <Link href="/starter.md" className="font-medium text-poof-violet hover:underline">
+          The same starter content is available as a raw markdown file at{" "}
+          <Link
+            href="/starter.md"
+            className="font-medium text-poof-violet hover:underline"
+          >
             /starter.md
           </Link>
           .
         </p>
       </section>
     </div>
-  )
+  );
 }
