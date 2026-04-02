@@ -106,8 +106,8 @@ export default function DocsQuickStartPage() {
           Replace the API key placeholder, then send this as a single prompt to
           your agent runtime.
         </p>
-      <PromptBlock prompt={starterPrompt} />
-    </section>
+        <PromptBlock prompt={starterPrompt} />
+      </section>
 
       <section>
         <h2 className="text-lg font-medium text-white">
