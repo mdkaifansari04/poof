@@ -24,16 +24,22 @@ const pageTitles: Record<string, string> = {
   '/settings': 'Settings',
 }
 
-export function AppHeader() {
+type AppHeaderProps = {
+  user: {
+    email: string | null
+    name: string | null
+  }
+}
+
+export function AppHeader({ user }: AppHeaderProps) {
   const router = useRouter()
   const queryClient = useQueryClient()
   const pathname = usePathname()
   const [isSigningOut, setIsSigningOut] = useState(false)
-  const { data: session } = authClient.useSession()
 
   const title = pageTitles[pathname] || 'Dashboard'
   const initials =
-    session?.user?.name
+    user.name
       ?.split(' ')
       .filter(Boolean)
       .map((part) => part[0]?.toUpperCase())
@@ -48,7 +54,6 @@ export function AppHeader() {
       await authClient.signOut()
       queryClient.clear()
       router.push('/signin')
-      router.refresh()
     } finally {
       setIsSigningOut(false)
     }

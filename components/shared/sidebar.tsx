@@ -32,16 +32,22 @@ const navItems = [
   { href: '/settings', icon: Settings, label: 'Settings' },
 ]
 
-export function AppSidebar() {
+type AppSidebarProps = {
+  user: {
+    email: string | null
+    name: string | null
+  }
+}
+
+export function AppSidebar({ user }: AppSidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const queryClient = useQueryClient()
   const [collapsed, setCollapsed] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
-  const { data: session } = authClient.useSession()
 
-  const displayName = session?.user?.name ?? 'Poof User'
-  const displayEmail = session?.user?.email ?? 'No email'
+  const displayName = user.name ?? 'Poof User'
+  const displayEmail = user.email ?? 'No email'
   const initials = displayName
     .split(' ')
     .filter(Boolean)
@@ -57,7 +63,6 @@ export function AppSidebar() {
       await authClient.signOut()
       queryClient.clear()
       router.push('/signin')
-      router.refresh()
     } finally {
       setIsSigningOut(false)
     }

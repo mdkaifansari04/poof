@@ -95,7 +95,6 @@ export default function SignupPage() {
       setTimeout(() => {
         queryClient.clear()
         router.push('/dashboard')
-        router.refresh()
       }, 500)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to create account')
