@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { GlassCard } from "@/components/poof/glass-card";
 import { AgentApiKeysCard } from "@/components/settings/agent-api-keys-card";
-import { Button } from "@/components/ui/button";
 import { auth } from "@/lib/auth";
-import { ExternalLink, ShieldCheck, UserRound } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({
@@ -18,85 +16,75 @@ export default async function SettingsPage() {
   const email = user?.email ?? "No email available";
 
   return (
-    <div className="space-y-6 animate-fade-up">
+    <div className="mx-auto max-w-3xl space-y-10 py-2 animate-fade-up">
+      {/* Header */}
       <div>
-        <h1 className="font-heading font-extrabold text-3xl text-white">
+        <h1 className="text-2xl font-semibold tracking-tight text-white">
           Settings
         </h1>
-        <p className="text-poof-mist mt-1">
-          Minimal account settings for now. We will expand this soon.
+        <p className="mt-1 text-sm text-poof-mist">
+          Manage your account, API keys, and preferences.
         </p>
       </div>
 
-      <GlassCard className="p-5" hover={false}>
-        <div className="flex items-start gap-3">
-          <div className="p-2.5 rounded-lg bg-poof-violet/20 text-poof-violet">
-            <UserRound className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="font-heading font-bold text-xl text-white">
-              Account
-            </h2>
-            <p className="text-poof-mist text-sm mt-1">Signed in as:</p>
-            <p className="text-white mt-2">{displayName}</p>
-            <p className="text-poof-mist text-sm">{email}</p>
-          </div>
-        </div>
-      </GlassCard>
-
-      <GlassCard className="p-5" hover={false}>
-        <div className="flex items-start gap-3">
-          <div className="p-2.5 rounded-lg bg-poof-mint/20 text-poof-mint">
-            <ShieldCheck className="w-5 h-5" />
-          </div>
-          <div className="space-y-3">
-            <h2 className="font-heading font-bold text-xl text-white">
-              Privacy & legal
-            </h2>
-            <p className="text-poof-mist text-sm">
-              Review legal and privacy docs, or contact support at{" "}
-              <a
-                href="mailto:poof-support@k04.tech"
-                className="text-poof-violet hover:underline"
-              >
-                poof-support@k04.tech
-              </a>{" "}
-              and{" "}
-              <a
-                href="mailto:hello-poof@k04.tech"
-                className="text-poof-violet hover:underline"
-              >
-                hello-poof@k04.tech
-              </a>
-              .
-            </p>
-            <div className="flex flex-wrap items-center gap-2">
-              <Button
-                asChild
-                variant="outline"
-                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
-              >
-                <Link href="/terms">
-                  Terms of Service
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="border-white/10 text-poof-mist hover:text-white hover:bg-white/5"
-              >
-                <Link href="/privacy">
-                  Privacy Policy
-                  <ExternalLink className="w-4 h-4 ml-2" />
-                </Link>
-              </Button>
+      {/* Account section */}
+      <section>
+        <h2 className="mb-4 text-xs font-medium tracking-wide text-poof-mist/60 uppercase">
+          Account
+        </h2>
+        <div className="rounded-lg border border-white/6 bg-white/2 p-5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-poof-violet/10 text-sm font-semibold text-poof-violet">
+              {displayName.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-[15px] font-medium text-white">
+                {displayName}
+              </p>
+              <p className="text-sm text-poof-mist">{email}</p>
             </div>
           </div>
         </div>
-      </GlassCard>
+      </section>
 
-      <AgentApiKeysCard />
+      {/* API Keys section */}
+      <section>
+        <AgentApiKeysCard />
+      </section>
+
+      {/* Legal section */}
+      <section>
+        <h2 className="mb-4 text-xs font-medium tracking-wide text-poof-mist/60 uppercase">
+          Legal
+        </h2>
+        <div className="rounded-lg border border-white/6 bg-white/2 p-5">
+          <p className="text-sm text-poof-mist">
+            Questions? Reach us at{" "}
+            <a
+              href="mailto:poof-support@k04.tech"
+              className="text-poof-violet hover:underline"
+            >
+              poof-support@k04.tech
+            </a>
+          </p>
+          <div className="mt-4 flex gap-4">
+            <Link
+              href="/terms"
+              className="inline-flex items-center gap-1.5 text-sm text-poof-mist transition hover:text-white"
+            >
+              Terms of Service
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href="/privacy"
+              className="inline-flex items-center gap-1.5 text-sm text-poof-mist transition hover:text-white"
+            >
+              Privacy Policy
+              <ExternalLink className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
