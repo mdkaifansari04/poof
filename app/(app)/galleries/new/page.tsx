@@ -27,7 +27,7 @@ import {
   MAX_IMAGES_PER_GALLERY,
   SUPPORTED_IMAGE_MIME_TYPES,
 } from "@/lib/limits";
-import { api } from "@/lib/axios";
+import { api } from "@/lib/api-client";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 

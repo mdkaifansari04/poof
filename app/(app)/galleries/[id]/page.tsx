@@ -72,7 +72,7 @@ import {
   SUPPORTED_IMAGE_MIME_TYPES,
 } from "@/lib/limits";
 import { cn } from "@/lib/utils";
-import { api } from "@/lib/axios";
+import { api } from "@/lib/api-client";
 import { toast } from "sonner";
 
 const supportedMimeSet = new Set<string>(SUPPORTED_IMAGE_MIME_TYPES);

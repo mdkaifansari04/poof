@@ -8,7 +8,7 @@ import { Countdown } from "@/components/poof/countdown";
 import { StatusBadge } from "@/components/poof/status-badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { usePublicSharedResource } from "@/hooks/queries";
-import { ApiClientError } from "@/lib/axios";
+import { ApiClientError } from "@/lib/api-client";
 import {
   Clock,
   Eye,

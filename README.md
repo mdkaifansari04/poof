@@ -9,7 +9,7 @@ Poof is a photo-sharing platform with expiring share links.
 - Better Auth (email/password + Google)
 - Prisma + PostgreSQL (Neon)
 - Cloudflare R2 (presigned uploads)
-- TanStack Query + Axios
+- TanStack Query + internal fetch client
 
 ## Local Setup
 

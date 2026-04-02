@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { api } from '@/lib/axios'
+import { api } from '@/lib/api-client'
 import type { GalleryDetail, GalleryListItem } from '@/lib/types/gallery'
 import type { PublicSharedResource, SharedResourceListItem } from '@/lib/types/shared-resource'
 
