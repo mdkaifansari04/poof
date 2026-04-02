@@ -1,25 +1,31 @@
-import Link from 'next/link'
-import { headers } from 'next/headers'
-import { GlassCard } from '@/components/poof/glass-card'
-import { AgentApiKeysCard } from '@/components/settings/agent-api-keys-card'
-import { Button } from '@/components/ui/button'
-import { auth } from '@/lib/auth'
-import { ExternalLink, ShieldCheck, UserRound } from 'lucide-react'
+import Link from "next/link";
+import { headers } from "next/headers";
+import { GlassCard } from "@/components/poof/glass-card";
+import { AgentApiKeysCard } from "@/components/settings/agent-api-keys-card";
+import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
+import { ExternalLink, ShieldCheck, UserRound } from "lucide-react";
 
 export default async function SettingsPage() {
   const session = await auth.api.getSession({
     headers: await headers(),
-  })
+  });
 
-  const user = (session as { user?: { name?: string | null; email?: string | null } } | null)?.user
-  const displayName = user?.name ?? 'Poof user'
-  const email = user?.email ?? 'No email available'
+  const user = (
+    session as { user?: { name?: string | null; email?: string | null } } | null
+  )?.user;
+  const displayName = user?.name ?? "Poof user";
+  const email = user?.email ?? "No email available";
 
   return (
     <div className="space-y-6 animate-fade-up">
       <div>
-        <h1 className="font-heading font-extrabold text-3xl text-white">Settings</h1>
-        <p className="text-poof-mist mt-1">Minimal account settings for now. We will expand this soon.</p>
+        <h1 className="font-heading font-extrabold text-3xl text-white">
+          Settings
+        </h1>
+        <p className="text-poof-mist mt-1">
+          Minimal account settings for now. We will expand this soon.
+        </p>
       </div>
 
       <GlassCard className="p-5" hover={false}>
@@ -28,7 +34,9 @@ export default async function SettingsPage() {
             <UserRound className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-heading font-bold text-xl text-white">Account</h2>
+            <h2 className="font-heading font-bold text-xl text-white">
+              Account
+            </h2>
             <p className="text-poof-mist text-sm mt-1">Signed in as:</p>
             <p className="text-white mt-2">{displayName}</p>
             <p className="text-poof-mist text-sm">{email}</p>
@@ -42,14 +50,22 @@ export default async function SettingsPage() {
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div className="space-y-3">
-            <h2 className="font-heading font-bold text-xl text-white">Privacy & legal</h2>
+            <h2 className="font-heading font-bold text-xl text-white">
+              Privacy & legal
+            </h2>
             <p className="text-poof-mist text-sm">
-              Review legal and privacy docs, or contact support at{' '}
-              <a href="mailto:poof-support@k04.tech" className="text-poof-violet hover:underline">
+              Review legal and privacy docs, or contact support at{" "}
+              <a
+                href="mailto:poof-support@k04.tech"
+                className="text-poof-violet hover:underline"
+              >
                 poof-support@k04.tech
-              </a>{' '}
-              and{' '}
-              <a href="mailto:hello-poof@k04.tech" className="text-poof-violet hover:underline">
+              </a>{" "}
+              and{" "}
+              <a
+                href="mailto:hello-poof@k04.tech"
+                className="text-poof-violet hover:underline"
+              >
                 hello-poof@k04.tech
               </a>
               .
@@ -81,16 +97,6 @@ export default async function SettingsPage() {
       </GlassCard>
 
       <AgentApiKeysCard />
-
-      <GlassCard className="p-5" hover={false}>
-        <h2 className="font-heading font-bold text-xl text-white">Coming next</h2>
-        <ul className="mt-3 space-y-2 text-sm text-poof-mist">
-          <li>Session management and device logout</li>
-          <li>Account deletion and data export actions</li>
-          <li>Notification preferences</li>
-          <li>Agent linking flow with browser approval</li>
-        </ul>
-      </GlassCard>
     </div>
-  )
+  );
 }
