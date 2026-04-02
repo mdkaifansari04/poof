@@ -2,10 +2,6 @@
 
 import { useMemo } from 'react'
 import Link from 'next/link'
-import { GlassCard } from '@/components/poof/glass-card'
-import { EmptyState } from '@/components/poof/empty-state'
-import { StatusBadge } from '@/components/poof/status-badge'
-import { SkeletonDashboard } from '@/components/poof/skeletons'
 import { Button } from '@/components/ui/button'
 import { useGalleries, useSharedResources } from '@/hooks/queries'
 import {
@@ -15,22 +11,35 @@ import {
   ArrowRight,
   FolderOpen,
   Share2,
-  Clock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-function formatRelativeTime(dateString: string) {
-  const date = new Date(dateString)
-  const diff = Date.now() - date.getTime()
-  const seconds = Math.floor(diff / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
+function relativeTime(dateString: string) {
+  const diff = Date.now() - new Date(dateString).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 1) return 'just now'
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.floor(hrs / 24)
+  if (days < 30) return `${days}d ago`
+  return `${Math.floor(days / 30)}mo ago`
+}
 
-  if (days > 0) return days === 1 ? 'yesterday' : `${days} days ago`
-  if (hours > 0) return `${hours}h ago`
-  if (minutes > 0) return `${minutes}m ago`
-  return 'just now'
+const galleryAccents = [
+  'from-violet-500 to-indigo-600',
+  'from-cyan-400 to-blue-500',
+  'from-amber-400 to-orange-500',
+  'from-emerald-400 to-teal-500',
+  'from-rose-400 to-pink-500',
+  'from-fuchsia-400 to-purple-500',
+  'from-sky-400 to-blue-500',
+  'from-lime-400 to-emerald-500',
+]
+function pickAccent(name: string) {
+  let h = 0
+  for (let i = 0; i < name.length; i++) h = name.charCodeAt(i) + ((h << 5) - h)
+  return galleryAccents[Math.abs(h) % galleryAccents.length]
 }
 
 export default function DashboardPage() {
@@ -40,43 +49,61 @@ export default function DashboardPage() {
   const stats = useMemo(() => {
     const galleries = galleriesQuery.data ?? []
     const links = sharedResourcesQuery.data ?? []
-
-    const activeLinks = links.filter((link) => link.status === 'ACTIVE')
-    const expiringToday = activeLinks.filter((link) => {
-      const diff = new Date(link.expiresAt).getTime() - Date.now()
+    const activeLinks = links.filter((l) => l.status === 'ACTIVE')
+    const expiringToday = activeLinks.filter((l) => {
+      const diff = new Date(l.expiresAt).getTime() - Date.now()
       return diff > 0 && diff < 24 * 60 * 60 * 1000
     }).length
 
     return {
       totalGalleries: galleries.length,
-      totalPhotos: galleries.reduce((sum, gallery) => sum + gallery.imageCount, 0),
+      totalPhotos: galleries.reduce((sum, g) => sum + g.imageCount, 0),
       activeLinks: activeLinks.length,
       expiringToday,
-      totalViews: links.reduce((sum, link) => sum + link.viewCount, 0),
+      totalViews: links.reduce((sum, l) => sum + l.viewCount, 0),
+      totalLinks: links.length,
     }
   }, [galleriesQuery.data, sharedResourcesQuery.data])
 
+  /* ── Loading ── */
   if (galleriesQuery.isPending || sharedResourcesQuery.isPending) {
-    return <SkeletonDashboard />
+    return (
+      <div className="mx-auto max-w-6xl py-2 font-sans">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-28 animate-pulse rounded-xl bg-white/3 border border-white/6" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          <div className="lg:col-span-3 h-72 animate-pulse rounded-xl bg-white/3 border border-white/6" />
+          <div className="lg:col-span-2 h-72 animate-pulse rounded-xl bg-white/3 border border-white/6" />
+        </div>
+      </div>
+    )
   }
 
+  /* ── Error ── */
   if (galleriesQuery.isError || sharedResourcesQuery.isError) {
     return (
-      <GlassCard className="p-8 text-center" hover={false}>
-        <p className="text-white font-medium">Could not load dashboard</p>
-        <p className="text-poof-mist text-sm mt-2">
-          {galleriesQuery.error?.message || sharedResourcesQuery.error?.message}
-        </p>
-        <Button
-          onClick={() => {
-            void galleriesQuery.refetch()
-            void sharedResourcesQuery.refetch()
-          }}
-          className="mt-4 bg-poof-accent hover:bg-poof-accent/90 text-white"
-        >
-          Retry
-        </Button>
-      </GlassCard>
+      <div className="mx-auto max-w-6xl py-2 font-sans">
+        <div className="rounded-xl border border-white/6 bg-black px-6 py-12 text-center">
+          <p className="text-sm font-medium text-white">Could not load dashboard</p>
+          <p className="mt-1 text-xs text-poof-mist/60">
+            {galleriesQuery.error?.message || sharedResourcesQuery.error?.message}
+          </p>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="mt-4 text-poof-violet"
+            onClick={() => {
+              void galleriesQuery.refetch()
+              void sharedResourcesQuery.refetch()
+            }}
+          >
+            Retry
+          </Button>
+        </div>
+      </div>
     )
   }
 
@@ -84,198 +111,239 @@ export default function DashboardPage() {
   const links = sharedResourcesQuery.data ?? []
 
   return (
-    <div className="space-y-8 animate-fade-up">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          icon={<ImageIcon className="w-5 h-5" />}
-          label="Total Galleries"
+    <div className="mx-auto max-w-6xl py-2 font-sans animate-fade-up">
+      {/* ── Metric cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <MetricCard
+          dot="bg-poof-violet"
+          label="Galleries"
           value={stats.totalGalleries}
-          subtext={`${stats.totalPhotos} photos`}
-          color="violet"
+          sub={`${stats.totalPhotos} photos`}
+          delay={0}
         />
-        <StatCard
-          icon={<Link2 className="w-5 h-5" />}
-          label="Active Share Links"
+        <MetricCard
+          dot="bg-poof-peach"
+          label="Active Links"
           value={stats.activeLinks}
-          subtext={
-            stats.expiringToday > 0 ? `${stats.expiringToday} expiring today` : 'All good'
-          }
-          subtextColor={stats.expiringToday > 0 ? 'peach' : undefined}
-          color="peach"
+          sub={stats.expiringToday > 0 ? `${stats.expiringToday} expiring today` : 'All good'}
+          subHighlight={stats.expiringToday > 0}
+          pulse={stats.expiringToday > 0}
+          delay={1}
         />
-        <StatCard
-          icon={<Eye className="w-5 h-5" />}
-          label="Total Link Views"
+        <MetricCard
+          dot="bg-poof-accent"
+          label="Total Views"
           value={stats.totalViews}
-          subtext={`${links.length} total links`}
-          color="accent"
+          sub={`${stats.totalLinks} total links`}
+          delay={2}
         />
-        <StatCard
-          icon={<Clock className="w-5 h-5" />}
-          label="Recent Links"
+        <MetricCard
+          dot="bg-poof-mint"
+          label="Recent"
           value={Math.min(links.length, 10)}
-          subtext="Last 10 records"
-          color="mint"
+          sub="Last 10 records"
+          delay={3}
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-4">
+      {/* ── Content columns ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+        {/* ── Recent galleries ── */}
+        <div className="lg:col-span-3 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading font-bold text-lg text-white">Recent Galleries</h2>
+            <h2 className="text-sm font-medium text-white">Recent Galleries</h2>
             <Link
               href="/galleries"
-              className="text-sm text-poof-violet hover:underline inline-flex items-center gap-1 group"
+              className="group inline-flex items-center gap-1 text-xs text-poof-mist/50 transition-colors hover:text-poof-violet"
             >
               View all
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
 
           {galleries.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-              {galleries.slice(0, 3).map((gallery, index) => (
-                <GlassCard
-                  key={gallery.id}
-                  className="group overflow-hidden animate-fade-up"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <div className="relative aspect-video overflow-hidden">
-                    {gallery.bannerImageUrl ? (
-                      <img
-                        src={gallery.bannerImageUrl}
-                        alt={`${gallery.name} banner`}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-poof-violet/20 to-poof-accent/20 flex items-center justify-center">
-                        <span className="font-heading font-bold text-2xl text-white/40">
-                          {gallery.name.slice(0, 2).toUpperCase()}
-                        </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {galleries.slice(0, 3).map((gallery, i) => {
+                const accent = pickAccent(gallery.name)
+                return (
+                  <Link key={gallery.id} href={`/galleries/${gallery.id}`} className="group block">
+                    <div
+                      className="overflow-hidden rounded-xl border border-white/6 bg-[#111] transition-all duration-200 hover:border-white/12 hover:bg-[#151515]"
+                      style={{ animationDelay: `${i * 0.06}s` }}
+                    >
+                      {/* Accent bar */}
+                      <div className={cn('h-0.75 w-full bg-linear-to-r', accent)} />
+
+                      {/* Cover */}
+                      <div className="relative mx-3 mt-3 aspect-video overflow-hidden rounded-lg bg-black/40">
+                        {gallery.bannerImageUrl ? (
+                          <img
+                            src={gallery.bannerImageUrl}
+                            alt={gallery.name}
+                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-white/4 to-white/2">
+                            <span className="select-none text-xl font-semibold text-white/12">
+                              {gallery.name.slice(0, 2).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-heading font-bold text-white truncate">{gallery.name}</h3>
-                    <p className="text-poof-mist text-sm">{gallery.imageCount} photos</p>
-                    <Button asChild size="sm" className="mt-3 bg-white/10 hover:bg-white/20 text-white">
-                      <Link href={`/galleries/${gallery.id}`}>
-                        <FolderOpen className="w-4 h-4 mr-1" />
-                        Open
-                      </Link>
-                    </Button>
-                  </div>
-                </GlassCard>
-              ))}
+
+                      {/* Body */}
+                      <div className="px-3 pt-2.5 pb-3">
+                        <h3 className="truncate text-sm font-semibold text-white">{gallery.name}</h3>
+                        <div className="mt-1.5 flex items-center gap-2">
+                          <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-white/10 px-1.5 py-0.5 text-[10px] text-poof-mist/50">
+                            <ImageIcon className="h-2.5 w-2.5" strokeWidth={1.5} />
+                            {gallery.imageCount}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           ) : (
-            <EmptyState type="galleries" />
+            <div className="rounded-xl border border-dashed border-white/10 bg-white/2 px-6 py-14 text-center">
+              <FolderOpen className="mx-auto mb-2 h-5 w-5 text-poof-mist/30" />
+              <p className="text-sm text-poof-mist/50">No galleries yet</p>
+              <Button asChild size="sm" variant="ghost" className="mt-3 text-xs text-poof-violet">
+                <Link href="/galleries/new">Create your first gallery</Link>
+              </Button>
+            </div>
           )}
         </div>
 
-        <div className="space-y-4">
+        {/* ── Recent activity feed ── */}
+        <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-heading font-bold text-lg text-white">Recent Share Links</h2>
+            <h2 className="text-sm font-medium text-white">Recent Activity</h2>
+            <Link
+              href="/links"
+              className="group inline-flex items-center gap-1 text-xs text-poof-mist/50 transition-colors hover:text-poof-violet"
+            >
+              All links
+              <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
+            </Link>
           </div>
-          {/* <GlassCard className="p-4" hover={false}> */}
+
+          <div className="overflow-hidden rounded-xl border border-white/6 bg-[#111]">
             {links.length > 0 ? (
-              <div className="">
-                {links.slice(0, 5).map((link, k) => (
-                  <div key={link.id} className={cn(
-                    "rounded-none border border-white/10 bg-white/5 p-3",
-                    k === 0 && 'rounded-t-lg',
-                    k === links.length - 1 && 'rounded-b-lg'
-                  )}>
-                    <div className="flex items-start justify-between gap-2">
-                      <a
-                        href={link.shareUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="font-mono text-xs text-poof-violet hover:underline break-all"
-                      >
-                        {link.shareUrl}
-                      </a>
-                      <StatusBadge
-                        variant={
-                          link.status === 'ACTIVE'
-                            ? 'active'
-                            : link.status === 'REVOKED'
-                              ? 'revoked'
-                              : 'expired'
-                        }
-                        className="text-[10px]"
-                      >
-                        {link.status}
-                      </StatusBadge>
-                    </div>
-                    <div className="mt-2 text-xs text-poof-mist flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1">
-                        <Share2 className="w-3 h-3" />
+              links.slice(0, 6).map((link, i) => (
+                <div
+                  key={link.id}
+                  className={cn(
+                    'flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/3',
+                    i !== 0 && 'border-t border-white/4',
+                  )}
+                >
+                  {/* Status indicator */}
+                  <div
+                    className={cn(
+                      'h-1.5 w-1.5 shrink-0 rounded-full',
+                      link.status === 'ACTIVE'
+                        ? 'bg-emerald-400'
+                        : link.status === 'REVOKED'
+                          ? 'bg-red-400'
+                          : 'bg-poof-mist/30',
+                    )}
+                  />
+
+                  {/* Link info */}
+                  <div className="min-w-0 flex-1">
+                    <a
+                      href={link.shareUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block truncate font-mono text-[11px] text-poof-violet/80 transition-colors hover:text-poof-violet"
+                    >
+                      {link.shareUrl.replace(/^https?:\/\//, '')}
+                    </a>
+                    <div className="mt-0.5 flex items-center gap-2 text-[10px] text-poof-mist/40">
+                      <span className="inline-flex items-center gap-0.5">
+                        <Share2 className="h-2.5 w-2.5" strokeWidth={1.5} />
                         {link.type}
                       </span>
-                      <span className="inline-flex items-center gap-1">
-                        <Eye className="w-3 h-3" />
+                      <span className="inline-flex items-center gap-0.5">
+                        <Eye className="h-2.5 w-2.5" strokeWidth={1.5} />
                         {link.viewCount}
                       </span>
-                      <span>{formatRelativeTime(link.createdAt)}</span>
+                      <span>{relativeTime(link.createdAt)}</span>
                     </div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Status badge */}
+                  <span
+                    className={cn(
+                      'shrink-0 rounded-md border border-dashed px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wider',
+                      link.status === 'ACTIVE'
+                        ? 'border-emerald-400/20 text-emerald-400/70'
+                        : link.status === 'REVOKED'
+                          ? 'border-red-400/20 text-red-400/70'
+                          : 'border-white/10 text-poof-mist/40',
+                    )}
+                  >
+                    {link.status}
+                  </span>
+                </div>
+              ))
             ) : (
-              <div className="py-8 text-center">
-                <p className="text-poof-mist text-sm">No share links yet</p>
+              <div className="px-4 py-12 text-center">
+                <Link2 className="mx-auto mb-2 h-4 w-4 text-poof-mist/30" />
+                <p className="text-xs text-poof-mist/40">No share links yet</p>
               </div>
             )}
-          {/* </GlassCard> */}
+          </div>
         </div>
       </div>
     </div>
   )
 }
 
-interface StatCardProps {
-  icon: React.ReactNode
+/* ── Metric Card ── */
+function MetricCard({
+  dot,
+  label,
+  value,
+  sub,
+  subHighlight,
+  pulse,
+  delay,
+}: {
+  dot: string
   label: string
   value: number
-  subtext?: string
-  subtextColor?: 'peach' | 'mint' | 'violet'
-  color: 'violet' | 'mint' | 'peach' | 'accent'
-}
-
-function StatCard({ icon, label, value, subtext, subtextColor, color }: StatCardProps) {
-  const colorClasses = {
-    violet: 'text-poof-violet bg-poof-violet/10',
-    mint: 'text-poof-mint bg-poof-mint/10',
-    peach: 'text-poof-peach bg-poof-peach/10',
-    accent: 'text-poof-accent bg-poof-accent/10',
-  }
-
-  const subtextColorClasses = {
-    peach: 'text-poof-peach',
-    mint: 'text-poof-mint',
-    violet: 'text-poof-violet',
-  }
-
+  sub: string
+  subHighlight?: boolean
+  pulse?: boolean
+  delay: number
+}) {
   return (
-    <GlassCard className="p-5">
-      <div className="flex items-start justify-between mb-3">
-        <div className={cn('p-2.5 rounded-xl', colorClasses[color])}>{icon}</div>
+    <div
+      className="rounded-xl border border-white/6 bg-[#111] p-4 transition-colors hover:bg-[#141414]"
+      style={{ animationDelay: `${delay * 0.05}s` }}
+    >
+      <div className="mb-3 flex items-center gap-2">
+        <span className="relative flex h-2 w-2">
+          {pulse && (
+            <span
+              className={cn(
+                'absolute inline-flex h-full w-full animate-ping rounded-full opacity-50',
+                dot,
+              )}
+            />
+          )}
+          <span className={cn('relative inline-flex h-2 w-2 rounded-full', dot)} />
+        </span>
+        <span className="text-[10px] uppercase tracking-widest text-poof-mist/40">{label}</span>
       </div>
-      <div className="font-heading font-bold text-3xl text-white mb-1">{value.toLocaleString()}</div>
-      <div className="flex items-center justify-between">
-        <p className="text-poof-mist text-sm">{label}</p>
-        {subtext && (
-          <p
-            className={cn(
-              'text-xs',
-              subtextColor ? subtextColorClasses[subtextColor] : 'text-poof-mist/60',
-            )}
-          >
-            {subtext}
-          </p>
-        )}
-      </div>
-    </GlassCard>
+      <div className="text-2xl font-semibold tabular-nums text-white">{value.toLocaleString()}</div>
+      <p className={cn('mt-1 text-[11px]', subHighlight ? 'text-poof-peach' : 'text-poof-mist/35')}>
+        {sub}
+      </p>
+    </div>
   )
 }
