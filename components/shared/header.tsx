@@ -1,63 +1,63 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
-import { useQueryClient } from '@tanstack/react-query'
-import { Logo } from '@/components/poof/logo'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { useState } from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { Logo } from "@/components/poof/logo";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Plus, Settings, LogOut } from 'lucide-react'
-import { authClient } from '@/lib/auth-client'
+} from "@/components/ui/dropdown-menu";
+import { Plus, Settings, LogOut } from "lucide-react";
+import { authClient } from "@/lib/auth-client";
 
 const pageTitles: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/galleries': 'My Galleries',
-  '/links': 'Share Links',
-  '/settings': 'Settings',
-}
+  "/dashboard": "Dashboard",
+  "/galleries": "My Galleries",
+  "/links": "Share Links",
+  "/settings": "Settings",
+};
 
 type AppHeaderProps = {
   user: {
-    email: string | null
-    name: string | null
-  }
-}
+    email: string | null;
+    name: string | null;
+  };
+};
 
 export function AppHeader({ user }: AppHeaderProps) {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-  const pathname = usePathname()
-  const [isSigningOut, setIsSigningOut] = useState(false)
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const pathname = usePathname();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const title = pageTitles[pathname] || 'Dashboard'
+  const title = pageTitles[pathname] || "Dashboard";
   const initials =
     user.name
-      ?.split(' ')
+      ?.split(" ")
       .filter(Boolean)
       .map((part) => part[0]?.toUpperCase())
-      .join('')
-      .slice(0, 2) || 'PU'
+      .join("")
+      .slice(0, 2) || "PU";
 
   const handleSignOut = async () => {
-    if (isSigningOut) return
+    if (isSigningOut) return;
 
-    setIsSigningOut(true)
+    setIsSigningOut(true);
     try {
-      await authClient.signOut()
-      queryClient.clear()
-      router.push('/signin')
+      await authClient.signOut();
+      queryClient.clear();
+      router.push("/signin");
     } finally {
-      setIsSigningOut(false)
+      setIsSigningOut(false);
     }
-  }
+  };
 
   return (
     <header className="sticky top-0 z-30 h-16 border-b border-white/5 bg-poof-base/95 backdrop-blur-xl">
@@ -69,7 +69,7 @@ export function AppHeader({ user }: AppHeaderProps) {
 
         {/* Page title (desktop) */}
         <h1 className="hidden lg:block font-heading font-bold text-xl text-white">
-          {title}
+          {/* {title} */}
         </h1>
 
         {/* Right actions */}
@@ -78,13 +78,21 @@ export function AppHeader({ user }: AppHeaderProps) {
             <DropdownMenuTrigger asChild>
               <button className="lg:hidden p-1 rounded-full hover:bg-white/5 transition-colors">
                 <Avatar className="w-9 h-9">
-                  <AvatarFallback className="bg-poof-accent text-white text-sm">{initials}</AvatarFallback>
+                  <AvatarFallback className="bg-poof-accent text-white text-sm">
+                    {initials}
+                  </AvatarFallback>
                 </Avatar>
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44 bg-poof-base border-white/10">
+            <DropdownMenuContent
+              align="end"
+              className="w-44 bg-poof-base border-white/10"
+            >
               <DropdownMenuItem asChild>
-                <Link href="/settings" className="cursor-pointer text-poof-mist hover:text-white">
+                <Link
+                  href="/settings"
+                  className="cursor-pointer text-poof-mist hover:text-white"
+                >
                   <Settings className="w-4 h-4 mr-2" />
                   Settings
                 </Link>
@@ -96,7 +104,7 @@ export function AppHeader({ user }: AppHeaderProps) {
                 disabled={isSigningOut}
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                {isSigningOut ? 'Signing out...' : 'Log out'}
+                {isSigningOut ? "Signing out..." : "Log out"}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -114,5 +122,5 @@ export function AppHeader({ user }: AppHeaderProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }
