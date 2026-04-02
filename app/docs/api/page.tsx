@@ -1,35 +1,37 @@
 export default function ApiDocsPage() {
   return (
-    <>
-      <section className="rounded-3xl border border-white/10 bg-white/5 p-8">
-        <p className="text-xs uppercase tracking-[0.2em] text-poof-mist">API</p>
-        <h2 className="mt-2 font-heading text-4xl font-extrabold">API overview</h2>
-        <p className="mt-3 text-sm text-poof-mist">
-          Use `/api/v1` for stable integrations. The API supports account-scoped actions for galleries, uploads, and
-          share links while preserving the same core business rules used by the Poof web app.
+    <div className="space-y-10">
+      <header>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">API Overview</h1>
+        <p className="mt-2 text-[15px] leading-relaxed text-poof-mist">
+          Use <code className="rounded bg-white/6 px-1 py-0.5 font-mono text-xs">/api/v1</code> for
+          stable integrations. The API supports account-scoped actions for galleries, uploads, and
+          share links.
         </p>
-      </section>
+      </header>
 
-      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-        <h3 className="font-heading text-2xl font-bold">Request conventions</h3>
-        <ul className="mt-4 space-y-3 text-sm text-poof-mist">
-          <li>Use JSON requests/responses for all application endpoints.</li>
-          <li>Authenticate with `Authorization: Bearer &lt;key&gt;` or `X-API-Key: &lt;key&gt;`.</li>
-          <li>Read and write capability is enforced per API key.</li>
-          <li>`agentResourcesOnly` keys can only access resources they created.</li>
-          <li>Upload binaries via presigned R2 `PUT` URLs, then call confirm/fail endpoints.</li>
+      <section>
+        <h2 className="text-lg font-medium text-white">Request conventions</h2>
+        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-poof-mist">
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />JSON requests and responses for all application endpoints.</li>
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />Authenticate with <code className="rounded bg-white/6 px-1 py-0.5 font-mono text-xs">Authorization: Bearer &lt;key&gt;</code> or <code className="rounded bg-white/6 px-1 py-0.5 font-mono text-xs">X-API-Key</code>.</li>
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />Read and write capability is enforced per API key.</li>
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" /><code className="rounded bg-white/6 px-1 py-0.5 font-mono text-xs">agentResourcesOnly</code> keys can only access resources they created.</li>
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />Upload binaries via presigned R2 <code className="rounded bg-white/6 px-1 py-0.5 font-mono text-xs">PUT</code> URLs, then call confirm/fail endpoints.</li>
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-black/20 p-6">
-        <h3 className="font-heading text-2xl font-bold">Lifecycle guarantees</h3>
-        <ul className="mt-4 space-y-3 text-sm text-poof-mist">
-          <li>Share links can be active, revoked, or expired.</li>
-          <li>Expired/revoked public resources return a terminal HTTP 410 semantic path.</li>
-          <li>Cleanup cron routes mark stale pending uploads and remove aged soft-deleted storage records.</li>
-          <li>Deleting API keys revokes future access but does not delete existing account resources.</li>
+      <hr className="border-white/6" />
+
+      <section>
+        <h2 className="text-lg font-medium text-white">Lifecycle guarantees</h2>
+        <ul className="mt-3 space-y-2 text-sm leading-relaxed text-poof-mist">
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />Share links can be active, revoked, or expired.</li>
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />Expired or revoked public resources return HTTP 410.</li>
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />Cleanup cron marks stale pending uploads and removes aged soft-deleted records.</li>
+          <li className="flex gap-2"><span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-poof-mist/40" />Deleting API keys revokes future access but does not delete existing resources.</li>
         </ul>
       </section>
-    </>
+    </div>
   )
 }
