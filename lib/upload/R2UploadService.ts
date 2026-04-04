@@ -1,4 +1,5 @@
 import {
+  GetObjectCommand,
   DeleteObjectCommand,
   DeleteObjectsCommand,
   PutObjectCommand,
@@ -62,6 +63,17 @@ export class R2UploadService extends UploadService {
       r2Key: key,
       publicUrl: `${this.publicBaseUrl}/${key}`,
     }
+  }
+
+  async getPresignedDownloadUrl(key: string, expiresIn = 60): Promise<string> {
+    this.assertConfig()
+
+    const command = new GetObjectCommand({
+      Bucket: this.bucket,
+      Key: key,
+    })
+
+    return getSignedUrl(this.client, command, { expiresIn })
   }
 
   async deleteObject(key: string): Promise<DeleteResult> {

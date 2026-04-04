@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { NextResponse } from 'next/server'
 import {
   getAgentOwnershipKeyId,
   requireApiCapability,
@@ -7,9 +8,16 @@ import {
 import { apiErrors } from '@/app/api/_utils/errors'
 import { handleApiError, parseJsonBody } from '@/app/api/_utils/http'
 import { ok } from '@/app/api/_utils/response'
-import { buildShareUrl, getSharedResourceStatus } from '@/app/api/_utils/shared'
+import {
+  buildShareUrl,
+  buildSharedImageProxyPath,
+  getSharedResourceStatus,
+} from '@/app/api/_utils/shared'
 import { MAX_SHARE_EXPIRY_MS, MIN_SHARE_EXPIRY_MS } from '@/lib/limits'
 import { prisma } from '@/lib/prisma'
+import { uploadService } from '@/lib/upload'
+
+const SHARED_IMAGE_DOWNLOAD_TTL_SECONDS = 60
 
 type RouteContext = {
   params: Promise<{ resourceId: string }>
@@ -30,7 +38,6 @@ async function resolveImageRecord(imageId: string) {
     select: {
       id: true,
       fileName: true,
-      r2Url: true,
       width: true,
       height: true,
       mimeType: true,
@@ -38,12 +45,74 @@ async function resolveImageRecord(imageId: string) {
   })
 }
 
+async function resolveSharedImageR2Key(
+  resource: {
+    type: 'GALLERY' | 'IMAGE' | 'MULTI_IMAGE'
+    galleryId: string | null
+    imageIds: string[]
+  },
+  imageId: string,
+) {
+  if (resource.type === 'GALLERY') {
+    if (!resource.galleryId) {
+      return null
+    }
+
+    const image = await prisma.image.findFirst({
+      where: {
+        id: imageId,
+        galleryId: resource.galleryId,
+        deletedAt: null,
+        uploadStatus: 'CONFIRMED',
+      },
+      select: {
+        r2Key: true,
+      },
+    })
+
+    return image?.r2Key ?? null
+  }
+
+  if (!resource.imageIds.includes(imageId)) {
+    return null
+  }
+
+  const image = await prisma.image.findFirst({
+    where: {
+      id: imageId,
+      deletedAt: null,
+      uploadStatus: 'CONFIRMED',
+    },
+    select: {
+      r2Key: true,
+    },
+  })
+
+  return image?.r2Key ?? null
+}
+
+function toSharedImagePayload(
+  resourceId: string,
+  image: {
+    id: string
+    fileName: string
+    width: number | null
+    height: number | null
+    mimeType: string
+  },
+) {
+  return {
+    ...image,
+    r2Url: buildSharedImageProxyPath(resourceId, image.id),
+  }
+}
+
 const updateSharedResourceSchema = z.object({
   expiresAt: z.string().datetime().optional(),
   reactivate: z.boolean().optional(),
 })
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   try {
     const resourceId = await getRouteResourceId(context)
 
@@ -70,6 +139,34 @@ export async function GET(_request: Request, context: RouteContext) {
 
     if (resource.expiresAt.getTime() <= Date.now()) {
       throw apiErrors.expired('This share link has expired')
+    }
+
+    const imageId = new URL(request.url).searchParams.get('imageId')
+    if (imageId) {
+      const imageR2Key = await resolveSharedImageR2Key(
+        {
+          type: resource.type,
+          galleryId: resource.galleryId,
+          imageIds: resource.imageIds,
+        },
+        imageId,
+      )
+
+      if (!imageR2Key) {
+        throw apiErrors.notFound('Shared image not found')
+      }
+
+      const signedDownloadUrl = await uploadService.getPresignedDownloadUrl(
+        imageR2Key,
+        SHARED_IMAGE_DOWNLOAD_TTL_SECONDS,
+      )
+
+      return NextResponse.redirect(signedDownloadUrl, {
+        status: 307,
+        headers: {
+          'Cache-Control': 'no-store, max-age=0',
+        },
+      })
     }
 
     const resourceWithIncrement = await prisma.sharedResource.update({
@@ -114,7 +211,6 @@ export async function GET(_request: Request, context: RouteContext) {
         select: {
           id: true,
           fileName: true,
-          r2Url: true,
           width: true,
           height: true,
           mimeType: true,
@@ -131,7 +227,7 @@ export async function GET(_request: Request, context: RouteContext) {
         viewCount: resourceWithIncrement.viewCount,
         gallery: {
           ...gallery,
-          images,
+          images: images.map((image) => toSharedImagePayload(resource.id, image)),
         },
       })
     }
@@ -154,7 +250,7 @@ export async function GET(_request: Request, context: RouteContext) {
         type: resource.type,
         expiresAt: resource.expiresAt,
         viewCount: resourceWithIncrement.viewCount,
-        image,
+        image: toSharedImagePayload(resource.id, image),
       })
     }
 
@@ -169,7 +265,6 @@ export async function GET(_request: Request, context: RouteContext) {
       select: {
         id: true,
         fileName: true,
-        r2Url: true,
         width: true,
         height: true,
         mimeType: true,
@@ -190,7 +285,7 @@ export async function GET(_request: Request, context: RouteContext) {
       type: resource.type,
       expiresAt: resource.expiresAt,
       viewCount: resourceWithIncrement.viewCount,
-      images: orderedImages,
+      images: orderedImages.map((image) => toSharedImagePayload(resource.id, image)),
     })
   } catch (error) {
     return handleApiError(error)

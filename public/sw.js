@@ -1,5 +1,28 @@
-const CACHE_NAME = 'poof-v1'
+const CACHE_NAME = 'poof-v2'
 const APP_SHELL = ['/', '/signin', '/signup', '/icons/icon-192.png', '/icons/icon-512.png']
+const CACHEABLE_DESTINATIONS = new Set(['image', 'script', 'style', 'font', 'manifest', 'worker'])
+const CACHEABLE_PATH_PREFIXES = ['/icons/', '/_next/static/']
+
+function isRuntimeCacheEligible(request, url) {
+  if (request.method !== 'GET') return false
+  if (url.origin !== self.location.origin) return false
+  if (url.pathname.startsWith('/api/')) return false
+  if (request.mode === 'navigate') return true
+  if (CACHEABLE_DESTINATIONS.has(request.destination)) return true
+  return CACHEABLE_PATH_PREFIXES.some((prefix) => url.pathname.startsWith(prefix))
+}
+
+async function cacheResponseIfSafe(request, response) {
+  if (!response || !response.ok || response.type === 'opaque') return
+
+  const cacheControl = (response.headers.get('cache-control') || '').toLowerCase()
+  if (cacheControl.includes('no-store') || cacheControl.includes('private')) {
+    return
+  }
+
+  const cache = await caches.open(CACHE_NAME)
+  await cache.put(request, response.clone())
+}
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -18,25 +41,24 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event
-  if (request.method !== 'GET') return
+  const url = new URL(request.url)
+
+  if (!isRuntimeCacheEligible(request, url)) {
+    return
+  }
 
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).catch(() => caches.match('/')))
     return
   }
 
-  const url = new URL(request.url)
-  if (url.origin !== self.location.origin) return
-
   event.respondWith(
-    caches.match(request).then((cached) => {
+    caches.match(request).then(async (cached) => {
       if (cached) return cached
 
-      return fetch(request).then((response) => {
-        const clone = response.clone()
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, clone))
-        return response
-      })
+      const response = await fetch(request)
+      await cacheResponseIfSafe(request, response)
+      return response
     }),
   )
 })

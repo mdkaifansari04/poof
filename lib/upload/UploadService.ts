@@ -15,6 +15,8 @@ export abstract class UploadService {
     expiresIn?: number,
   ): Promise<PresignedUrlResult>
 
+  abstract getPresignedDownloadUrl(key: string, expiresIn?: number): Promise<string>
+
   abstract deleteObject(key: string): Promise<DeleteResult>
 
   abstract deleteObjects(keys: string[]): Promise<DeleteResult>
