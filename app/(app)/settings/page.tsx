@@ -22,17 +22,17 @@ export default async function SettingsPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-white">
           Settings
         </h1>
-        <p className="mt-1 text-sm text-poof-mist">
+        <p className="mt-1 text-sm  text-muted-foreground ">
           Manage your account, API keys, and preferences.
         </p>
       </div>
 
       {/* Account section */}
       <section>
-        <h2 className="mb-4 text-xs font-medium tracking-wide text-poof-mist/60 uppercase">
+        <h2 className="mb-4 text-xs font-medium tracking-wide  text-muted-foreground /60 uppercase">
           Account
         </h2>
-        <div className="rounded-lg border border-white/6 bg-white/2 p-5">
+        <div className="rounded-lg border border-border bg-muted p-5">
           <div className="flex items-center gap-4">
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-poof-violet/10 text-sm font-semibold text-poof-violet">
               {displayName.charAt(0).toUpperCase()}
@@ -41,7 +41,7 @@ export default async function SettingsPage() {
               <p className="text-[15px] font-medium text-white">
                 {displayName}
               </p>
-              <p className="text-sm text-poof-mist">{email}</p>
+              <p className="text-sm  text-muted-foreground ">{email}</p>
             </div>
           </div>
         </div>
@@ -54,11 +54,11 @@ export default async function SettingsPage() {
 
       {/* Legal section */}
       <section>
-        <h2 className="mb-4 text-xs font-medium tracking-wide text-poof-mist/60 uppercase">
+        <h2 className="mb-4 text-xs font-medium tracking-wide  text-muted-foreground /60 uppercase">
           Legal
         </h2>
-        <div className="rounded-lg border border-white/6 bg-white/2 p-5">
-          <p className="text-sm text-poof-mist">
+        <div className="rounded-lg border border-border bg-muted p-5">
+          <p className="text-sm  text-muted-foreground ">
             Questions? Reach us at{" "}
             <a
               href="mailto:poof-support@k04.tech"
@@ -70,14 +70,14 @@ export default async function SettingsPage() {
           <div className="mt-4 flex gap-4">
             <Link
               href="/terms"
-              className="inline-flex items-center gap-1.5 text-sm text-poof-mist transition hover:text-white"
+              className="inline-flex items-center gap-1.5 text-sm  text-muted-foreground  transition hover:text-foreground"
             >
               Terms of Service
               <ExternalLink className="h-3.5 w-3.5" />
             </Link>
             <Link
               href="/privacy"
-              className="inline-flex items-center gap-1.5 text-sm text-poof-mist transition hover:text-white"
+              className="inline-flex items-center gap-1.5 text-sm  text-muted-foreground  transition hover:text-foreground"
             >
               Privacy Policy
               <ExternalLink className="h-3.5 w-3.5" />

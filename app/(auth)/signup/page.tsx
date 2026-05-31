@@ -119,7 +119,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-poof-base flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <AnimatedBackground />
       
       <div className="relative z-10 w-full max-w-md">
@@ -131,10 +131,10 @@ export default function SignupPage() {
 
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="font-heading font-extrabold text-3xl text-white mb-2">
+            <h1 className="font-heading font-extrabold text-3xl text-foreground mb-2">
               Create your account.
             </h1>
-            <p className="text-poof-mist text-sm">
+            <p className="text-muted-foreground text-sm">
               Free forever. No credit card.
             </p>
           </div>
@@ -143,7 +143,7 @@ export default function SignupPage() {
           <Button
             type="button"
             variant="outline"
-            className="w-full bg-white hover:bg-gray-100 text-gray-900 border-0 btn-press mb-6"
+            className="w-full bg-muted hover:bg-muted/80 text-foreground border border-border btn-press mb-6"
             onClick={handleGoogleSignup}
             disabled={loading}
           >
@@ -159,7 +159,7 @@ export default function SignupPage() {
           {/* Divider */}
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="px-2 bg-transparent text-poof-mist">or</span>
@@ -180,7 +180,7 @@ export default function SignupPage() {
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Alex Morgan"
                 className={cn(
-                  'bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50 focus-ring',
+                  'bg-muted border-border text-foreground placeholder:text-muted-foreground/50 focus-ring',
                   error && !name && 'border-red-500 shake'
                 )}
                 disabled={loading || success}
@@ -199,7 +199,7 @@ export default function SignupPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className={cn(
-                  'bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50 focus-ring',
+                  'bg-muted border-border text-foreground placeholder:text-muted-foreground/50 focus-ring',
                   error && !email && 'border-red-500 shake'
                 )}
                 disabled={loading || success}
@@ -219,14 +219,14 @@ export default function SignupPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a strong password"
                   className={cn(
-                    'bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50 pr-10 focus-ring',
+                    'bg-muted border-border text-foreground placeholder:text-muted-foreground/50 pr-10 focus-ring',
                     error && !password && 'border-red-500 shake'
                   )}
                   disabled={loading || success}
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-poof-mist hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
@@ -245,7 +245,7 @@ export default function SignupPage() {
                           'h-1 flex-1 rounded-full transition-all duration-300',
                           segment <= passwordStrength.score
                             ? strengthColors[passwordStrength.strength]
-                            : 'bg-white/10'
+                            : 'bg-muted'
                         )}
                       />
                     ))}
@@ -269,7 +269,7 @@ export default function SignupPage() {
                 id="terms"
                 checked={agreedToTerms}
                 onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-                className="mt-0.5 border-white/20 data-[state=checked]:bg-poof-accent data-[state=checked]:border-poof-accent"
+                className="mt-0.5 border-border data-[state=checked]:bg-poof-accent data-[state=checked]:border-poof-accent"
               />
               <label htmlFor="terms" className="text-sm text-poof-mist cursor-pointer leading-relaxed">
                 I agree to the{' '}
@@ -314,7 +314,7 @@ export default function SignupPage() {
           </form>
 
           {/* Log in link */}
-          <div className="mt-6 pt-6 border-t border-white/10 text-center">
+          <div className="mt-6 pt-6 border-t border-border text-center">
             <p className="text-sm text-poof-mist">
               Already have an account?{' '}
               <Link

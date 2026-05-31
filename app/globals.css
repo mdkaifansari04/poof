@@ -2,9 +2,63 @@
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
 
 :root {
-  /* Poof Brand Colors */
+  /* Poof Brand Colors — light mode */
+  --poof-base: #fafaf9;
+  --poof-violet: #6d5dd3;
+  --poof-accent: #7c5cfc;
+  --poof-peach: #ea580c;
+  --poof-mint: #059669;
+  --poof-mist: #71717a;
+  --poof-surface: rgba(0, 0, 0, 0.03);
+  --poof-surface-hover: rgba(0, 0, 0, 0.06);
+  --poof-border: rgba(0, 0, 0, 0.08);
+  --poof-border-hover: rgba(0, 0, 0, 0.15);
+
+  /* Semantic tokens — light mode */
+  --background: #fafaf9;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #7c5cfc;
+  --primary-foreground: #ffffff;
+  --secondary: rgba(0, 0, 0, 0.04);
+  --secondary-foreground: #171717;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --accent: #c8b8ff;
+  --accent-foreground: #0d0d0d;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.1);
+  --input: rgba(0, 0, 0, 0.06);
+  --ring: #7c5cfc;
+  --radius: 0.75rem;
+
+  /* Chart colors — light mode */
+  --chart-1: #7c5cfc;
+  --chart-2: #6d5dd3;
+  --chart-3: #059669;
+  --chart-4: #ea580c;
+  --chart-5: #71717a;
+
+  /* Sidebar — light mode */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #171717;
+  --sidebar-primary: #7c5cfc;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(124, 92, 252, 0.08);
+  --sidebar-accent-foreground: #4c3db8;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-ring: #7c5cfc;
+}
+
+.dark {
+  /* Poof Brand Colors — dark mode */
   --poof-base: #0d0d0d;
   --poof-violet: #c8b8ff;
   --poof-accent: #7c5cfc;
@@ -16,7 +70,7 @@
   --poof-border: rgba(255, 255, 255, 0.1);
   --poof-border-hover: rgba(255, 255, 255, 0.2);
 
-  /* Semantic tokens mapped to Poof brand */
+  /* Semantic tokens — dark mode */
   --background: #0d0d0d;
   --foreground: #ffffff;
   --card: rgba(255, 255, 255, 0.04);
@@ -38,14 +92,14 @@
   --ring: #7c5cfc;
   --radius: 0.75rem;
 
-  /* Chart colors using Poof palette */
+  /* Chart colors — dark mode */
   --chart-1: #7c5cfc;
   --chart-2: #c8b8ff;
   --chart-3: #b6f0d8;
   --chart-4: #ffcba4;
   --chart-5: #a0a0a0;
 
-  /* Sidebar */
+  /* Sidebar — dark mode */
   --sidebar: #0a0a0a;
   --sidebar-foreground: #ffffff;
   --sidebar-primary: #7c5cfc;
@@ -58,7 +112,7 @@
 
 @theme inline {
   --font-sans: 'DM Sans', system-ui, sans-serif;
-  --font-heading: 'Syne', system-ui, sans-serif;
+  --font-heading: 'Inter', system-ui, sans-serif;
   --font-mono: 'DM Mono', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -122,14 +176,14 @@
 
 /* Glass card styling */
 .glass-card {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--card);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
 }
 
 .glass-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--muted);
+  border-color: var(--poof-border-hover);
 }
 
 /* Shimmer animation for skeletons */
@@ -145,9 +199,9 @@
 
 .skeleton-shimmer {
   background: linear-gradient(90deg,
-      rgba(255, 255, 255, 0.04) 25%,
-      rgba(255, 255, 255, 0.08) 50%,
-      rgba(255, 255, 255, 0.04) 75%);
+      var(--muted) 25%,
+      var(--secondary) 50%,
+      var(--muted) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }

@@ -73,13 +73,13 @@ export default function DashboardPage() {
           {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
-              className="h-28 animate-pulse rounded-xl bg-white/3 border border-white/6"
+              className="h-28 animate-pulse rounded-xl bg-muted border border-border"
             />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <div className="lg:col-span-3 h-72 animate-pulse rounded-xl bg-white/3 border border-white/6" />
-          <div className="lg:col-span-2 h-72 animate-pulse rounded-xl bg-white/3 border border-white/6" />
+          <div className="lg:col-span-3 h-72 animate-pulse rounded-xl bg-muted border border-border" />
+          <div className="lg:col-span-2 h-72 animate-pulse rounded-xl bg-muted border border-border" />
         </div>
       </div>
     );
@@ -89,8 +89,8 @@ export default function DashboardPage() {
   if (galleriesQuery.isError || sharedResourcesQuery.isError) {
     return (
       <div className="mx-auto max-w-6xl py-2 font-sans">
-        <div className="rounded-xl border border-white/6 bg-black px-6 py-12 text-center">
-          <p className="text-sm font-medium text-white">
+        <div className="rounded-xl border border-border bg-card px-6 py-12 text-center">
+          <p className="text-sm font-medium text-foreground">
             Could not load dashboard
           </p>
           <p className="mt-1 text-xs text-poof-mist/60">
@@ -161,7 +161,7 @@ export default function DashboardPage() {
         {/* ── Recent galleries ── */}
         <div className="lg:col-span-3 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-white">Recent Galleries</h2>
+            <h2 className="text-sm font-medium text-foreground">Recent Galleries</h2>
             <Link
               href="/galleries"
               className="group inline-flex items-center gap-1 text-xs text-poof-mist/50 transition-colors hover:text-poof-violet"
@@ -182,7 +182,7 @@ export default function DashboardPage() {
                     className="group block"
                   >
                     <div
-                      className="overflow-hidden rounded-xl border border-white/6 bg-[#111] transition-all duration-200 hover:border-white/12 hover:bg-[#151515]"
+                      className="overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-poof-border-hover hover:bg-muted"
                       style={{ animationDelay: `${i * 0.06}s` }}
                     >
                       {/* Accent bar */}
@@ -191,7 +191,7 @@ export default function DashboardPage() {
                       />
 
                       {/* Cover */}
-                      <div className="relative mx-3 mt-3 aspect-video overflow-hidden rounded-lg bg-black/40">
+                      <div className="relative mx-3 mt-3 aspect-video overflow-hidden rounded-lg bg-muted">
                         {gallery.bannerImageUrl ? (
                           <img
                             src={gallery.bannerImageUrl}
@@ -199,8 +199,8 @@ export default function DashboardPage() {
                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : (
-                          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-white/4 to-white/2">
-                            <span className="select-none text-xl font-semibold text-white/12">
+                          <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-muted to-card">
+                            <span className="select-none text-xl font-semibold text-foreground/15">
                               {gallery.name.slice(0, 2).toUpperCase()}
                             </span>
                           </div>
@@ -209,11 +209,11 @@ export default function DashboardPage() {
 
                       {/* Body */}
                       <div className="px-3 pt-2.5 pb-3">
-                        <h3 className="truncate text-sm font-semibold text-white">
+                        <h3 className="truncate text-sm font-semibold text-foreground">
                           {gallery.name}
                         </h3>
                         <div className="mt-1.5 flex items-center gap-2">
-                          <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-white/10 px-1.5 py-0.5 text-[10px] text-poof-mist/50">
+                          <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-border px-1.5 py-0.5 text-[10px] text-muted-foreground/50">
                             <ImageIcon
                               className="h-2.5 w-2.5"
                               strokeWidth={1.5}
@@ -228,9 +228,9 @@ export default function DashboardPage() {
               })}
             </div>
           ) : (
-            <div className="rounded-xl border border-dashed border-white/10 bg-white/2 px-6 py-14 text-center">
-              <FolderOpen className="mx-auto mb-2 h-5 w-5 text-poof-mist/30" />
-              <p className="text-sm text-poof-mist/50">No galleries yet</p>
+            <div className="rounded-xl border border-dashed border-border bg-muted px-6 py-14 text-center">
+              <FolderOpen className="mx-auto mb-2 h-5 w-5 text-muted-foreground/30" />
+              <p className="text-sm text-muted-foreground/50">No galleries yet</p>
               <Button
                 asChild
                 size="sm"
@@ -246,7 +246,7 @@ export default function DashboardPage() {
         {/* ── Recent activity feed ── */}
         <div className="lg:col-span-2 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-medium text-white">Recent Activity</h2>
+            <h2 className="text-sm font-medium text-foreground">Recent Activity</h2>
             <Link
               href="/links"
               className="group inline-flex items-center gap-1 text-xs text-poof-mist/50 transition-colors hover:text-poof-violet"
@@ -256,14 +256,14 @@ export default function DashboardPage() {
             </Link>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-white/6 bg-[#111]">
+          <div className="overflow-hidden rounded-xl border border-border bg-card">
             {links.length > 0 ? (
               links.slice(0, 6).map((link, i) => (
                 <div
                   key={link.id}
                   className={cn(
-                    "flex items-center gap-3 px-4 py-3 transition-colors hover:bg-white/3",
-                    i !== 0 && "border-t border-white/4",
+                    "flex items-center gap-3 px-4 py-3 transition-colors hover:bg-muted",
+                    i !== 0 && "border-t border-border",
                   )}
                 >
                   {/* Status indicator */}
@@ -309,7 +309,7 @@ export default function DashboardPage() {
                         ? "border-emerald-400/20 text-emerald-400/70"
                         : link.status === "REVOKED"
                           ? "border-red-400/20 text-red-400/70"
-                          : "border-white/10 text-poof-mist/40",
+                          : "border-border text-muted-foreground/40",
                     )}
                   >
                     {link.status}
@@ -349,7 +349,7 @@ function MetricCard({
 }) {
   return (
     <div
-      className="rounded-xl border border-white/6 bg-[#111] p-4 transition-colors hover:bg-[#141414]"
+      className="rounded-xl border border-border bg-card p-4 transition-colors hover:bg-muted"
       style={{ animationDelay: `${delay * 0.05}s` }}
     >
       <div className="mb-3 flex items-center gap-2">
@@ -370,7 +370,7 @@ function MetricCard({
           {label}
         </span>
       </div>
-      <div className="text-2xl font-semibold tabular-nums text-white">
+      <div className="text-2xl font-semibold tabular-nums text-foreground">
         {value.toLocaleString()}
       </div>
       <p

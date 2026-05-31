@@ -190,10 +190,10 @@ export function AgentApiKeysCard() {
       {/* Section header */}
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h2 className="text-xs font-medium tracking-wide text-poof-mist/60 uppercase">
+          <h2 className="text-xs font-medium tracking-wide  text-muted-foreground /60 uppercase">
             API Keys
           </h2>
-          <p className="mt-1 text-sm text-poof-mist">
+          <p className="mt-1 text-sm  text-muted-foreground ">
             {activeKeyCount} active key{activeKeyCount !== 1 ? "s" : ""}
           </p>
         </div>
@@ -203,7 +203,7 @@ export function AgentApiKeysCard() {
             <Button
               variant={"link"}
               size="sm"
-              className="gap-1.5 text-primary hover:text-white cursor-pointer"
+              className="gap-1.5 text-primary hover:text-foreground cursor-pointer"
             >
               <Plus className="h-3.5 w-3.5" />
               Create key
@@ -212,7 +212,7 @@ export function AgentApiKeysCard() {
           <SheetContent>
             <SheetHeader>
               <SheetTitle>Create API key</SheetTitle>
-              <SheetDescription className="text-xs text-poof-mist">
+              <SheetDescription className="text-xs  text-muted-foreground ">
                 Configure permissions for a new agent key. The raw secret is
                 shown only once after creation.
               </SheetDescription>
@@ -288,7 +288,7 @@ export function AgentApiKeysCard() {
 
       {/* Revealed key banner */}
       {revealedApiKey && (
-        <div className="mb-4 rounded-2xl border border-white/10 bg-neutral-900/70 backdrop-blur-sm p-4 shadow-sm">
+        <div className="mb-4 rounded-2xl border border-border bg-muted backdrop-blur-sm p-4 shadow-sm">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
               {/* Title */}
@@ -301,12 +301,12 @@ export function AgentApiKeysCard() {
 
               {/* Key */}
               <div className="relative mt-3 group/code">
-                <code className="block break-all rounded-lg bg-black/40 px-3 py-2 pr-9 font-mono text-xs text-neutral-200 border border-white/5">
+                <code className="block break-all rounded-lg bg-muted px-3 py-2 pr-9 font-mono text-xs text-foreground/80 border border-border">
                   {revealedApiKey}
                 </code>
                 <button
                   onClick={() => void handleCopyKey()}
-                  className="absolute top-1/2 right-2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-md text-neutral-500 transition-colors hover:bg-white/10 hover:text-white"
+                  className="absolute top-1/2 right-2 -translate-y-1/2 flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   <Copy className="h-3.5 w-3.5" strokeWidth={1.5} />
                 </button>
@@ -317,30 +317,30 @@ export function AgentApiKeysCard() {
       )}
 
       {/* Keys list — card-style rows */}
-      <div className="overflow-hidden rounded-lg border border-white/6 bg-black">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         {isLoading ? (
           <div className="flex flex-col gap-1 p-3">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="h-16 animate-pulse rounded-lg bg-white/3"
+                className="h-16 animate-pulse rounded-lg bg-muted"
               />
             ))}
           </div>
         ) : keys.length === 0 ? (
           <div className="px-6 py-12 text-center">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/4">
-              <Key className="h-4 w-4 text-poof-mist/40" strokeWidth={1.5} />
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
+              <Key className="h-4 w-4  text-muted-foreground /40" strokeWidth={1.5} />
             </div>
-            <p className="text-sm text-poof-mist">No API keys yet</p>
-            <p className="mt-0.5 text-xs text-poof-mist/50">
+            <p className="text-sm  text-muted-foreground ">No API keys yet</p>
+            <p className="mt-0.5 text-xs  text-muted-foreground /50">
               Create one to connect an agent.
             </p>
           </div>
         ) : (
           <div className="flex flex-col p-0.5">
             {/* Header */}
-            <div className="grid grid-cols-[1fr_120px_120px_36px] items-center gap-2 px-5 py-2.5 text-xs font-medium text-poof-mist/70 sm:grid-cols-[1fr_140px_140px_36px] bg-black">
+            <div className="grid grid-cols-[1fr_120px_120px_36px] items-center gap-2 px-5 py-2.5 text-xs font-medium text-muted-foreground uppercase sm:grid-cols-[1fr_140px_140px_36px]">
               <span>Key</span>
               <span>Permissions</span>
               <span>Status</span>
@@ -356,7 +356,7 @@ export function AgentApiKeysCard() {
                   <div
                     key={key.id}
                     className={cn(
-                      "group bg-[#141414] grid grid-cols-[1fr_120px_120px_36px] items-center gap-1 px-3 py-3 transition-colors duration-150 hover:bg-white/4 sm:grid-cols-[1fr_140px_140px_36px]",
+                      "group bg-card grid grid-cols-[1fr_120px_120px_36px] items-center gap-1 px-3 py-3 transition-colors duration-150 hover:bg-secondary sm:grid-cols-[1fr_140px_140px_36px]",
                       {
                         "rounded-t-lg": index === 0,
                         "rounded-b-lg": index === keys.length - 1,
@@ -374,14 +374,14 @@ export function AgentApiKeysCard() {
                         <p className="truncate text-sm font-medium text-white/90">
                           {key.name}
                         </p>
-                        <p className="truncate font-mono text-[11px] text-poof-mist/50">
+                        <p className="truncate font-mono text-[11px]  text-muted-foreground /50">
                           {key.prefix}...
                         </p>
                       </div>
                     </div>
 
                     {/* Permissions */}
-                    <span className="text-xs text-poof-mist/60">
+                    <span className="text-xs  text-muted-foreground /60">
                       {formatPermissions(key)}
                     </span>
 
@@ -401,7 +401,7 @@ export function AgentApiKeysCard() {
                     <div className="flex justify-end">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="flex h-7 w-7 items-center justify-center rounded-lg text-poof-mist/30 opacity-0 transition-all duration-150 hover:bg-white/6 hover:text-poof-mist group-hover:opacity-100 focus-visible:opacity-100">
+                          <button className="flex h-7 w-7 items-center justify-center rounded-lg  text-muted-foreground /30 opacity-0 transition-all duration-150 hover:bg-muted hover:text-muted-foreground group-hover:opacity-100 focus-visible:opacity-100">
                             <MoreHorizontal
                               className="h-4 w-4"
                               strokeWidth={1.5}
@@ -410,21 +410,21 @@ export function AgentApiKeysCard() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="w-44 rounded-sm border-white/8 bg-[#1a1a1a] p-1.5"
+                          className="w-44 rounded-sm border-border bg-popover p-1.5"
                         >
                           <DropdownMenuItem
-                            className="gap-2 rounded-sm px-2 py-1 text-xs hover:!bg-gray-200/20 hover:!text-white"
+                            className="gap-2 rounded-sm px-2 py-1 text-xs hover:!bg-gray-200/20 hover:!text-foreground"
                             onClick={() => void handleCopyPrefix(key.prefix)}
                           >
                             <Copy
-                              className="h-3 w-3 text-poof-mist/50"
+                              className="h-3 w-3  text-muted-foreground /50"
                               strokeWidth={1.5}
                             />
                             Copy prefix
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="gap-2 rounded-sm px-2 py-1 text-xs hover:!bg-gray-200/20 hover:!text-white">
+                          <DropdownMenuItem className="gap-2 rounded-sm px-2 py-1 text-xs hover:!bg-gray-200/20 hover:!text-foreground">
                             <ShieldCheck
-                              className="h-3 w-3 text-poof-mist/50"
+                              className="h-3 w-3  text-muted-foreground /50"
                               strokeWidth={1.5}
                             />
                             {formatPermissions(key)}
@@ -432,10 +432,10 @@ export function AgentApiKeysCard() {
 
                           {!isRevoked && (
                             <>
-                              <DropdownMenuSeparator className="my-1 bg-white/6" />
+                              <DropdownMenuSeparator className="my-1 bg-muted" />
                               <DropdownMenuItem
                                 variant="destructive"
-                                className="gap-2 rounded-sm px-2 py-1 text-xs hover:bg-white/5"
+                                className="gap-2 rounded-sm px-2 py-1 text-xs hover:bg-secondary"
                                 disabled={revokingId === key.id}
                                 onClick={() => void handleRevokeKey(key.id)}
                               >

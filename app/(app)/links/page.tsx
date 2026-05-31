@@ -254,9 +254,9 @@ export default function ShareLinksPage() {
   if (sharedResourcesQuery.isPending) {
     return (
       <div className="mx-auto max-w-5xl py-2 font-sans">
-        <div className="flex flex-col gap-1 rounded-lg border border-white/6 bg-black p-3">
+        <div className="flex flex-col gap-1 rounded-lg border border-border bg-card p-3">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-14 animate-pulse rounded-lg bg-white/3" />
+            <div key={i} className="h-14 animate-pulse rounded-lg bg-muted" />
           ))}
         </div>
       </div>
@@ -267,7 +267,7 @@ export default function ShareLinksPage() {
   if (sharedResourcesQuery.isError) {
     return (
       <div className="mx-auto max-w-5xl py-2 font-sans">
-        <div className="rounded-lg border border-white/6 bg-black px-6 py-12 text-center">
+        <div className="rounded-lg border border-border bg-card px-6 py-12 text-center">
           <p className="text-sm font-medium text-white">
             Could not load share links
           </p>
@@ -297,10 +297,10 @@ export default function ShareLinksPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search links..."
-            className="h-8 rounded-md border-white/6 bg-white/3 pl-8 text-xs text-white placeholder:text-poof-mist/30"
+            className="h-8 rounded-md border-border bg-muted pl-8 text-xs text-foreground placeholder:text-muted-foreground/40"
           />
         </div>
-        <div className="flex items-center gap-0.5 rounded-md border border-white/6 bg-white/2 p-0.5">
+        <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted p-0.5">
           {(["ALL", "ACTIVE", "EXPIRED", "REVOKED"] as const).map((s) => (
             <button
               key={s}
@@ -308,7 +308,7 @@ export default function ShareLinksPage() {
               className={cn(
                 "rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors",
                 statusFilter === s
-                  ? "bg-white/8 text-white"
+                  ? "bg-card shadow-sm text-foreground font-semibold"
                   : "text-poof-mist/50 hover:text-poof-mist",
               )}
             >
@@ -319,10 +319,10 @@ export default function ShareLinksPage() {
       </div>
 
       {/* ── Table ── */}
-      <div className="overflow-hidden rounded-lg border border-white/6 bg-black">
+      <div className="overflow-hidden rounded-lg border border-border bg-card">
         {filteredLinks.length === 0 ? (
           <div className="px-6 py-16 text-center">
-            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white/4">
+            <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-muted">
               <Link2 className="h-4 w-4 text-poof-mist/40" strokeWidth={1.5} />
             </div>
             <p className="text-sm text-poof-mist">No share links found</p>
@@ -354,7 +354,7 @@ export default function ShareLinksPage() {
                   <div
                     key={link.id}
                     className={cn(
-                      "group grid grid-cols-[1fr_100px_80px_100px_80px_36px] items-center gap-2 bg-[#141414] px-4 py-3 transition-colors duration-150 hover:bg-white/4",
+                      "group grid grid-cols-[1fr_100px_80px_100px_80px_36px] items-center gap-2 bg-card px-4 py-3 transition-colors duration-150 hover:bg-foreground/5",
                       {
                         "rounded-t-lg": index === 0,
                         "rounded-b-lg": index === paginatedLinks.length - 1,
@@ -364,7 +364,7 @@ export default function ShareLinksPage() {
                     {/* Link info */}
                     <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="truncate text-sm font-medium text-white/90">
+                        <p className="truncate text-sm font-medium text-foreground/90">
                           {link.gallery?.name ?? "Untitled"}
                         </p>
                         <span className="text-[10px] text-poof-mist/30">
@@ -379,7 +379,7 @@ export default function ShareLinksPage() {
                           onClick={() =>
                             void handleCopy(link.shareUrl, link.id)
                           }
-                          className="shrink-0 text-poof-mist/30 transition-colors hover:text-white"
+                          className="shrink-0 text-poof-mist/30 transition-colors hover:text-foreground"
                         >
                           {copiedLinkId === link.id ? (
                             <Check className="h-3 w-3 text-emerald-400" />
@@ -395,7 +395,7 @@ export default function ShareLinksPage() {
                       <span
                         className={cn(
                           "inline-block rounded-md px-2 py-0.5 text-[10px] font-medium",
-                          typeColors[link.type] ?? "bg-white/5 text-poof-mist",
+                          typeColors[link.type] ?? "bg-muted text-muted-foreground",
                         )}
                       >
                         {link.type === "MULTI_IMAGE"
@@ -450,7 +450,7 @@ export default function ShareLinksPage() {
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
-                            className="flex h-7 w-7 items-center justify-center rounded-lg text-poof-mist/30 opacity-0 transition-all duration-150 hover:bg-white/6 hover:text-poof-mist group-hover:opacity-100 focus-visible:opacity-100"
+                            className="flex h-7 w-7 items-center justify-center rounded-lg text-poof-mist/30 opacity-0 transition-all duration-150 hover:bg-foreground/5 hover:text-poof-mist group-hover:opacity-100 focus-visible:opacity-100"
                             disabled={
                               (isDeleting && deleteTargetId === link.id) ||
                               revokingLinkId === link.id
@@ -469,7 +469,7 @@ export default function ShareLinksPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                           align="end"
-                          className="w-40 rounded-lg border-white/8 bg-[#1a1a1a] p-1"
+                          className="w-40 rounded-lg border-border bg-popover p-1"
                         >
                           <DropdownMenuItem
                             className="gap-2 rounded-md px-2.5 py-1.5 text-xs"
@@ -505,7 +505,7 @@ export default function ShareLinksPage() {
                           </DropdownMenuItem>
                           {isActive && (
                             <>
-                              <DropdownMenuSeparator className="my-1 bg-white/6" />
+                              <DropdownMenuSeparator className="my-1 bg-muted" />
                               <DropdownMenuItem
                                 className="gap-2 rounded-md px-2.5 py-1.5 text-xs text-amber-300"
                                 onClick={() => void handleRevoke(link.id)}
@@ -518,7 +518,7 @@ export default function ShareLinksPage() {
                               </DropdownMenuItem>
                             </>
                           )}
-                          <DropdownMenuSeparator className="my-1 bg-white/6" />
+                          <DropdownMenuSeparator className="my-1 bg-muted" />
                           <DropdownMenuItem
                             variant="destructive"
                             className="gap-2 rounded-md px-2.5 py-1.5 text-xs"
@@ -540,7 +540,7 @@ export default function ShareLinksPage() {
 
         {/* Pagination */}
         {filteredLinks.length > 0 && (
-          <div className="flex items-center justify-between border-t border-white/6 px-4 py-2.5">
+          <div className="flex items-center justify-between border-t border-border px-4 py-2.5">
             <div className="flex items-center gap-3">
               <span className="text-[11px] tabular-nums text-poof-mist/50">
                 {rangeStart}–{rangeEnd} of {filteredLinks.length}
@@ -553,10 +553,10 @@ export default function ShareLinksPage() {
                     setPerPage(Number(e.target.value));
                     setPage(1);
                   }}
-                  className="h-6 rounded-md border border-white/8 bg-white/5 px-1.5 text-[11px] text-poof-mist outline-none transition-colors hover:border-white/12"
+                  className="h-6 rounded-md border border-border bg-muted px-1.5 text-[11px] text-poof-mist outline-none transition-colors hover:border-poof-border-hover"
                 >
                   {[10, 20, 50].map((n) => (
-                    <option key={n} value={n} className="bg-[#1a1a1a]">
+                    <option key={n} value={n} className="bg-popover">
                       {n}
                     </option>
                   ))}
@@ -567,14 +567,14 @@ export default function ShareLinksPage() {
               <button
                 onClick={() => setPage(1)}
                 disabled={page <= 1}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-white/6 hover:text-white disabled:opacity-25 disabled:pointer-events-none"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-25 disabled:pointer-events-none"
               >
                 <ChevronsLeft className="h-3 w-3" strokeWidth={1.5} />
               </button>
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-white/6 hover:text-white disabled:opacity-25 disabled:pointer-events-none"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-25 disabled:pointer-events-none"
               >
                 <ChevronLeft className="h-3 w-3" strokeWidth={1.5} />
               </button>
@@ -584,14 +584,14 @@ export default function ShareLinksPage() {
               <button
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-white/6 hover:text-white disabled:opacity-25 disabled:pointer-events-none"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-25 disabled:pointer-events-none"
               >
                 <ChevronRight className="h-3 w-3" strokeWidth={1.5} />
               </button>
               <button
                 onClick={() => setPage(totalPages)}
                 disabled={page >= totalPages}
-                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-white/6 hover:text-white disabled:opacity-25 disabled:pointer-events-none"
+                className="flex h-6 w-6 items-center justify-center rounded-md text-poof-mist/40 transition-colors hover:bg-foreground/5 hover:text-foreground disabled:opacity-25 disabled:pointer-events-none"
               >
                 <ChevronsRight className="h-3 w-3" strokeWidth={1.5} />
               </button>
@@ -607,7 +607,7 @@ export default function ShareLinksPage() {
           if (!open && !isDeleting) setDeleteTargetId(null);
         }}
       >
-        <AlertDialogContent className="border-white/10 bg-poof-base text-white">
+        <AlertDialogContent className="border-border bg-card text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-base font-medium">
               Delete share link?
@@ -620,13 +620,13 @@ export default function ShareLinksPage() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
-              className="border-white/10 text-poof-mist hover:bg-white/5 hover:text-white"
+              className="border-border text-poof-mist hover:bg-foreground/5 hover:text-foreground"
               disabled={isDeleting}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 text-white hover:bg-red-500/90"
+              className="bg-red-500 text-foreground hover:bg-red-500/90"
               onClick={() => {
                 if (deleteTargetId) void handleDelete(deleteTargetId);
               }}
@@ -652,7 +652,7 @@ export default function ShareLinksPage() {
           if (!open && !updateSharedResource.isPending) setEditTargetId(null);
         }}
       >
-        <DialogContent className="border-white/10 bg-poof-base text-white sm:max-w-md">
+        <DialogContent className="border-border bg-card text-foreground sm:max-w-md">
           <div className="space-y-5">
             <div>
               <h2 className="text-base font-medium text-white">Edit link</h2>
@@ -662,7 +662,7 @@ export default function ShareLinksPage() {
             </div>
 
             {editTarget ? (
-              <div className="rounded-lg border border-white/6 bg-white/3 px-3 py-2.5">
+              <div className="rounded-lg border border-border bg-muted px-3 py-2.5">
                 <p className="break-all font-mono text-[11px] text-poof-violet/80">
                   {editTarget.shareUrl}
                 </p>
@@ -690,16 +690,16 @@ export default function ShareLinksPage() {
                 value={editExpiryDateTime}
                 min={minDateTimeValue}
                 onChange={(e) => setEditExpiryDateTime(e.target.value)}
-                className="h-9 border-white/6 bg-white/3 text-xs text-white"
+                className="h-9 border-border bg-muted text-xs text-white"
               />
             </div>
 
             {editTarget && editTarget.status !== "ACTIVE" && (
-              <label className="flex items-center gap-2.5 rounded-lg border border-white/6 bg-white/3 px-3 py-2.5">
+              <label className="flex items-center gap-2.5 rounded-lg border border-border bg-muted px-3 py-2.5">
                 <Checkbox
                   checked={editReactivate}
                   onCheckedChange={(c) => setEditReactivate(Boolean(c))}
-                  className="border-white/20 data-[state=checked]:border-poof-accent data-[state=checked]:bg-poof-accent"
+                  className="border-border data-[state=checked]:border-poof-accent data-[state=checked]:bg-poof-accent"
                 />
                 <span className="text-xs text-poof-mist">
                   Reactivate this link
@@ -711,7 +711,7 @@ export default function ShareLinksPage() {
               <Button
                 size="sm"
                 variant="ghost"
-                className="text-poof-mist hover:text-white"
+                className="text-poof-mist hover:text-foreground"
                 onClick={() => setEditTargetId(null)}
                 disabled={updateSharedResource.isPending}
               >
@@ -719,7 +719,7 @@ export default function ShareLinksPage() {
               </Button>
               <Button
                 size="sm"
-                className="bg-poof-accent text-white hover:bg-poof-accent/90"
+                className="bg-poof-accent text-foreground hover:bg-poof-accent/90"
                 onClick={() => void handleUpdateLink()}
                 disabled={updateSharedResource.isPending}
               >

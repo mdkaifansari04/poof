@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Syne } from "next/font/google";
+import { DM_Sans, Inter } from "next/font/google";
 import { AppToaster } from "@/components/providers/app-toaster";
 import { PwaRegister } from "@/components/providers/pwa-register";
 import { QueryProvider } from "@/components/providers/query-provider";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://poof.k04.tech";
@@ -18,7 +19,7 @@ const dmSans = DM_Sans({
   variable: "--font-sans",
 });
 
-const syne = Syne({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["700", "800"],
   variable: "--font-heading",
@@ -93,7 +94,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d0d0d",
+  themeColor: "#fafaf9",
   width: "device-width",
   initialScale: 1,
 };
@@ -104,16 +105,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body
-        suppressHydrationWarning
-        className={`${dmSans.variable} ${syne.variable} font-sans antialiased bg-poof-base text-white`}
+        className={`${dmSans.variable} ${inter.variable} font-sans antialiased`}
       >
-        <QueryProvider>
-          <PwaRegister />
-          {children}
-          <AppToaster />
-        </QueryProvider>
+        <ThemeProvider attribute="class" defaultTheme="light" forcedTheme="light">
+          <QueryProvider>
+            <PwaRegister />
+            {children}
+            <AppToaster />
+          </QueryProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
