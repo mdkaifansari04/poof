@@ -991,12 +991,12 @@ export default function GalleryDetailPage({
   if (galleryQuery.isPending) {
     return (
       <div className="mx-auto max-w-6xl space-y-4 py-2 font-sans">
-        <div className="h-8 w-52 animate-pulse rounded-md bg-white/4" />
+        <div className="h-8 w-52 animate-pulse rounded-md bg-muted" />
         <div className="columns-2 gap-3 space-y-3 md:columns-3 lg:columns-4">
           {[1, 2, 3, 4, 5, 6].map((index) => (
             <div
               key={index}
-              className="h-44 animate-pulse rounded-lg border border-white/6 bg-white/3 break-inside-avoid"
+              className="h-44 animate-pulse rounded-lg border border-border bg-muted break-inside-avoid"
             />
           ))}
         </div>
@@ -1007,16 +1007,16 @@ export default function GalleryDetailPage({
   if (galleryQuery.isError || !gallery) {
     return (
       <div className="mx-auto max-w-6xl py-2 font-sans">
-        <div className="rounded-xl border border-white/6 bg-[#111] px-6 py-12 text-center">
-          <p className="text-sm font-medium text-white">Gallery not found</p>
-          <p className="mt-1 text-xs text-poof-mist/70">
+        <div className="rounded-xl border border-border bg-card px-6 py-12 text-center">
+          <p className="text-sm font-medium text-foreground">Gallery not found</p>
+          <p className="mt-1 text-xs text-muted-foreground/70">
           {galleryQuery.isError
             ? galleryQuery.error.message
             : "This gallery may have been deleted."}
           </p>
           <Button
             asChild
-            className="mt-4 h-8 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
+            className="mt-4 h-8 bg-poof-accent px-3 text-xs text-foreground hover:bg-poof-accent/90"
           >
             <Link href="/galleries">Back to galleries</Link>
           </Button>
@@ -1031,13 +1031,13 @@ export default function GalleryDetailPage({
         <div className="flex items-start gap-4">
           <Link
             href="/galleries"
-            className="mt-0.5 rounded-md p-1.5 text-poof-mist/70 transition-colors hover:bg-white/5 hover:text-white"
+            className="mt-0.5 rounded-md p-1.5 text-muted-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
           </Link>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
+            <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground/45">
               Gallery
             </p>
             {isEditing ? (
@@ -1054,26 +1054,26 @@ export default function GalleryDetailPage({
                     setIsEditing(false);
                   }
                 }}
-                className="mt-1 h-auto border-0 border-b border-poof-accent bg-transparent p-0 text-2xl font-semibold text-white focus-visible:ring-0 lg:text-3xl"
+                className="mt-1 h-auto border-0 border-b border-poof-accent bg-transparent p-0 text-2xl font-semibold text-foreground focus-visible:ring-0 lg:text-3xl"
                 autoFocus
               />
             ) : (
               <h1
                 onClick={() => setIsEditing(true)}
-                className="mt-1 cursor-pointer text-2xl font-semibold text-white transition-colors hover:text-poof-violet lg:text-3xl"
+                className="mt-1 cursor-pointer text-2xl font-semibold text-foreground transition-colors hover:text-poof-violet lg:text-3xl"
               >
                 {gallery.name}
               </h1>
             )}
             {gallery.description && (
-              <p className="mt-1 text-sm text-poof-mist/80">{gallery.description}</p>
+              <p className="mt-1 text-sm text-muted-foreground/80">{gallery.description}</p>
             )}
             <div className="mt-2 flex items-center gap-2">
-              <span className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 text-[11px] text-poof-mist/70">
+              <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-[11px] text-muted-foreground/70">
                 {allImages.length} photos
               </span>
               {galleryShares.length > 0 && (
-                <span className="rounded-md border border-white/8 bg-white/3 px-2 py-0.5 text-[11px] text-poof-mist/70">
+                <span className="rounded-md border border-border bg-muted px-2 py-0.5 text-[11px] text-muted-foreground/70">
                   {galleryShares.length} links
                 </span>
               )}
@@ -1084,7 +1084,7 @@ export default function GalleryDetailPage({
         <div className="flex items-center gap-2 lg:gap-3">
           <Button
             variant="outline"
-            className="h-8 border-white/8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
+            className="h-8 border-border text-xs text-poof-mist hover:bg-muted hover:text-foreground"
             onClick={() => setIsUploadModalOpen(true)}
             disabled={isUploading}
           >
@@ -1101,7 +1101,7 @@ export default function GalleryDetailPage({
             )}
           </Button>
           <Button
-            className="h-8 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
+            className="h-8 bg-poof-accent px-3 text-xs text-foreground hover:bg-poof-accent/90"
             onClick={() => openShareModal()}
           >
             <Share2 className="mr-1.5 h-3.5 w-3.5" />
@@ -1112,7 +1112,7 @@ export default function GalleryDetailPage({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist"
+                className="h-7 w-7 rounded-lg text-muted-foreground/40 hover:bg-muted hover:text-poof-mist"
               >
                 <MoreHorizontal className="w-5 h-5" />
               </Button>
@@ -1133,7 +1133,7 @@ export default function GalleryDetailPage({
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-white/6 bg-[#111]">
+      <div className="overflow-hidden rounded-xl border border-border bg-card">
         <div className="relative h-44 sm:h-56">
           {gallery.bannerImageUrl ? (
             <img
@@ -1144,13 +1144,13 @@ export default function GalleryDetailPage({
           ) : (
             <div className="h-full w-full bg-[radial-gradient(circle_at_20%_20%,rgba(131,100,246,0.35),transparent_45%),radial-gradient(circle_at_80%_0%,rgba(59,250,213,0.2),transparent_40%),linear-gradient(135deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01))]" />
           )}
-          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-foreground/10" />
           <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 p-4 sm:p-5">
             <div className="min-w-0"></div>
             <Button
               size="sm"
               variant="secondary"
-              className="h-7 border-white/15 bg-black/70 px-3 text-xs text-white hover:bg-black/90"
+              className="h-7 border-border bg-foreground/10 px-3 text-xs text-foreground hover:bg-foreground/90"
               onClick={() => setIsBannerModalOpen(true)}
             >
               <Pencil className="mr-1.5 h-3 w-3" />
@@ -1163,19 +1163,19 @@ export default function GalleryDetailPage({
       {selectedImageIds.size > 0 && (
         <div className="rounded-lg border border-poof-violet/20 bg-poof-violet/8 px-4 py-2.5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <p className="text-xs font-medium text-white">
+            <p className="text-xs font-medium text-foreground">
               {selectedImageIds.size} selected
             </p>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
-                className="h-8 border-white/8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
+                className="h-8 border-border text-xs text-poof-mist hover:bg-muted hover:text-foreground"
                 onClick={clearImageSelection}
               >
                 Clear
               </Button>
               <Button
-                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
+                className="h-8 bg-poof-accent px-4 text-xs text-foreground hover:bg-poof-accent/90"
                 onClick={() =>
                   openShareModal(selectedImageList.map((image) => image.id))
                 }
@@ -1187,12 +1187,12 @@ export default function GalleryDetailPage({
         </div>
       )}
 
-      <div className="rounded-xl border border-white/6 bg-[#111] p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
-          <h3 className="text-sm font-medium text-white">Share links</h3>
+          <h3 className="text-sm font-medium text-foreground">Share links</h3>
           <Button
             size="sm"
-            className="h-7 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
+            className="h-7 bg-poof-accent px-3 text-xs text-foreground hover:bg-poof-accent/90"
             onClick={() => openShareModal()}
           >
             <Plus className="mr-1 h-3.5 w-3.5" />
@@ -1205,7 +1205,7 @@ export default function GalleryDetailPage({
             {galleryShares.map((share) => (
               <div
                 key={share.id}
-                className="rounded-lg border border-white/8 bg-black/30 px-3 py-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
+                className="rounded-lg border border-border bg-foreground/30 px-3 py-2 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
               >
                 <div className="min-w-0">
                   <p className="truncate font-mono text-xs text-poof-violet/90">
@@ -1224,7 +1224,7 @@ export default function GalleryDetailPage({
                     >
                       {share.status}
                     </StatusBadge>
-                    <span className="inline-flex items-center gap-1 text-[11px] text-poof-mist/75">
+                    <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground/75">
                       <Clock3 className="h-3 w-3" />
                       {share.status === "ACTIVE" ? (
                         <Countdown expiresAt={new Date(share.expiresAt)} />
@@ -1234,10 +1234,10 @@ export default function GalleryDetailPage({
                         "Poofed"
                       )}
                     </span>
-                    <span className="text-[11px] text-poof-mist/75">
+                    <span className="text-[11px] text-muted-foreground/75">
                       {share.viewCount} views
                     </span>
-                    <span className="text-[11px] text-poof-mist/75">
+                    <span className="text-[11px] text-muted-foreground/75">
                       {share.type}
                     </span>
                   </div>
@@ -1248,7 +1248,7 @@ export default function GalleryDetailPage({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-lg text-poof-mist/40 hover:bg-white/6 hover:text-poof-mist"
+                        className="h-7 w-7 rounded-lg text-muted-foreground/40 hover:bg-muted hover:text-poof-mist"
                         disabled={
                           isDeletingShare && deleteShareTargetId === share.id
                             ? true
@@ -1329,7 +1329,7 @@ export default function GalleryDetailPage({
             ))}
           </div>
         ) : (
-          <p className="text-xs text-poof-mist/70">No share links yet.</p>
+          <p className="text-xs text-muted-foreground/70">No share links yet.</p>
         )}
       </div>
 
@@ -1342,7 +1342,7 @@ export default function GalleryDetailPage({
               <div
                 key={image.id}
                 className={cn(
-                  "break-inside-avoid group relative overflow-hidden rounded-lg border border-white/8 bg-black/35 animate-fade-up",
+                  "break-inside-avoid group relative overflow-hidden rounded-lg border border-border bg-foreground/10 animate-fade-up",
                   selectedImageIds.has(image.id) && "ring-1 ring-poof-violet",
                   canPreview ? "cursor-pointer" : "cursor-not-allowed",
                 )}
@@ -1360,14 +1360,14 @@ export default function GalleryDetailPage({
                       alt={image.fileName}
                       className="w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
                     />
-                    <div className="pointer-events-none absolute inset-0 bg-black/25" />
-                    <div className="absolute bottom-2 left-2 max-w-[88%] truncate rounded-md border border-white/10 bg-black/65 px-2 py-0.5 text-[10px] text-white/90">
+                    <div className="pointer-events-none absolute inset-0 bg-foreground/5" />
+                    <div className="absolute bottom-2 left-2 max-w-[88%] truncate rounded-md border border-border bg-foreground/10 px-2 py-0.5 text-[10px] text-foreground/90">
                       {image.fileName}
                     </div>
                   </div>
                 ) : (
-                  <div className="flex min-h-48 w-full items-center justify-center bg-white/3 p-4">
-                    <span className="text-center text-xs text-poof-mist/75">
+                  <div className="flex min-h-48 w-full items-center justify-center bg-muted p-4">
+                    <span className="text-center text-xs text-muted-foreground/75">
                       {image.uploadStatus === "PENDING"
                         ? "Upload pending"
                         : "Upload failed"}
@@ -1375,7 +1375,7 @@ export default function GalleryDetailPage({
                   </div>
                 )}
 
-                <div className="absolute left-2 top-2 rounded-md border border-white/10 bg-black/65 px-2 py-0.5 text-[10px] text-white">
+                <div className="absolute left-2 top-2 rounded-md border border-border bg-foreground/10 px-2 py-0.5 text-[10px] text-foreground">
                   {image.uploadStatus}
                 </div>
                 {canPreview && (
@@ -1384,20 +1384,20 @@ export default function GalleryDetailPage({
                       checked={selectedImageIds.has(image.id)}
                       onCheckedChange={() => toggleImageSelection(image.id)}
                       onClick={(event) => event.stopPropagation()}
-                      className="h-4 w-4 border-white/50 bg-black/50 data-[state=checked]:border-poof-violet data-[state=checked]:bg-poof-violet"
+                      className="h-4 w-4 border-border bg-foreground/5 data-[state=checked]:border-poof-violet data-[state=checked]:bg-poof-violet"
                     />
                   </div>
                 )}
 
-                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
+                <div className="absolute inset-0 flex items-center justify-center gap-2 bg-background/60 opacity-0 transition-opacity group-hover:opacity-100">
                   <button
-                    className="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+                    className="rounded-full bg-muted p-2 text-foreground transition-colors hover:bg-foreground/10"
                     disabled={!canPreview}
                   >
                     <Maximize2 className="h-4 w-4" />
                   </button>
                   <button
-                    className="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+                    className="rounded-full bg-muted p-2 text-foreground transition-colors hover:bg-foreground/10"
                     onClick={(event) => {
                       event.stopPropagation();
                       openShareModal([image.id]);
@@ -1407,7 +1407,7 @@ export default function GalleryDetailPage({
                     <Share2 className="h-4 w-4" />
                   </button>
                   <button
-                    className="rounded-full bg-white/10 p-2 text-white transition-colors hover:bg-white/20"
+                    className="rounded-full bg-muted p-2 text-foreground transition-colors hover:bg-foreground/10"
                     disabled={!canPreview}
                   >
                     <Download className="h-4 w-4" />
@@ -1417,7 +1417,7 @@ export default function GalleryDetailPage({
                       event.stopPropagation();
                       setDeleteImageTargetId(image.id);
                     }}
-                    className="rounded-full bg-white/10 p-2 text-red-400 transition-colors hover:bg-white/20"
+                    className="rounded-full bg-muted p-2 text-red-400 transition-colors hover:bg-foreground/10"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -1427,13 +1427,13 @@ export default function GalleryDetailPage({
           })}
         </div>
       ) : (
-        <div className="rounded-xl border border-white/6 bg-[#111] px-6 py-10 text-center">
-          <p className="text-sm font-medium text-white">No photos yet</p>
-          <p className="mt-1 text-xs text-poof-mist/70">
+        <div className="rounded-xl border border-border bg-card px-6 py-10 text-center">
+          <p className="text-sm font-medium text-foreground">No photos yet</p>
+          <p className="mt-1 text-xs text-muted-foreground/70">
             Upload images to start building your gallery.
           </p>
           <Button
-            className="mt-4 h-8 bg-poof-accent px-3 text-xs text-white hover:bg-poof-accent/90"
+            className="mt-4 h-8 bg-poof-accent px-3 text-xs text-foreground hover:bg-poof-accent/90"
             onClick={() => setIsUploadModalOpen(true)}
           >
             <Plus className="mr-1.5 h-3.5 w-3.5" />
@@ -1449,7 +1449,7 @@ export default function GalleryDetailPage({
           setIsUploadModalOpen(open);
         }}
       >
-        <DialogContent className="sm:max-w-xl border-white/8 bg-[#111] text-white">
+        <DialogContent className="sm:max-w-xl border-border bg-card text-foreground">
           <div className="space-y-5">
             <div>
               <h2 className="text-xl font-semibold">Upload Photos</h2>
@@ -1473,7 +1473,7 @@ export default function GalleryDetailPage({
                 "relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200",
                 isUploadDragOver
                   ? "border-poof-accent bg-poof-accent/10"
-                  : "border-white/20 hover:border-white/30",
+                  : "border-border hover:border-poof-violet/30",
               )}
             >
               <input
@@ -1485,7 +1485,7 @@ export default function GalleryDetailPage({
                 onChange={(event) => enqueueFiles(event.target.files)}
               />
               <CloudUpload className="w-10 h-10 mx-auto mb-3 text-poof-mist" />
-              <p className="text-white font-medium">
+              <p className="text-foreground font-medium">
                 Drop files here or click to browse
               </p>
               <p className="text-xs text-poof-mist mt-2">
@@ -1499,7 +1499,7 @@ export default function GalleryDetailPage({
               </p>
             </div>
 
-            <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+            <div className="rounded-lg border border-border bg-muted px-3 py-2">
               <p className="text-sm text-poof-mist">
                 {queuedFiles.length > 0
                   ? `${queuedFiles.length} file${queuedFiles.length === 1 ? "" : "s"} selected`
@@ -1510,7 +1510,7 @@ export default function GalleryDetailPage({
             <div className="flex items-center justify-between gap-3">
               <Button
                 variant="ghost"
-                className="text-poof-mist hover:text-white"
+                className="text-poof-mist hover:text-foreground"
                 onClick={() => {
                   setQueuedFiles([]);
                   if (modalFileInputRef.current) {
@@ -1522,7 +1522,7 @@ export default function GalleryDetailPage({
                 Clear
               </Button>
               <Button
-                className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+                className="bg-poof-accent hover:bg-poof-accent/90 text-foreground"
                 onClick={() => void startUploadFromModal()}
                 disabled={isUploading || queuedFiles.length === 0}
               >
@@ -1556,7 +1556,7 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <DialogContent className="sm:max-w-2xl border-white/8 bg-[#111] text-white">
+        <DialogContent className="sm:max-w-2xl border-border bg-card text-foreground">
           <div className="space-y-5">
             <div>
               <h2 className="text-xl font-semibold">
@@ -1573,22 +1573,22 @@ export default function GalleryDetailPage({
                 setBannerPickerMode(value as BannerPickerMode)
               }
             >
-              <TabsList className="grid h-10 w-full grid-cols-3 border border-white/10 bg-white/5">
+              <TabsList className="grid h-10 w-full grid-cols-3 border border-border bg-muted">
                 <TabsTrigger
                   value="upload"
-                  className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="text-poof-mist data-[state=active]:bg-muted data-[state=active]:text-foreground"
                 >
                   Upload
                 </TabsTrigger>
                 <TabsTrigger
                   value="unsplash"
-                  className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="text-poof-mist data-[state=active]:bg-muted data-[state=active]:text-foreground"
                 >
                   Unsplash
                 </TabsTrigger>
                 <TabsTrigger
                   value="default"
-                  className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                  className="text-poof-mist data-[state=active]:bg-muted data-[state=active]:text-foreground"
                 >
                   Default
                 </TabsTrigger>
@@ -1610,12 +1610,12 @@ export default function GalleryDetailPage({
                   />
                   <button
                     type="button"
-                    className="w-full rounded-xl border border-dashed border-white/20 bg-white/5 px-4 py-8 text-center hover:border-white/35 transition-colors"
+                    className="w-full rounded-xl border border-dashed border-border bg-muted px-4 py-8 text-center hover:border-poof-violet/40 transition-colors"
                     onClick={() => bannerFileInputRef.current?.click()}
                     disabled={isBannerUpdating}
                   >
                     <CloudUpload className="mx-auto mb-2 h-8 w-8 text-poof-mist" />
-                    <p className="text-sm text-white">
+                    <p className="text-sm text-foreground">
                       {bannerUploadFile
                         ? bannerUploadFile.name
                         : "Choose a banner image"}
@@ -1627,7 +1627,7 @@ export default function GalleryDetailPage({
                 </label>
                 {bannerUploadProgress > 0 && (
                   <div className="space-y-1">
-                    <div className="h-1.5 rounded-full bg-white/15">
+                    <div className="h-1.5 rounded-full bg-muted">
                       <div
                         className="h-1.5 rounded-full bg-poof-accent transition-all"
                         style={{
@@ -1642,7 +1642,7 @@ export default function GalleryDetailPage({
                 )}
                 <div className="flex justify-end">
                   <Button
-                    className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+                    className="bg-poof-accent hover:bg-poof-accent/90 text-foreground"
                     onClick={() => void handleUploadBannerImage()}
                     disabled={!bannerUploadFile || isBannerUpdating}
                   >
@@ -1666,12 +1666,12 @@ export default function GalleryDetailPage({
                       setBannerSearchQuery(event.target.value)
                     }
                     placeholder="Search style (e.g. minimal gradient)"
-                    className="bg-white/5 border-white/10 text-white"
+                    className="bg-muted border-border text-foreground"
                     disabled={isBannerUpdating || isBannerOptionsLoading}
                   />
                   <Button
                     variant="outline"
-                    className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
+                    className="border-border text-poof-mist hover:bg-muted hover:text-foreground"
                     onClick={() => void fetchBannerOptions(bannerSearchQuery)}
                     disabled={isBannerUpdating || isBannerOptionsLoading}
                   >
@@ -1695,7 +1695,7 @@ export default function GalleryDetailPage({
                           "group relative aspect-video overflow-hidden rounded-lg border transition-colors",
                           isSelected
                             ? "border-poof-violet"
-                            : "border-white/10 hover:border-white/30",
+                            : "border-border hover:border-poof-violet/30",
                         )}
                         onClick={() =>
                           setSelectedBannerOptionUrl(option.fullUrl)
@@ -1707,7 +1707,7 @@ export default function GalleryDetailPage({
                           alt={`Banner option by ${option.authorName}`}
                           className="h-full w-full object-cover"
                         />
-                        <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="absolute inset-0 bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                       </button>
                     );
                   })}
@@ -1720,7 +1720,7 @@ export default function GalleryDetailPage({
                 )}
                 <div className="flex justify-end">
                   <Button
-                    className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+                    className="bg-poof-accent hover:bg-poof-accent/90 text-foreground"
                     onClick={() => void handleUseUnsplashBanner()}
                     disabled={!selectedBannerOptionUrl || isBannerUpdating}
                   >
@@ -1737,14 +1737,14 @@ export default function GalleryDetailPage({
               </TabsContent>
 
               <TabsContent value="default" className="space-y-3">
-                <div className="rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-poof-mist">
+                <div className="rounded-lg border border-border bg-muted p-3 text-sm text-poof-mist">
                   Remove your custom banner and switch back to the default Poof
                   banner style.
                 </div>
                 <div className="flex justify-end">
                   <Button
                     variant="outline"
-                    className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
+                    className="border-border text-poof-mist hover:bg-muted hover:text-foreground"
                     onClick={() => void handleUseDefaultBanner()}
                     disabled={isBannerUpdating}
                   >
@@ -1765,7 +1765,7 @@ export default function GalleryDetailPage({
       </Dialog>
 
       <Dialog open={isShareModalOpen} onOpenChange={setIsShareModalOpen}>
-        <DialogContent className="sm:max-w-lg border-white/8 bg-[#111] text-white">
+        <DialogContent className="sm:max-w-lg border-border bg-card text-foreground">
           <div className="space-y-5">
             <div>
               <h2 className="text-xl font-semibold">
@@ -1776,7 +1776,7 @@ export default function GalleryDetailPage({
               </p>
             </div>
 
-            <div className="rounded-lg border border-white/8 bg-white/4 p-3 text-sm">
+            <div className="rounded-lg border border-border bg-muted p-3 text-sm">
               <p className="text-poof-mist">{shareIntentLabel}</p>
             </div>
 
@@ -1794,23 +1794,23 @@ export default function GalleryDetailPage({
                   }
                 }}
               >
-                <TabsList className="grid h-10 w-full grid-cols-2 border border-white/10 bg-white/5">
+                <TabsList className="grid h-10 w-full grid-cols-2 border border-border bg-muted">
                   <TabsTrigger
                     value="hours"
-                    className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    className="text-poof-mist data-[state=active]:bg-muted data-[state=active]:text-foreground"
                   >
                     An hour
                   </TabsTrigger>
                   <TabsTrigger
                     value="datetime"
-                    className="text-poof-mist data-[state=active]:bg-white/10 data-[state=active]:text-white"
+                    className="text-poof-mist data-[state=active]:bg-muted data-[state=active]:text-foreground"
                   >
                     Date & time
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="hours" className="space-y-2">
-                  <div className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-poof-mist">
+                  <div className="rounded-lg border border-border bg-muted px-3 py-2 text-sm text-poof-mist">
                     Link will expire exactly 1 hour from now.
                   </div>
                 </TabsContent>
@@ -1824,7 +1824,7 @@ export default function GalleryDetailPage({
                     onChange={(event) =>
                       setShareExpiryDateTime(event.target.value)
                     }
-                    className="bg-white/5 border-white/10 text-white"
+                    className="bg-muted border-border text-foreground"
                   />
                   <p className="text-xs text-poof-mist">
                     Uses your local timezone.
@@ -1853,7 +1853,7 @@ export default function GalleryDetailPage({
                     Copy
                   </Button>
                 </div>
-                <p className="font-mono text-xs text-white break-all">
+                <p className="font-mono text-xs text-foreground break-all">
                   {lastCreatedShareUrl}
                 </p>
               </div>
@@ -1862,14 +1862,14 @@ export default function GalleryDetailPage({
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
-                className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
+                className="border-border text-poof-mist hover:bg-muted hover:text-foreground"
                 onClick={() => setIsShareModalOpen(false)}
                 disabled={createSharedResource.isPending}
               >
                 Cancel
               </Button>
               <Button
-                className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+                className="bg-poof-accent hover:bg-poof-accent/90 text-foreground"
                 onClick={() => void handleCreateShareLink()}
                 disabled={isCreateLinkDisabled}
               >
@@ -1905,7 +1905,7 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <DialogContent className="sm:max-w-lg border-white/8 bg-[#111] text-white">
+        <DialogContent className="sm:max-w-lg border-border bg-card text-foreground">
           <div className="space-y-5">
             <div>
               <h2 className="text-xl font-semibold">
@@ -1917,7 +1917,7 @@ export default function GalleryDetailPage({
             </div>
 
             {editShareTarget && (
-              <div className="rounded-lg border border-white/10 bg-white/5 p-3">
+              <div className="rounded-lg border border-border bg-muted p-3">
                 <p className="font-mono text-xs text-poof-violet break-all">
                   {editShareTarget.shareUrl}
                 </p>
@@ -1938,17 +1938,17 @@ export default function GalleryDetailPage({
                 onChange={(event) =>
                   setEditShareExpiryDateTime(event.target.value)
                 }
-                className="bg-white/5 border-white/10 text-white"
+                className="bg-muted border-border text-foreground"
               />
             </div>
 
-            <label className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2">
+            <label className="flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2">
               <Checkbox
                 checked={editShareReactivate}
                 onCheckedChange={(checked) =>
                   setEditShareReactivate(Boolean(checked))
                 }
-                className="border-white/30 data-[state=checked]:bg-poof-accent data-[state=checked]:border-poof-accent"
+                className="border-border data-[state=checked]:bg-poof-accent data-[state=checked]:border-poof-accent"
               />
               <span className="text-sm text-poof-mist">Reactivate link</span>
             </label>
@@ -1956,14 +1956,14 @@ export default function GalleryDetailPage({
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
-                className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
+                className="border-border text-poof-mist hover:bg-muted hover:text-foreground"
                 onClick={() => setEditShareTargetId(null)}
                 disabled={updateSharedResource.isPending}
               >
                 Cancel
               </Button>
               <Button
-                className="bg-poof-accent hover:bg-poof-accent/90 text-white"
+                className="bg-poof-accent hover:bg-poof-accent/90 text-foreground"
                 onClick={() => void handleUpdateShare()}
                 disabled={updateSharedResource.isPending}
               >
@@ -1986,13 +1986,13 @@ export default function GalleryDetailPage({
         onOpenChange={() => setLightboxPhoto(null)}
       >
         <DialogContent
-          className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-white/10"
+          className="max-w-[95vw] max-h-[95vh] p-0 bg-background/95 border-border"
           showCloseButton={false}
         >
           <div className="relative w-full h-[90vh] flex items-center justify-center">
             <button
               onClick={() => setLightboxPhoto(null)}
-              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+              className="absolute top-4 right-4 z-10 p-2 rounded-full bg-muted text-foreground hover:bg-foreground/10 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -2003,7 +2003,7 @@ export default function GalleryDetailPage({
                   event.stopPropagation();
                   goToPrevPhoto();
                 }}
-                className="absolute left-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                className="absolute left-4 z-10 p-3 rounded-full bg-muted text-foreground hover:bg-foreground/10 transition-colors"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
@@ -2014,7 +2014,7 @@ export default function GalleryDetailPage({
                   event.stopPropagation();
                   goToNextPhoto();
                 }}
-                className="absolute right-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                className="absolute right-4 z-10 p-3 rounded-full bg-muted text-foreground hover:bg-foreground/10 transition-colors"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
@@ -2031,7 +2031,7 @@ export default function GalleryDetailPage({
               />
             )}
 
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 px-4 py-2 rounded-full bg-background/60 backdrop-blur-sm">
               <span className="text-white text-sm">
                 {
                   confirmedImages.find((image) => image.id === lightboxPhoto)
@@ -2045,14 +2045,14 @@ export default function GalleryDetailPage({
 
             {lightboxPhoto && (
               <div className="absolute top-4 left-4 flex items-center gap-2">
-                <button className="p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                <button className="p-2 rounded-full bg-muted text-foreground hover:bg-foreground/10 transition-colors">
                   <Download className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => {
                     setDeleteImageTargetId(lightboxPhoto);
                   }}
-                  className="p-2 rounded-full bg-white/10 text-red-400 hover:bg-white/20 transition-colors"
+                  className="p-2 rounded-full bg-muted text-red-400 hover:bg-foreground/10 transition-colors"
                 >
                   <Trash2 className="w-5 h-5" />
                 </button>
@@ -2066,7 +2066,7 @@ export default function GalleryDetailPage({
         open={isDeleteGalleryModalOpen}
         onOpenChange={setIsDeleteGalleryModalOpen}
       >
-        <AlertDialogContent className="border-white/8 bg-[#111] text-white">
+        <AlertDialogContent className="border-border bg-card text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete gallery?</AlertDialogTitle>
             <AlertDialogDescription className="text-poof-mist">
@@ -2075,11 +2075,11 @@ export default function GalleryDetailPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white">
+            <AlertDialogCancel className="border-border text-poof-mist hover:bg-muted hover:text-foreground">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 hover:bg-red-500/90 text-white"
+              className="bg-red-500 hover:bg-red-500/90 text-foreground"
               onClick={() => void handleDeleteGallery()}
             >
               Delete gallery
@@ -2096,7 +2096,7 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <AlertDialogContent className="border-white/8 bg-[#111] text-white">
+        <AlertDialogContent className="border-border bg-card text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete image?</AlertDialogTitle>
             <AlertDialogDescription className="text-poof-mist">
@@ -2106,11 +2106,11 @@ export default function GalleryDetailPage({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white">
+            <AlertDialogCancel className="border-border text-poof-mist hover:bg-muted hover:text-foreground">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 hover:bg-red-500/90 text-white"
+              className="bg-red-500 hover:bg-red-500/90 text-foreground"
               onClick={() => {
                 if (deleteImageTargetId) {
                   void handleDeleteImage(deleteImageTargetId);
@@ -2131,7 +2131,7 @@ export default function GalleryDetailPage({
           }
         }}
       >
-        <AlertDialogContent className="border-white/8 bg-[#111] text-white">
+        <AlertDialogContent className="border-border bg-card text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle>Delete share link?</AlertDialogTitle>
             <AlertDialogDescription className="text-poof-mist">
@@ -2142,13 +2142,13 @@ export default function GalleryDetailPage({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
-              className="border-white/8 text-poof-mist hover:bg-white/5 hover:text-white"
+              className="border-border text-poof-mist hover:bg-muted hover:text-foreground"
               disabled={isDeletingShare}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 hover:bg-red-500/90 text-white"
+              className="bg-red-500 hover:bg-red-500/90 text-foreground"
               onClick={() => {
                 if (deleteShareTargetId) {
                   void handleDeleteShare(deleteShareTargetId);
@@ -2173,7 +2173,7 @@ export default function GalleryDetailPage({
         <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[70] w-[360px] max-w-[calc(100vw-2rem)] sm:top-auto sm:left-auto sm:translate-x-0 sm:bottom-10 sm:right-10">
           <Alert
             className={cn(
-              "border-white/20 bg-poof-base/95 text-white shadow-xl backdrop-blur",
+              "border-border bg-background/95 text-foreground shadow-xl backdrop-blur",
               uploadAlert.status === "success" &&
                 "border-emerald-500/40 bg-emerald-950/30 text-emerald-100",
               uploadAlert.status === "error" &&
@@ -2203,7 +2203,7 @@ export default function GalleryDetailPage({
                   ? ` · ${uploadAlert.failed} failed`
                   : ""}
               </p>
-              <div className="mt-2 h-1.5 w-full rounded-full bg-white/20">
+              <div className="mt-2 h-1.5 w-full rounded-full bg-muted">
                 <div
                   className={cn(
                     "h-1.5 rounded-full transition-all",
@@ -2221,7 +2221,7 @@ export default function GalleryDetailPage({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-7 border-white/20 text-current hover:bg-white/10"
+                    className="h-7 border-border text-current hover:bg-muted"
                     onClick={clearUploadAlert}
                   >
                     Close

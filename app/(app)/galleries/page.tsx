@@ -242,7 +242,7 @@ export default function GalleriesPage() {
           {[1, 2, 3, 4, 5, 6].map((i) => (
             <div
               key={i}
-              className="h-52 animate-pulse rounded-xl bg-white/3 border border-white/6"
+              className="h-52 animate-pulse rounded-xl bg-muted border border-border"
             />
           ))}
         </div>
@@ -254,11 +254,11 @@ export default function GalleriesPage() {
   if (galleriesQuery.isError) {
     return (
       <div className="mx-auto max-w-6xl py-2 font-sans">
-        <div className="rounded-xl border border-white/6 bg-black px-6 py-12 text-center">
-          <p className="text-sm font-medium text-white">
+        <div className="rounded-xl border border-border bg-card px-6 py-12 text-center">
+          <p className="text-sm font-medium text-foreground">
             Could not load galleries
           </p>
-          <p className="mt-1 text-xs text-poof-mist/60">
+          <p className="mt-1 text-xs text-muted-foreground/60">
             {galleriesQuery.error.message}
           </p>
           <Button
@@ -279,17 +279,17 @@ export default function GalleriesPage() {
       {/* ── Toolbar ── */}
       <div className="mb-4 flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-poof-mist/40" />
+          <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2  text-muted-foreground /40" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search galleries..."
-            className="h-8 rounded-md border-white/6 bg-white/3 pl-8 text-xs text-white placeholder:text-poof-mist/30"
+            className="h-8 rounded-md border-border bg-muted pl-8 text-xs text-foreground placeholder:text-muted-foreground/40"
           />
         </div>
 
         {/* Sort pills */}
-        <div className="flex items-center gap-0.5 rounded-md border border-white/6 bg-white/2 p-0.5">
+        <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted p-0.5">
           {(
             [
               ["newest", "Recent"],
@@ -303,8 +303,8 @@ export default function GalleriesPage() {
               className={cn(
                 "rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors",
                 sortBy === val
-                  ? "bg-white/8 text-white"
-                  : "text-poof-mist/50 hover:text-poof-mist",
+                  ? "bg-card shadow-sm text-foreground font-semibold"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {label}
@@ -313,7 +313,7 @@ export default function GalleriesPage() {
         </div>
 
         {/* Filter pills */}
-        <div className="flex items-center gap-0.5 rounded-md border border-white/6 bg-white/2 p-0.5">
+        <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted p-0.5">
           {(
             [
               ["all", "All"],
@@ -328,8 +328,8 @@ export default function GalleriesPage() {
               className={cn(
                 "rounded-[5px] px-2.5 py-1 text-[11px] font-medium transition-colors",
                 filterBy === val
-                  ? "bg-white/8 text-white"
-                  : "text-poof-mist/50 hover:text-poof-mist",
+                  ? "bg-card shadow-sm text-foreground font-semibold"
+                  : "text-muted-foreground hover:text-foreground",
               )}
             >
               {label}
@@ -342,12 +342,12 @@ export default function GalleriesPage() {
       {isSelecting && (
         <div className="mb-4 flex items-center justify-between rounded-lg border border-poof-violet/20 bg-poof-violet/5 px-4 py-2.5">
           <div className="flex items-center gap-2.5">
-            <span className="text-xs font-medium text-white">
+            <span className="text-xs font-medium text-foreground">
               {selectedGalleries.size} selected
             </span>
             <button
               onClick={clearSelection}
-              className="text-poof-mist/50 transition-colors hover:text-white"
+              className="text-muted-foreground/50 transition-colors hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -370,11 +370,11 @@ export default function GalleriesPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Add gallery card */}
           <Link href="/galleries/new" className="block">
-            <div className="group relative flex h-full min-h-52 flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-white/10 bg-white/2 transition-all duration-200 hover:border-poof-violet/40 hover:bg-white/4">
-              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/4 text-poof-mist/50 transition-colors group-hover:border-poof-violet/30 group-hover:bg-poof-violet/10 group-hover:text-poof-violet">
+            <div className="group relative flex h-full min-h-52 flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted transition-all duration-200 hover:border-poof-violet/40 hover:bg-muted">
+              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full border border-border bg-muted  text-muted-foreground /50 transition-colors group-hover:border-poof-violet/30 group-hover:bg-poof-violet/10 group-hover:text-poof-violet">
                 <Plus className="h-5 w-5" />
               </div>
-              <p className="text-sm font-medium text-poof-mist/60 transition-colors group-hover:text-white">
+              <p className="text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
                 New gallery
               </p>
             </div>
@@ -395,8 +395,8 @@ export default function GalleriesPage() {
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-white/6 bg-black px-6 py-16 text-center">
-          <p className="text-sm text-poof-mist">
+        <div className="rounded-xl border border-border bg-card px-6 py-16 text-center">
+          <p className="text-sm  text-muted-foreground ">
             No galleries match your search.
           </p>
         </div>
@@ -407,7 +407,7 @@ export default function GalleriesPage() {
         open={deleteDialog.open}
         onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, open }))}
       >
-        <AlertDialogContent className="border-white/10 bg-poof-base text-white">
+        <AlertDialogContent className="border-border bg-card text-foreground">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-base font-medium">
               Delete{" "}
@@ -416,18 +416,18 @@ export default function GalleriesPage() {
                 : "gallery"}
               ?
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-sm text-poof-mist">
+            <AlertDialogDescription className="text-sm  text-muted-foreground ">
               This action removes{" "}
               {deleteDialog.ids.length > 1 ? "these galleries" : "this gallery"}{" "}
               permanently.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="border-white/10 text-poof-mist hover:bg-white/5 hover:text-white">
+            <AlertDialogCancel className="border-border text-muted-foreground hover:bg-muted hover:text-foreground">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-500 text-white hover:bg-red-500/90"
+              className="bg-red-500 text-foreground hover:bg-red-500/90"
               onClick={() => void confirmDeleteDialog()}
             >
               Delete
@@ -478,7 +478,7 @@ function GalleryCard({
   return (
     <div
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-xl border border-white/6 bg-[#111] transition-all duration-200 hover:border-white/12 hover:bg-[#151515]",
+        "group relative flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-all duration-200 hover:border-poof-border-hover hover:bg-muted",
         isSelected && "ring-1 ring-poof-violet border-poof-violet/30",
       )}
       style={{ animationDelay: `${index * 0.04}s` }}
@@ -496,7 +496,7 @@ function GalleryCard({
       <div className={cn("h-0.75 w-full bg-linear-to-r", accent)} />
 
       {/* Cover / avatar area */}
-      <div className="relative mx-4 mt-4 mb-3 aspect-video overflow-hidden rounded-lg bg-black/40">
+      <div className="relative mx-4 mt-4 mb-3 aspect-video overflow-hidden rounded-lg bg-muted">
         {gallery.coverPhoto ? (
           <img
             src={gallery.coverPhoto}
@@ -505,7 +505,7 @@ function GalleryCard({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-white/4 to-white/2">
-            <span className="select-none text-2xl font-semibold tracking-tight text-white/15">
+            <span className="select-none text-2xl font-semibold tracking-tight text-foreground/15">
               {gallery.name.slice(0, 2).toUpperCase()}
             </span>
           </div>
@@ -524,13 +524,13 @@ function GalleryCard({
           <Checkbox
             checked={isSelected}
             onCheckedChange={onToggleSelect}
-            className="h-4 w-4 border-white/40 bg-black/50 data-[state=checked]:border-poof-violet data-[state=checked]:bg-poof-violet"
+            className="h-4 w-4 border-border bg-foreground/50 data-[state=checked]:border-poof-violet data-[state=checked]:bg-poof-violet"
           />
         </div>
 
         {/* Hover overlay actions */}
         <div
-          className="absolute inset-0 flex items-center justify-center gap-2 bg-black/60 opacity-0 transition-opacity group-hover:opacity-100"
+          className="absolute inset-0 flex items-center justify-center gap-2 bg-foreground/60 opacity-0 transition-opacity group-hover:opacity-100"
           onClick={(e) => e.stopPropagation()}
         >
           <Button
@@ -568,7 +568,7 @@ function GalleryCard({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-poof-mist/30 opacity-0 transition-all hover:bg-white/6 hover:text-poof-mist group-hover:opacity-100 focus-visible:opacity-100"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md  text-muted-foreground /30 opacity-0 transition-all hover:bg-foreground/5 hover: text-muted-foreground  group-hover:opacity-100 focus-visible:opacity-100"
                 onClick={(e) => e.stopPropagation()}
               >
                 <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={1.5} />
@@ -576,7 +576,7 @@ function GalleryCard({
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="w-36 rounded-lg border-white/8 bg-[#1a1a1a] p-1"
+              className="w-36 rounded-lg border-border bg-popover p-1"
             >
               <DropdownMenuItem
                 className="gap-2 rounded-md px-2.5 py-1.5 text-xs"
@@ -584,7 +584,7 @@ function GalleryCard({
               >
                 <Link href={`/galleries/${gallery.id}`}>
                   <FolderOpen
-                    className="h-3 w-3 text-poof-mist/50"
+                    className="h-3 w-3  text-muted-foreground /50"
                     strokeWidth={1.5}
                   />
                   Open
@@ -596,13 +596,13 @@ function GalleryCard({
               >
                 <Link href={`/galleries/${gallery.id}?openShare=1`}>
                   <Share2
-                    className="h-3 w-3 text-poof-mist/50"
+                    className="h-3 w-3  text-muted-foreground /50"
                     strokeWidth={1.5}
                   />
                   Share
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator className="my-1 bg-white/6" />
+              <DropdownMenuSeparator className="my-1 bg-muted" />
               <DropdownMenuItem
                 variant="destructive"
                 className="gap-2 rounded-md px-2.5 py-1.5 text-xs"
@@ -618,7 +618,7 @@ function GalleryCard({
         {/* Status badge area — dashed border like inspiration */}
         <div className="mt-2.5 flex flex-wrap items-center gap-2">
           {/* Photo count */}
-          <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-white/10 px-2 py-0.5 text-[10px] text-poof-mist/60">
+          <span className="inline-flex items-center gap-1 rounded-md border border-dashed border-border px-2 py-0.5 text-[10px]  text-muted-foreground /60">
             <ImageIcon className="h-2.5 w-2.5" strokeWidth={1.5} />
             {gallery.photoCount} photos
           </span>
@@ -638,7 +638,7 @@ function GalleryCard({
         </div>
 
         {/* Footer — relative date */}
-        <p className="mt-auto pt-3 text-[11px] text-poof-mist/35">
+        <p className="mt-auto pt-3 text-[11px]  text-muted-foreground /35">
           Updated {relativeDate(gallery.createdAt)}
         </p>
       </div>

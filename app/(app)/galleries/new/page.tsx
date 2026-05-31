@@ -301,7 +301,7 @@ export default function NewGalleryPage() {
       <div className="mb-4 flex items-center justify-between gap-3">
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-poof-mist/70 transition-colors hover:bg-white/5 hover:text-white"
+          className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back
@@ -313,7 +313,7 @@ export default function NewGalleryPage() {
               key={index}
               className={cn(
                 "h-1 w-8 rounded-full transition-colors",
-                index <= step ? "bg-poof-accent" : "bg-white/10",
+                index <= step ? "bg-poof-accent" : "bg-muted",
               )}
             />
           ))}
@@ -321,21 +321,21 @@ export default function NewGalleryPage() {
 
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-poof-mist/60 transition-colors hover:bg-white/5 hover:text-white"
+          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
           <X className="h-3.5 w-3.5" />
           Cancel
         </button>
       </div>
 
-      <div className="rounded-xl border border-white/6 bg-[#111] p-4 sm:p-6">
+      <div className="rounded-xl border border-border bg-card p-4 sm:p-6">
         {step === 1 && (
           <div className="space-y-6">
             <div>
               <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
                 Step 1 of 3
               </p>
-              <h1 className="mt-2 text-2xl font-semibold text-white">
+              <h1 className="mt-2 text-2xl font-semibold text-foreground">
                 Name your gallery
               </h1>
               <p className="mt-1 text-sm text-poof-mist/75">
@@ -348,7 +348,7 @@ export default function NewGalleryPage() {
                 value={name}
                 onChange={(event) => setName(event.target.value.slice(0, 60))}
                 placeholder="Gallery name"
-                className="h-11 rounded-md border-white/8 bg-white/3 text-sm text-white placeholder:text-poof-mist/35"
+                className="h-11 rounded-md border-border bg-muted text-sm text-foreground placeholder:text-poof-mist/35"
                 autoFocus
               />
               <p className="text-xs text-poof-mist/55">{name.length}/60</p>
@@ -358,7 +358,7 @@ export default function NewGalleryPage() {
               <Button
                 onClick={() => setStep(2)}
                 disabled={!name.trim()}
-                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
+                className="h-8 bg-poof-accent px-4 text-xs text-foreground hover:bg-poof-accent/90"
               >
                 Continue
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
@@ -373,7 +373,7 @@ export default function NewGalleryPage() {
               <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
                 Step 2 of 3
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">
                 Add photos
               </h2>
               <p className="mt-1 text-sm text-poof-mist/75">
@@ -392,7 +392,7 @@ export default function NewGalleryPage() {
                 "relative rounded-lg border border-dashed p-8 text-center transition-colors",
                 dragOver
                   ? "border-poof-accent/60 bg-poof-accent/10"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/20",
+                  : "border-border bg-muted hover:border-poof-border-hover",
               )}
             >
               <input
@@ -408,14 +408,14 @@ export default function NewGalleryPage() {
                   dragOver ? "text-poof-accent" : "text-poof-mist/70",
                 )}
               />
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-foreground">
                 Drop photos here or click to browse
               </p>
               <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5">
                 {acceptedFormats.map((format) => (
                   <span
                     key={format}
-                    className="rounded-md border border-white/8 bg-white/4 px-2 py-0.5 text-[11px] text-poof-mist/70"
+                    className="rounded-md border border-border bg-muted px-2 py-0.5 text-[11px] text-poof-mist/70"
                   >
                     {format}
                   </span>
@@ -450,7 +450,7 @@ export default function NewGalleryPage() {
                   {photos.map((photo) => (
                     <div
                       key={photo.id}
-                      className="group relative aspect-square overflow-hidden rounded-md border border-white/8 bg-black/40"
+                      className="group relative aspect-square overflow-hidden rounded-md border border-border bg-muted"
                     >
                       <img
                         src={photo.preview}
@@ -459,7 +459,7 @@ export default function NewGalleryPage() {
                       />
 
                       {photo.status === "uploading" && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/65">
+                        <div className="absolute inset-0 flex items-center justify-center bg-muted/90">
                           <svg className="h-9 w-9" viewBox="0 0 36 36">
                             <circle
                               cx="18"
@@ -487,7 +487,7 @@ export default function NewGalleryPage() {
                       )}
 
                       {photo.status === "complete" && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                        <div className="absolute inset-0 flex items-center justify-center bg-foreground/40 opacity-0 transition-opacity group-hover:opacity-100">
                           <Check className="h-5 w-5 text-poof-mint" />
                         </div>
                       )}
@@ -500,7 +500,7 @@ export default function NewGalleryPage() {
 
                       <button
                         onClick={() => void removePhoto(photo.id)}
-                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-black/70 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                        className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-foreground/10 text-foreground opacity-0 transition-opacity group-hover:opacity-100"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -514,7 +514,7 @@ export default function NewGalleryPage() {
               <Button
                 variant="ghost"
                 onClick={() => setStep(1)}
-                className="h-8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
+                className="h-8 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                 Back
@@ -522,7 +522,7 @@ export default function NewGalleryPage() {
               <Button
                 onClick={() => setStep(3)}
                 disabled={!allUploaded}
-                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
+                className="h-8 bg-poof-accent px-4 text-xs text-foreground hover:bg-poof-accent/90"
               >
                 Continue
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
@@ -537,7 +537,7 @@ export default function NewGalleryPage() {
               <p className="text-[11px] uppercase tracking-[0.18em] text-poof-mist/45">
                 Step 3 of 3
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-white">
+              <h2 className="mt-2 text-2xl font-semibold text-foreground">
                 Pick a cover photo
               </h2>
               <p className="mt-1 text-sm text-poof-mist/75">
@@ -554,7 +554,7 @@ export default function NewGalleryPage() {
                     "relative h-24 w-24 shrink-0 snap-start overflow-hidden rounded-md border transition-all",
                     coverPhotoId === photo.id
                       ? "border-poof-violet ring-1 ring-poof-violet"
-                      : "border-white/10 opacity-70 hover:opacity-100",
+                      : "border-border opacity-70 hover:opacity-100",
                   )}
                 >
                   <img
@@ -571,7 +571,7 @@ export default function NewGalleryPage() {
               ))}
             </div>
 
-            <div className="mx-auto w-full max-w-sm overflow-hidden rounded-lg border border-white/8 bg-black/40">
+            <div className="mx-auto w-full max-w-sm overflow-hidden rounded-lg border border-border bg-card">
               <div className="aspect-video">
                 {coverPhotoId ? (
                   <img
@@ -583,11 +583,11 @@ export default function NewGalleryPage() {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="h-full w-full bg-linear-to-br from-white/5 to-white/2" />
+                  <div className="h-full w-full bg-linear-to-br from-muted to-card" />
                 )}
               </div>
-              <div className="border-t border-white/8 px-3 py-2.5">
-                <h3 className="truncate text-sm font-medium text-white">{name}</h3>
+              <div className="border-t border-border px-3 py-2.5">
+                <h3 className="truncate text-sm font-medium text-foreground">{name}</h3>
                 <p className="text-xs text-poof-mist/70">
                   {photos.length} photos
                 </p>
@@ -598,7 +598,7 @@ export default function NewGalleryPage() {
               <Button
                 variant="ghost"
                 onClick={() => setStep(2)}
-                className="h-8 text-xs text-poof-mist hover:bg-white/5 hover:text-white"
+                className="h-8 text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
               >
                 <ArrowLeft className="mr-1.5 h-3.5 w-3.5" />
                 Back
@@ -606,7 +606,7 @@ export default function NewGalleryPage() {
               <Button
                 onClick={() => void handleCreate()}
                 disabled={creating}
-                className="h-8 bg-poof-accent px-4 text-xs text-white hover:bg-poof-accent/90"
+                className="h-8 bg-poof-accent px-4 text-xs text-foreground hover:bg-poof-accent/90"
               >
                 {creating ? (
                   <>

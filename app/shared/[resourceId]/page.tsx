@@ -25,7 +25,7 @@ type SharedPageProps = {
 
 function ErrorState({ title, message }: { title: string; message: string }) {
   return (
-    <div className="min-h-screen bg-poof-base text-white px-4 py-10 sm:py-16">
+    <div className="min-h-screen bg-background text-foreground px-4 py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
         <GlassCard className="p-10 text-center" hover={false}>
           <h1 className="font-heading font-extrabold text-3xl text-white">
@@ -249,7 +249,7 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
 
   if (resourceQuery.isPending) {
     return (
-      <div className="min-h-screen bg-poof-base text-white px-4 py-10 sm:py-16">
+      <div className="min-h-screen bg-background text-foreground px-4 py-10 sm:py-16">
         <div className="mx-auto max-w-6xl space-y-6">
           <div className="skeleton-shimmer h-12 w-64 rounded-lg" />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -327,7 +327,7 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
   return (
     <AntiCapture screenshotPrevent={false} clipboardPrevent userSelect={false}>
       <div
-        className="min-h-screen bg-poof-base text-white px-4 py-10 sm:py-16 select-none [webkit-touch-callout:none] [webkit-user-select:none]"
+        className="min-h-screen bg-background text-foreground px-4 py-10 sm:py-16 select-none [webkit-touch-callout:none] [webkit-user-select:none]"
         onContextMenu={(event) => event.preventDefault()}
       >
         <div className="mx-auto max-w-6xl space-y-6">
@@ -356,7 +356,7 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
                   </StatusBadge>
                 </div>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm">
+              <div className="inline-flex items-center gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm">
                 <Clock className="w-4 h-4 text-poof-mist" />
                 <Countdown expiresAt={expiresAt} />
               </div>
@@ -432,13 +432,13 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
           onOpenChange={() => setLightboxImageId(null)}
         >
           <DialogContent
-            className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-white/10"
+            className="max-w-[95vw] max-h-[95vh] p-0 bg-background/95 border-border"
             showCloseButton={false}
           >
             <div className="relative w-full h-[90vh] flex items-center justify-center">
               <button
                 onClick={() => setLightboxImageId(null)}
-                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                className="absolute top-4 right-4 z-10 p-2 rounded-full bg-muted text-foreground hover:bg-muted transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -449,7 +449,7 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
                     event.stopPropagation();
                     goToPrevImage();
                   }}
-                  className="absolute left-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                  className="absolute left-4 z-10 p-3 rounded-full bg-muted text-foreground hover:bg-muted transition-colors"
                 >
                   <ChevronLeft className="w-6 h-6" />
                 </button>
@@ -461,7 +461,7 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
                     event.stopPropagation();
                     goToNextImage();
                   }}
-                  className="absolute right-4 z-10 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+                  className="absolute right-4 z-10 p-3 rounded-full bg-muted text-foreground hover:bg-muted transition-colors"
                 >
                   <ChevronRight className="w-6 h-6" />
                 </button>
@@ -476,7 +476,7 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
               )}
 
               {currentImage && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 px-4 py-2 rounded-full bg-foreground/15 backdrop-blur-sm">
                   <span className="text-white text-sm">
                     {currentImage.fileName}
                   </span>
@@ -491,7 +491,7 @@ export default function SharedResourcePage({ params }: SharedPageProps) {
 
         {showCaptureWatermark && (
           <div className="pointer-events-none fixed inset-0 z-[120] overflow-hidden">
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+            <div className="absolute inset-0 bg-foreground/5 backdrop-blur-[1px]" />
             <div className="absolute -inset-24 rotate-[-18deg] opacity-35 grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-10 content-start">
               {Array.from({ length: 120 }).map((_, index) => (
                 <span
