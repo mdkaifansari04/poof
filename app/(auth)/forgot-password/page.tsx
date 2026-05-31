@@ -63,7 +63,7 @@ export default function ForgotPasswordPage() {
       : null
 
   return (
-    <div className="min-h-screen bg-poof-base flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <AnimatedBackground />
       
       <div className="relative z-10 w-full max-w-md">
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
           {/* Back button */}
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 text-poof-mist hover:text-white transition-colors mb-6"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm">Back to login</span>
@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
             <>
               {/* Header */}
               <div className="text-center mb-8">
-                <h1 className="font-heading font-extrabold text-3xl text-white mb-2">
+                <h1 className="font-heading font-extrabold text-3xl text-foreground mb-2">
                   Forgot your password?
                 </h1>
                 <p className="text-poof-mist text-sm">
@@ -102,7 +102,7 @@ export default function ForgotPasswordPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     className={cn(
-                      'bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50 focus-ring',
+                      'bg-muted border-border text-foreground placeholder:text-muted-foreground/50 focus-ring',
                       error && 'border-red-500 shake'
                     )}
                     disabled={loading}
@@ -155,12 +155,12 @@ export default function ForgotPasswordPage() {
                 </div>
               </div>
 
-              <h2 className="font-heading font-extrabold text-2xl text-white mb-2">
+              <h2 className="font-heading font-extrabold text-2xl text-foreground mb-2">
                 Check your email.
               </h2>
-              <p className="text-poof-mist text-sm mb-6">
+              <p className="text-muted-foreground text-sm mb-6">
                 We sent a reset link to{' '}
-                <span className="text-white font-medium">{email}</span>.
+                <span className="text-foreground font-medium">{email}</span>.
                 <br />
                 It expires in 15 minutes.
               </p>
@@ -172,7 +172,7 @@ export default function ForgotPasswordPage() {
                     <Button
                       asChild
                       variant="outline"
-                      className="bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                      className="bg-muted border-border hover:bg-muted/80 text-foreground"
                     >
                       <a href="https://mail.google.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-4 h-4 mr-2" />
@@ -184,7 +184,7 @@ export default function ForgotPasswordPage() {
                     <Button
                       asChild
                       variant="outline"
-                      className="bg-white/5 border-white/10 hover:bg-white/10 text-white"
+                      className="bg-muted border-border hover:bg-muted/80 text-foreground"
                     >
                       <a href="https://outlook.live.com" target="_blank" rel="noopener noreferrer">
                         <Mail className="w-4 h-4 mr-2" />

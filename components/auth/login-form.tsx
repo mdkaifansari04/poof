@@ -76,7 +76,7 @@ export function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen bg-poof-base flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <AnimatedBackground />
 
       <div className="relative z-10 w-full max-w-md">
@@ -86,16 +86,16 @@ export function LoginForm() {
           </div>
 
           <div className="text-center mb-8">
-            <h1 className="font-heading font-extrabold text-3xl text-white mb-2">
+            <h1 className="font-heading font-extrabold text-3xl text-foreground mb-2">
               Welcome back.
             </h1>
-            <p className="text-poof-mist text-sm">Good to see you again.</p>
+            <p className="text-muted-foreground text-sm">Good to see you again.</p>
           </div>
 
           <Button
             type="button"
             variant="outline"
-            className="w-full text-white hover:text-gray-100 dark:text-white border-0 btn-press mb-6"
+            className="w-full text-foreground border-0 btn-press mb-6"
             onClick={handleGoogleLogin}
             disabled={loading}
           >
@@ -122,7 +122,7 @@ export function LoginForm() {
 
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-white/10" />
+              <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs">
               <span className="px-2 bg-transparent text-poof-mist">or</span>
@@ -141,7 +141,7 @@ export function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
                 className={cn(
-                  'bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50 focus-ring',
+                  'bg-muted border-border text-foreground placeholder:text-muted-foreground/50 focus-ring',
                   error && !email && 'border-red-500 shake',
                 )}
                 disabled={loading || success}
@@ -160,14 +160,14 @@ export function LoginForm() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
                   className={cn(
-                    'bg-white/5 border-white/10 text-white placeholder:text-poof-mist/50 pr-10 focus-ring',
+                    'bg-muted border-border text-foreground placeholder:text-muted-foreground/50 pr-10 focus-ring',
                     error && !password && 'border-red-500 shake',
                   )}
                   disabled={loading || success}
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-poof-mist hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   onClick={() => setShowPassword(!showPassword)}
                   tabIndex={-1}
                 >
@@ -182,7 +182,7 @@ export function LoginForm() {
                   id="remember"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                  className="border-white/20 data-[state=checked]:bg-poof-accent data-[state=checked]:border-poof-accent"
+                  className="border-border data-[state=checked]:bg-poof-accent data-[state=checked]:border-poof-accent"
                 />
                 <label htmlFor="remember" className="text-sm text-poof-mist cursor-pointer">
                   Remember me
@@ -242,7 +242,7 @@ export function LoginForm() {
             </p>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-white/10 text-center">
+          <div className="mt-6 pt-6 border-t border-border text-center">
             <p className="text-sm text-poof-mist">
               {"Don't have an account? "}
               <Link
