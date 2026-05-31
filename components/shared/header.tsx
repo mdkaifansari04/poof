@@ -60,7 +60,7 @@ export function AppHeader({ user }: AppHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-16 border-b border-white/5 bg-poof-base/95 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 h-16 border-b border-border bg-background/95 backdrop-blur-xl">
       <div className="flex items-center justify-between h-full px-4 sm:px-6 lg:px-8">
         {/* Mobile logo */}
         <div className="lg:hidden">
@@ -68,7 +68,7 @@ export function AppHeader({ user }: AppHeaderProps) {
         </div>
 
         {/* Page title (desktop) */}
-        <h1 className="hidden lg:block font-heading font-bold text-xl text-white">
+        <h1 className="hidden lg:block font-heading font-bold text-xl text-foreground">
           {/* {title} */}
         </h1>
 
@@ -76,7 +76,7 @@ export function AppHeader({ user }: AppHeaderProps) {
         <div className="flex items-center gap-2 sm:gap-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="lg:hidden p-1 rounded-full hover:bg-white/5 transition-colors">
+              <button className="lg:hidden p-1 rounded-full hover:bg-muted transition-colors">
                 <Avatar className="w-9 h-9">
                   <AvatarFallback className="bg-poof-accent text-white text-sm">
                     {initials}

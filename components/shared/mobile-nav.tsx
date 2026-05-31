@@ -21,7 +21,7 @@ export function AppMobileNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-white/5 bg-poof-base/95 backdrop-blur-xl safe-area-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 lg:hidden border-t border-border bg-background/95 backdrop-blur-xl safe-area-bottom">
       <div className="flex items-center justify-around h-16 px-2">
         {navItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
@@ -34,7 +34,7 @@ export function AppMobileNav() {
                 'flex flex-col items-center justify-center gap-1 min-w-[64px] py-2 rounded-lg transition-colors',
                 isActive
                   ? 'text-poof-violet'
-                  : 'text-poof-mist hover:text-white'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
               <item.icon className="w-5 h-5" />

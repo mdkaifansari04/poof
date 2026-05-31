@@ -71,13 +71,13 @@ export function AppSidebar({ user }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        'fixed left-0 top-0 bottom-0 z-40 hidden lg:flex flex-col border-r border-white/5 bg-poof-base/95 backdrop-blur-xl transition-all duration-300',
+        'fixed left-0 top-0 bottom-0 z-40 hidden lg:flex flex-col border-r border-border bg-background/95 backdrop-blur-xl transition-all duration-300',
         collapsed ? 'w-20' : 'w-64',
       )}
     >
       <div
         className={cn(
-          'flex items-center h-16 px-6 border-b border-white/5',
+          'flex items-center h-16 px-6 border-b border-border',
           collapsed && 'justify-center px-4',
         )}
       >
@@ -100,7 +100,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               href={item.href}
               className={cn(
                 'relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-                isActive ? 'text-white bg-white/5' : 'text-poof-mist hover:text-white hover:bg-white/5',
+                isActive ? 'text-foreground bg-muted' : 'text-muted-foreground hover:text-foreground hover:bg-muted',
                 collapsed && 'justify-center px-0',
               )}
             >
@@ -114,12 +114,12 @@ export function AppSidebar({ user }: AppSidebarProps) {
         })}
       </nav>
 
-      <div className={cn('border-t border-white/5 p-3', collapsed && 'p-2')}>
+      <div className={cn('border-t border-border p-3', collapsed && 'p-2')}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
               className={cn(
-                'w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 transition-colors',
+                'w-full flex items-center gap-3 p-2 rounded-lg hover:bg-muted transition-colors',
                 collapsed && 'justify-center',
               )}
             >
@@ -129,16 +129,16 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
               {!collapsed && (
                 <div className="flex-1 text-left min-w-0">
-                  <div className="text-sm font-medium text-white truncate">{displayName}</div>
-                  <div className="text-xs text-poof-mist truncate">{displayEmail}</div>
+                  <div className="text-sm font-medium text-foreground truncate">{displayName}</div>
+                  <div className="text-xs text-muted-foreground truncate">{displayEmail}</div>
                 </div>
               )}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <div className="px-2 py-1.5">
-              <div className="text-sm font-medium text-white">{displayName}</div>
-              <div className="text-xs text-poof-mist">{displayEmail}</div>
+              <div className="text-sm font-medium text-foreground">{displayName}</div>
+              <div className="text-xs text-muted-foreground">{displayEmail}</div>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
@@ -162,7 +162,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-poof-base border border-white/10 flex items-center justify-center text-poof-mist hover:text-white hover:border-white/20 transition-colors"
+        className="absolute -right-3 top-20 w-6 h-6 rounded-full bg-background border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-poof-border-hover transition-colors"
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </button>
