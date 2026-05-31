@@ -22,10 +22,10 @@ export function AppToaster() {
       duration={3500}
       toastOptions={{
         style: {
-          background: 'rgba(255, 255, 255, 0.04)',
+          background: 'var(--card)',
           backdropFilter: 'blur(12px)',
-          border: '1px solid rgba(255, 255, 255, 0.1)',
-          color: '#fff',
+          border: '1px solid var(--border)',
+          color: 'var(--foreground)',
         },
       }}
     />
