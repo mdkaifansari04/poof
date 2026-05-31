@@ -83,10 +83,10 @@ export function EmptyState({ type, className }: EmptyStateProps) {
       </div>
 
       {/* Text content */}
-      <h3 className="font-heading font-bold text-2xl text-white mb-2">
+      <h3 className="font-heading font-bold text-2xl text-foreground mb-2">
         {state.heading}
       </h3>
-      <p className="text-poof-mist text-sm mb-6 max-w-xs">
+      <p className="text-muted-foreground text-sm mb-6 max-w-xs">
         {state.subtext}
       </p>
 

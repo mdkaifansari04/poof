@@ -78,7 +78,7 @@ export function Logo({ showWordmark = true, className, size = 'md' }: LogoProps)
         </defs>
       </svg>
       {showWordmark && (
-        <span className={cn('font-heading font-extrabold text-white', text)}>
+        <span className={cn('font-heading font-extrabold text-foreground', text)}>
           poof
         </span>
       )}

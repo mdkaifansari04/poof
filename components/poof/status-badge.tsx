@@ -13,8 +13,8 @@ interface StatusBadgeProps {
 const variantStyles: Record<BadgeVariant, string> = {
   active: 'bg-poof-mint/20 text-poof-mint border-poof-mint/30',
   expiring: 'bg-poof-peach/20 text-poof-peach border-poof-peach/30 pulse-badge',
-  expired: 'bg-white/5 text-poof-mist border-white/10 line-through',
-  revoked: 'bg-white/5 text-poof-mist border-white/10',
+  expired: 'bg-muted text-foreground/40 border-border line-through',
+  revoked: 'bg-muted text-foreground/40 border-border',
   gallery: 'bg-poof-violet/20 text-poof-violet border-poof-violet/30',
   photo: 'bg-poof-peach/20 text-poof-peach border-poof-peach/30',
 }
@@ -87,7 +87,7 @@ export function PasswordBadge({ hasPassword, className }: PasswordBadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/10 text-poof-mist',
+        'inline-flex items-center justify-center w-6 h-6 rounded-full bg-muted text-muted-foreground',
         className
       )}
     >

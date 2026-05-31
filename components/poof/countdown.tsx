@@ -70,7 +70,7 @@ export function Countdown({ expiresAt, className, onExpire }: CountdownProps) {
         isExpired && 'text-poof-mist line-through',
         isCritical && 'text-poof-peach animate-pulse',
         isExpiring && !isCritical && 'text-poof-peach',
-        !isExpiring && !isExpired && 'text-white',
+        !isExpiring && !isExpired && 'text-foreground',
         className
       )}
     >
@@ -120,7 +120,7 @@ export function CountdownBadge({ expiresAt, className, onExpire, showLabel = fal
     <span
       className={cn(
         'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-full border font-mono tabular-nums',
-        isExpired && 'bg-white/5 text-poof-mist border-white/10',
+        isExpired && 'bg-muted text-foreground/40 border-border',
         isExpiring && !isExpired && 'bg-poof-peach/20 text-poof-peach border-poof-peach/30 pulse-badge',
         !isExpiring && !isExpired && 'bg-poof-mint/20 text-poof-mint border-poof-mint/30',
         className

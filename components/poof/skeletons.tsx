@@ -19,7 +19,7 @@ export function SkeletonText({ className }: SkeletonProps) {
 
 export function SkeletonGalleryCard({ className }: SkeletonProps) {
   return (
-    <div className={cn('rounded-xl border border-white/10 bg-white/[0.04] overflow-hidden', className)}>
+    <div className={cn('rounded-xl border border-border bg-card overflow-hidden', className)}>
       {/* Cover image skeleton */}
       <SkeletonBox className="aspect-video w-full" />
       {/* Content */}
@@ -36,7 +36,7 @@ export function SkeletonGalleryCard({ className }: SkeletonProps) {
 
 export function SkeletonStatsCard({ className }: SkeletonProps) {
   return (
-    <div className={cn('rounded-xl border border-white/10 bg-white/[0.04] p-6', className)}>
+    <div className={cn('rounded-xl border border-border bg-card p-6', className)}>
       <div className="flex items-start justify-between mb-4">
         <SkeletonBox className="w-10 h-10 rounded-lg" />
         <SkeletonText className="w-12" />
@@ -49,7 +49,7 @@ export function SkeletonStatsCard({ className }: SkeletonProps) {
 
 export function SkeletonLinkRow({ className }: SkeletonProps) {
   return (
-    <div className={cn('flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-white/[0.04]', className)}>
+    <div className={cn('flex items-center gap-4 p-4 rounded-xl border border-border bg-card', className)}>
       <SkeletonBox className="w-10 h-10 rounded-lg flex-shrink-0" />
       <div className="flex-1 space-y-2">
         <SkeletonText className="w-40" />
@@ -116,9 +116,9 @@ export function SkeletonDashboard() {
 
         <div className="space-y-4">
           <SkeletonText className="w-36 h-6" />
-          <div className="rounded-xl border border-white/10 bg-white/[0.04] p-4 space-y-3">
+          <div className="rounded-xl border border-border bg-card p-4 space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="rounded-lg border border-white/10 bg-white/[0.04] p-3 space-y-2">
+              <div key={i} className="rounded-lg border border-border bg-card p-3 space-y-2">
                 <SkeletonText className="w-full" />
                 <div className="flex items-center justify-between gap-2">
                   <SkeletonText className="w-16" />

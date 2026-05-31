@@ -3,10 +3,10 @@ import { LandingHero } from "@/components/landing/hero";
 import { LandingFeatures } from "@/components/landing/features";
 import { LandingHowItWorks } from "@/components/landing/how-it-works";
 import { LandingPricing } from "@/components/landing/pricing";
+import { LandingFaq } from "@/components/landing/faq";
 import { LandingFooter } from "@/components/landing/footer";
 import { LandingNav } from "@/components/landing/nav";
-import { LandingSeoDetails, faqItems } from "@/components/landing/seo-details";
-import Features from "@/components/landing/feature-2";
+import { faqItems } from "@/lib/faq-data";
 
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://poof.k04.tech";
 const ogImagePath = "/images/og-image.png";
@@ -84,21 +84,21 @@ export default function LandingPage() {
     description: pageDescription,
   };
 
-  // const faqJsonLd = {
-  //   "@context": "https://schema.org",
-  //   "@type": "FAQPage",
-  //   mainEntity: faqItems.map((faq) => ({
-  //     "@type": "Question",
-  //     name: faq.question,
-  //     acceptedAnswer: {
-  //       "@type": "Answer",
-  //       text: faq.answer,
-  //     },
-  //   })),
-  // };
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqItems.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
 
   return (
-    <div className="min-h-screen bg-poof-base">
+    <div className="min-h-screen bg-background">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
@@ -109,16 +109,16 @@ export default function LandingPage() {
       />
       <script
         type="application/ld+json"
-        // dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
 
       <LandingNav />
       <main>
         <LandingHero />
-        <Features />
+        <LandingFeatures />
         <LandingHowItWorks />
-        {/* <LandingPricing /> */}
-        <LandingSeoDetails />
+        <LandingPricing />
+        <LandingFaq />
       </main>
       <LandingFooter />
     </div>
